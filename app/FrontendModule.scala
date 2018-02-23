@@ -45,6 +45,8 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
 
+    bindBaseUrl("agent-fi-relationship")
+
     bind(classOf[HttpGet]).to(classOf[HttpVerbs])
     bind(classOf[HttpPost]).to(classOf[HttpVerbs])
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
