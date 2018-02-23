@@ -45,6 +45,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
 
+    bindBaseUrl("des")
     bindBaseUrl("agent-fi-relationship")
 
     bind(classOf[HttpGet]).to(classOf[HttpVerbs])

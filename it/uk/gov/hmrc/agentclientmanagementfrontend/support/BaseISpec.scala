@@ -21,7 +21,8 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.auth.port" -> wireMockPort,
-        "microservice.services.agent-client-management.port" -> wireMockPort,
+        "microservice.services.agent-fi-relationship.port" -> wireMockPort,
+        "microservice.services.agent-fi-relationship.host" -> wireMockHost,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,
