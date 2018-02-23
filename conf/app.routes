@@ -1,0 +1,4 @@
+# microservice specific routes
+
+GET         /                       @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
+GET         /start                  @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.start
