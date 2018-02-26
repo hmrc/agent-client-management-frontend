@@ -21,8 +21,10 @@ import javax.inject.{Inject, Named, Singleton}
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
+import play.api.libs.json.Json
 import play.utils.UriEncoding
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.models.ItsaRelationship
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
 import uk.gov.hmrc.http.logging.Authorization
@@ -30,9 +32,15 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+case class RelationshipResponse(relationship: Seq[ItsaRelationship])
+
+object RelationshipResponse {
+  implicit val relationshipResponseFormat = Json.format[RelationshipResponse]
+}
+
 @Singleton
 class DesConnector @Inject()(@Named("des-baseUrl") baseUrl: URL,
-                             @Named("des.authorizationToken") authorizationToken: String,
+                             @Named("des.authorization-token") authorizationToken: String,
                              @Named("des.environment") environment: String,
                              httpGet: HttpGet,
                              metrics: Metrics)
@@ -40,20 +48,19 @@ class DesConnector @Inject()(@Named("des-baseUrl") baseUrl: URL,
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
-  def getActiveClientItsaRelationships(mtdItId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[String] = {
+  def getActiveClientItsaRelationships(mtdItId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[ItsaRelationship]] = {
     val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
-    val url = new URL(s"/registration/relationship?ref-no=$encodedClientId&agent=true&active-only=true&regime=${Services.ITSA}")
+    val url = new URL(s"$baseUrl/registration/relationship?ref-no=$encodedClientId&agent=false&active-only=true&regime=${Services.ITSA}")
 
-    getWithDesHeaders[String]("GetStatusAgentRelationship", url)
+    getWithDesHeaders[RelationshipResponse]("GetStatusAgentRelationship", url).map(_.relationship.headOption)
   }
 
   private def getWithDesHeaders[A: HttpReads](apiName: String, url: URL)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
     val desHeaderCarrier = hc.copy(
       authorization = Some(Authorization(s"Bearer $authorizationToken")),
       extraHeaders = hc.extraHeaders :+ "Environment" -> environment)
-    monitor(s"ConsumedAPI-DES-$apiName-GET") {
+      monitor(s"ConsumedAPI-DES-$apiName-GET") {
       httpGet.GET[A](url.toString)(implicitly[HttpReads[A]], desHeaderCarrier, ec)
     }
   }
-
 }

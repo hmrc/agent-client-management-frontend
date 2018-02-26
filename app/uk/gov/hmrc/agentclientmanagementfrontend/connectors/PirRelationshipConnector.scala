@@ -24,6 +24,7 @@ import com.kenshoo.play.metrics.Metrics
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.PirRelationship
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
+import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,11 +37,11 @@ class PirRelationshipConnector @Inject()(
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
-  def getClientRelationships(clientId: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[List[PirRelationship]]] = {
-    getRelationshipList(pirClientIdUrl(clientId))
+  def getClientRelationships(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[List[PirRelationship]]] = {
+    getRelationshipList(pirClientIdUrl(clientId.value))
   }
 
-  def getRelationshipList(location: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[List[PirRelationship]]] = {
+  private def getRelationshipList(location: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[List[PirRelationship]]] = {
     monitor(s"ConsumedAPI-Get-AfiRelationship-GET") {
       val url = craftUrl(location)
       http.GET[Option[List[PirRelationship]]](url.toString)

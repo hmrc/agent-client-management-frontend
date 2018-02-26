@@ -45,14 +45,19 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
 
-    bindBaseUrl("des")
+    bindBaseUrl("agent-services-account")
     bindBaseUrl("agent-fi-relationship")
+    bindBaseUrl("des")
+    bindServiceConfigProperty[String]("des.authorization-token")
+    bindServiceConfigProperty[String]("des.environment")
 
     bind(classOf[HttpGet]).to(classOf[HttpVerbs])
     bind(classOf[HttpPost]).to(classOf[HttpVerbs])
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
     bindBaseUrl("auth")
   }
+
+
 
   private def bindBaseUrl(serviceName: String) =
     bind(classOf[URL]).annotatedWith(Names.named(s"$serviceName-baseUrl")).toProvider(new BaseUrlProvider(serviceName))
