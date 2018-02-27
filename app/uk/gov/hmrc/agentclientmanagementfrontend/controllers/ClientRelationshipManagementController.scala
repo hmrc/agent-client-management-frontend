@@ -48,6 +48,9 @@ class ClientRelationshipManagementController @Inject()(
         pir <- relationshipManagementService.getClientPirRelationshipsArns(mtdItId)
       } yield (itsa, pir)
 
+
+
+
 //      clientRelationships.map(result => getAgencyNames(result._1 ++ result._2))
 
 

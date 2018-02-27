@@ -18,14 +18,15 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import javax.inject.Inject
 
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{DesConnector, PirRelationshipConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentServicesAccountConnector, DesConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelationshipConnector,
-                                              desConnector: DesConnector){
+                                              desConnector: DesConnector,
+                                              agentServicesAccountConnector: AgentServicesAccountConnector){
 
   def getClientPirRelationshipsArns(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[List[Arn]] ={
     pirRelationshipConnector.getClientRelationships(clientId).map{

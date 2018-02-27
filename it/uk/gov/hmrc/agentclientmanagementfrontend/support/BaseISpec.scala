@@ -27,6 +27,8 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "microservice.services.des.port" -> wireMockPort,
         "microservice.services.des.authorization-token" -> "someToken",
         "microservice.services.des.environment" -> "",
+        "microservice.services.agent-services-account.host" -> wireMockHost,
+        "microservice.services.agent-services-account.port" -> wireMockPort,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,
