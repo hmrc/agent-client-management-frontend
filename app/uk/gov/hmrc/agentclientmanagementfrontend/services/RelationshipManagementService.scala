@@ -19,6 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import javax.inject.Inject
 
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentServicesAccountConnector, DesConnector, PirRelationshipConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, Relationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,19 +27,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelationshipConnector,
                                               desConnector: DesConnector,
-                                              agentServicesAccountConnector: AgentServicesAccountConnector){
+                                              agentServicesAccountConnector: AgentServicesAccountConnector) {
 
-  def getClientPirRelationshipsArns(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[List[Arn]] ={
-    pirRelationshipConnector.getClientRelationships(clientId).map{
-      case Some(relationships) => relationships.map(rel => rel.arn)
-      case None => List.empty
-    }
-  }
-
-  def getClientItsaRelationshipsArns(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[List[Arn]] = {
-    desConnector.getActiveClientItsaRelationships(clientId).map {
-      case Some(relationship) => List(relationship.arn)
-      case None => List.empty
+  def getAuthorisedAgents(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+    for {
+      pir <- pirRelationshipConnector.getClientRelationships(clientId)
+      itsa <- desConnector.getActiveClientItsaRelationships(clientId).map(_.toSeq)
+      relationships = itsa ++ pir
+      agencyNames <- agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn)) if relationships.nonEmpty
+    } yield {
+      relationships.map(relationship => AuthorisedAgent(relationship, agencyNames.getOrElse(relationship.arn, "")))
     }
   }
 }

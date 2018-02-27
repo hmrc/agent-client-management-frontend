@@ -23,17 +23,16 @@ class PirRelationshipConnectorISpec extends BaseISpec with PirRelationshipStub {
 
       val result = await(connector.getClientRelationships(clientId))
 
-      result.isDefined shouldBe true
-      result.get.isInstanceOf[List[PirRelationship]] shouldBe true
-      result.get.head.arn shouldBe arn
+
+      result.isInstanceOf[Seq[PirRelationship]] shouldBe true
+      result.head.arn shouldBe arn
     }
     "return NotFound Exception when ACTIVE relationship not found" in {
       getNotFoundForAfiRelationship(afiService, clientId.value)
 
       val result = await(connector.getClientRelationships(clientId))
 
-      result.isDefined shouldBe false
-      result shouldBe None
+      result shouldBe empty
     }
   }
 }

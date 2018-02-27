@@ -1,4 +1,3 @@
 # microservice specific routes
 
-GET         /                       @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
-GET         /start                  @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.start
+GET        /manage-your-tax-agents        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.manageTaxAgents

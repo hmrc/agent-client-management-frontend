@@ -6,4 +6,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec {
 
   private lazy val controller: ClientRelationshipManagementController = app.injector.instanceOf[ClientRelationshipManagementController]
 
+  "manageTaxAgents" should{
+    "Ok with " in {
+
+    }
+  }
 }

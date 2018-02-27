@@ -22,14 +22,14 @@ class DesConnectorISpec extends BaseISpec with DesStub {
       getClientActiveAgentRelationships(encodedClientId, Services.ITSA, agentARN.value)
 
       val result = await(connector.getActiveClientItsaRelationships(mtdItId))
-      //result shouldBe defined
       result.get.arn shouldBe agentARN
     }
 
     "return notFound active relationships for specified clientId" in {
       getNotFoundClientActiveAgentRelationships(encodedClientId, Services.ITSA)
 
-      an[Exception] should be thrownBy await(connector.getActiveClientItsaRelationships(mtdItId))
+      val result =  await(connector.getActiveClientItsaRelationships(mtdItId))
+      result shouldBe None
     }
   }
 }

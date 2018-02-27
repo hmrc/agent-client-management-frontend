@@ -28,7 +28,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.models.ItsaRelationship
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
 import uk.gov.hmrc.http.logging.Authorization
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, NotFoundException}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,7 +52,9 @@ class DesConnector @Inject()(@Named("des-baseUrl") baseUrl: URL,
     val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
     val url = new URL(s"$baseUrl/registration/relationship?ref-no=$encodedClientId&agent=false&active-only=true&regime=${Services.ITSA}")
 
-    getWithDesHeaders[RelationshipResponse]("GetStatusAgentRelationship", url).map(_.relationship.headOption)
+    getWithDesHeaders[RelationshipResponse]("GetStatusAgentRelationship", url).map(_.relationship.headOption).recover{
+      case e:NotFoundException => None
+    }
   }
 
   private def getWithDesHeaders[A: HttpReads](apiName: String, url: URL)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {

@@ -23,6 +23,7 @@ import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.RelationshipManagementService
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.authorised_agents
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -36,33 +37,9 @@ class ClientRelationshipManagementController @Inject()(
                                                         relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration)
   extends FrontendController with I18nSupport with AuthActions {
 
-  def root: Action[AnyContent] = ???
-
-  def start: Action[AnyContent] = ???
-
-  def start2(): Action[AnyContent] = Action.async { implicit request =>
+  def manageTaxAgents(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { mtdItId =>
-
-      val clientRelationships = for {
-        itsa <- relationshipManagementService.getClientItsaRelationshipsArns(mtdItId)
-        pir <- relationshipManagementService.getClientPirRelationshipsArns(mtdItId)
-      } yield (itsa, pir)
-
-
-
-
-//      clientRelationships.map(result => getAgencyNames(result._1 ++ result._2))
-
-
-
-      Future
-        .successful(Ok("aa"))
-
+       relationshipManagementService.getAuthorisedAgents(mtdItId).map(result => Ok(authorised_agents(result)))
     }
-
-
   }
-
-
 }
-

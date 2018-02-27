@@ -20,3 +20,6 @@ start.helpdesklink.text1=Contact the online services helpdesk
 start.helpdesklink.text2=if you need help.
 
 button.continue=Continue
+
+# Client Content
+client-authorised-agents.title=Manage your tax agents

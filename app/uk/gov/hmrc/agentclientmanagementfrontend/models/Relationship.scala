@@ -17,13 +17,26 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import play.api.libs.json._
+import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 sealed trait Relationship {
   val arn: Arn
 }
 
-case class ItsaRelationship(arn: Arn) extends Relationship
+object Relationship {
+  implicit val relationshipWrites: Writes[Relationship] =  Writes[Relationship] {
+    case itsa: ItsaRelationship => ItsaRelationship.relationshipWrites.writes(itsa)
+    case pir: PirRelationship => PirRelationship.relationshipWrites.writes(pir)
+  }
+
+  implicit val relationshipReads =
+    __.read[ItsaRelationship].map(x => x: Relationship) orElse __.read[PirRelationship].map(x => x: Relationship)
+}
+
+case class ItsaRelationship(arn: Arn) extends Relationship {
+  val serviceName = Services.ITSA
+}
 
 object ItsaRelationship {
   implicit val relationshipWrites = Json.writes[ItsaRelationship]
@@ -32,11 +45,12 @@ object ItsaRelationship {
     (JsPath \ "agentReferenceNumber").read[Arn].map(arn => ItsaRelationship(arn))
 
 }
-case class PirRelationship(arn: Arn) extends Relationship
+case class PirRelationship(arn: Arn) extends Relationship {
+  val serviceName = Services.HMRCPIR
+}
 
 object PirRelationship {
-  implicit val relationshipFormat = Json.format[PirRelationship]
+  implicit val relationshipWrites = Json.writes[PirRelationship]
 
-  implicit val reads: Reads[PirRelationship] =
-    (JsPath \ "agentReferenceNumber").read[Arn].map(arn => PirRelationship(arn))
+  implicit val reads: Reads[PirRelationship] = Json.reads[PirRelationship]
 }

@@ -26,7 +26,7 @@ trait PirRelationshipStub {
   }
 
   def getNotFoundForAfiRelationship(service: String, clientId: String): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$Services/clientId/$clientId"))
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
       .willReturn(
         aResponse()
           .withStatus(404)))
