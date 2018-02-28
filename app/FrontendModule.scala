@@ -46,6 +46,13 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
 
+
+    bind(classOf[SessionCache]).to(classOf[AgentClientManagementSessionCache])
+    bind(classOf[HttpGet]).to(classOf[HttpVerbs])
+    bind(classOf[HttpPost]).to(classOf[HttpVerbs])
+    bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
+    bindBaseUrl("auth")
+
     bindBaseUrl("agent-services-account")
     bindBaseUrl("agent-fi-relationship")
     bindBaseUrl("des")
@@ -53,12 +60,6 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindServiceConfigProperty[String]("des.authorization-token")
     bindServiceConfigProperty[String]("des.environment")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
-
-    bind(classOf[SessionCache]).to(classOf[AgentClientManagementSessionCache])
-    bind(classOf[HttpGet]).to(classOf[HttpVerbs])
-    bind(classOf[HttpPost]).to(classOf[HttpVerbs])
-    bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
-    bindBaseUrl("auth")
   }
 
   private def bindBaseUrl(serviceName: String) =
