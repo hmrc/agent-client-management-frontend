@@ -37,16 +37,15 @@ class AgentServicesAccountConnector @Inject()(
 
   implicit val mapReads: Reads[Map[Arn, String]] = new Reads[Map[Arn, String]] {
     override def reads(json: JsValue): JsResult[Map[Arn, String]] = JsSuccess {
-      json.as[JsArray].value.map { x =>
-        ((x \ "arn").as[Arn], (x \ "agencyName").as[String])
+      json.as[JsArray].value.map { details =>
+        ((details \ "arn").as[Arn], (details \ "agencyName").as[String])
       }.toMap
     }
   }
 
   def getAgencyNames(arns: Seq[Arn])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Map[Arn, String]] = {
-         http.POST[Seq[String], JsValue](craftUrl(getAgentServicesAccountAgencyNamesUrl()).toString, arns.map(_.value))map{jsonValue =>
-           jsonValue.as[Map[Arn, String]]
-         }
+         http.POST[Seq[String], JsValue](craftUrl(getAgentServicesAccountAgencyNamesUrl()).toString, arns.map(_.value))
+           .map{ json => json.as[Map[Arn, String]] }
   }
 
   private def craftUrl(location: String) = new URL(baseUrl, location)

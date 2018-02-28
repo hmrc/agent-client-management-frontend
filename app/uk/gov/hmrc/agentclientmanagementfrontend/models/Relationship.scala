@@ -20,8 +20,9 @@ import play.api.libs.json._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
-sealed trait Relationship {
+sealed trait Relationship extends Product with Serializable {
   val arn: Arn
+  val serviceName: String
 }
 
 object Relationship {

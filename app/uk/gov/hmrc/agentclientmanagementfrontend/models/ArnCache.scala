@@ -17,9 +17,10 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
-case class AuthorisedAgent(uuId: String, serviceName: String, agencyName: String)
+case class ArnCache(uuId: String, arn: Arn)
 
-object AuthorisedAgent {
-  implicit val format = Json.format[AuthorisedAgent]
+object ArnCache {
+  implicit val format = Json.format[ArnCache]
 }

@@ -2,14 +2,14 @@ package uk.gov.hmrc.agentclientmanagementfrontend.support
 
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
-import play.api.i18n.{ Lang, Messages, MessagesApi }
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{ AuthStubs, DataStreamStubs }
+import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -29,6 +29,9 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "microservice.services.des.environment" -> "",
         "microservice.services.agent-services-account.host" -> wireMockHost,
         "microservice.services.agent-services-account.port" -> wireMockPort,
+        "microservice.services.cachable.session-cache.host" -> wireMockHost,
+        "microservice.services.cachable.session-cache.port" -> wireMockPort,
+        "microservice.services.cachable.session-cache.domain" -> "someDomain",
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,
@@ -41,6 +44,8 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
   }
 
   protected implicit val materializer = app.materializer
+
+  protected lazy val sessionStoreService = new TestSessionStoreService
 
   protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Unit = {
     status(result) shouldBe 200

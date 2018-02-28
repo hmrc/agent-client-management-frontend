@@ -16,27 +16,38 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
+import java.util.UUID
 import javax.inject.Inject
 
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentServicesAccountConnector, DesConnector, PirRelationshipConnector}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, Relationship}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{ArnCache, AuthorisedAgent}
+import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelationshipConnector,
                                               desConnector: DesConnector,
-                                              agentServicesAccountConnector: AgentServicesAccountConnector) {
+                                              agentServicesAccountConnector: AgentServicesAccountConnector,
+                                              sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
-    for {
+    val relationshipWithAagencyNames = for {
       pir <- pirRelationshipConnector.getClientRelationships(clientId)
       itsa <- desConnector.getActiveClientItsaRelationships(clientId).map(_.toSeq)
       relationships = itsa ++ pir
       agencyNames <- agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn)) if relationships.nonEmpty
-    } yield {
-      relationships.map(relationship => AuthorisedAgent(relationship, agencyNames.getOrElse(relationship.arn, "")))
+    } yield (relationships, agencyNames)
+
+    relationshipWithAagencyNames.flatMap {
+      case (relationships, agencyNames) =>
+        val authorisedAgents = relationships.map { relationship =>
+          val uuId = UUID.randomUUID().toString.replace("-", "")
+          sessionStoreService.storeArnCache(ArnCache(uuId, relationship.arn))
+            .map(_ => AuthorisedAgent(uuId, relationship.serviceName, agencyNames.getOrElse(relationship.arn, "")))
+        }
+
+        Future.sequence(authorisedAgents)
     }
   }
 }
