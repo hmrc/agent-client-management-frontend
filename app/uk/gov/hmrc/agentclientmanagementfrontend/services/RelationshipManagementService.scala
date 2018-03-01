@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentServicesAccountConnector, DesConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ArnCache, AuthorisedAgent}
-import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +36,9 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
       pir <- pirRelationshipConnector.getClientRelationships(clientId)
       itsa <- desConnector.getActiveClientItsaRelationships(clientId).map(_.toSeq)
       relationships = itsa ++ pir
-      agencyNames <- agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn)) if relationships.nonEmpty
+      agencyNames <- if (relationships.nonEmpty)
+        agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
+      else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 
     relationshipWithAagencyNames.flatMap {
@@ -46,7 +48,6 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
           sessionStoreService.storeArnCache(ArnCache(uuId, relationship.arn))
             .map(_ => AuthorisedAgent(uuId, relationship.serviceName, agencyNames.getOrElse(relationship.arn, "")))
         }
-
         Future.sequence(authorisedAgents)
     }
   }
