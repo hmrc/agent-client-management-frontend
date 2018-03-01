@@ -14,7 +14,7 @@ class AgentServicesAccountConnectorISpec extends BaseISpec with AgentServicesAcc
   "getAgencyNames" should {
     val arnSeq = Seq(Arn("TARN0000010"), Arn("TARN0000011"))
     "when supplied valid Seq[Arn] return JsValue with Map[Arn, String]" in {
-      getAgencyNamesMap200()
+      getTwoAgencyNamesMap200()
 
       val result = await(connector.getAgencyNames(arnSeq))
       result.getOrElse(Arn("TARN0000010"), "") shouldBe "someName"

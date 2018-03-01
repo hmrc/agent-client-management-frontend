@@ -36,9 +36,9 @@
                         <caption class="visuallyhidden">Authorised agents</caption>
                         <thead>
                             <tr>
-                                <th scope="col">Agent name</th>
-                                <th scope="col">Viewabe services</th>
-                                <th scope="col">Actions</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agencyName")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.serviceName")s</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.actions")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,13 +46,13 @@
                             @authorisedAgents.map{ authAgent =>
                                 <tr>
                                     <td>@authAgent.agencyName</td>
-                                    <td>@Messages(s"authAgent.serviceName.${authAgent.serviceName}")</td>
-                                    <td><a href="#">Remove authorisation</a></td>
+                                    <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
+                                    <td><a href="#">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a></td>
                                 </tr>
                             }
                         }else{
                             <tr>
-                                <th colspan="3" scope="row">You have no authorised agents</td>
+                                <td scope="row">@Messages("client-authorised-agents-table-content.noAgentsFound")</td>
                             </tr>
                         }
                         </tbody>

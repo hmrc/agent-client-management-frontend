@@ -23,6 +23,18 @@ button.continue=Continue
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
+client-authorised-agents-table-relationships.title=Authorised agents
+client-authorised-agents-table-row-header.agencyName=Agency name
+client-authorised-agents-table-row-header.serviceName=Viewable services
+client-authorised-agents-table-row-header.actions=Actions
 
-#Authorised Agents
+client-authorised-agents-table-content.noAgentsFound=You have no authorised agents
+client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=Income record
+client-authorised-agents-table-content.ITSA=ITSA
+
+
+client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
+
+
 authAgent.serviceName.PERSONAL-INCOME-RECORD=Personal income record
+client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation
