@@ -23,3 +23,6 @@ button.continue=Continue
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
+
+#Authorised Agents
+authAgent.serviceName.PERSONAL-INCOME-RECORD=Personal income record

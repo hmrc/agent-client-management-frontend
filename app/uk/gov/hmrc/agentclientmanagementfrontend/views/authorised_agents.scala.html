@@ -18,7 +18,52 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
 
 @(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration)
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title")){
+@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
     <h1 class="heading-xlarge">@Messages("client-authorised-agents.title")</h1>
+
+
+    <div data-tabs>
+        <ul class="tabs-nav" role="tablist">
+            <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
+                <span class="tabs-nav__tab tabs-nav__tab--active">Authorised agents</span>
+            </li>
+        </ul>
+        <ul>
+            <li id="tabContent1" data-tab-content="1" class="tab-content" role="tabpanel" aria-labelledby="tab1">
+                <div class="tab-content__first">
+                    <table>
+                        <caption class="visuallyhidden">Authorised agents</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Agent name</th>
+                                <th scope="col">Viewabe services</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @if(authorisedAgents.nonEmpty){
+                            @authorisedAgents.map{ authAgent =>
+                                <tr>
+                                    <td>@authAgent.agencyName</td>
+                                    <td>@Messages(s"authAgent.serviceName.${authAgent.serviceName}")</td>
+                                    <td><a href="#">Remove authorisation</a></td>
+                                </tr>
+                            }
+                        }else{
+                            <tr>
+                                <th colspan="3" scope="row">You have no authorised agents</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+
+
+
+
 }
