@@ -32,7 +32,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
                                               sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
-    val relationshipWithAagencyNames = for {
+    val relationshipWithAgencyNames = for {
       pir <- pirRelationshipConnector.getClientRelationships(clientId)
       itsa <- desConnector.getActiveClientItsaRelationships(clientId).map(_.toSeq)
       relationships = itsa ++ pir
@@ -41,7 +41,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
       else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 
-    relationshipWithAagencyNames.flatMap {
+    relationshipWithAgencyNames.flatMap {
       case (relationships, agencyNames) =>
         val authorisedAgents = relationships.map { relationship =>
           val uuId = UUID.randomUUID().toString.replace("-", "")

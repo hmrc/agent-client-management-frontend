@@ -14,7 +14,7 @@ class AgentServicesAccountConnectorISpec extends BaseISpec with AgentServicesAcc
   "getAgencyNames" should {
     val arnSeq = Seq(Arn("TARN0000010"), Arn("TARN0000011"))
     "when supplied valid Seq[Arn] return JsValue with Map[Arn, String]" in {
-      getTwoAgencyNamesMap200()
+      getTwoAgencyNamesMap200((Arn("TARN0000010"),"someName"),(Arn("TARN0000011"),"someName1"))
 
       val result = await(connector.getAgencyNames(arnSeq))
       result.getOrElse(Arn("TARN0000010"), "") shouldBe "someName"
@@ -23,7 +23,7 @@ class AgentServicesAccountConnectorISpec extends BaseISpec with AgentServicesAcc
     }
 
     "when supplied invalid Arn in sequence return BadRequest" in {
-      getAgencyNamesMap400()
+      getAgencyNamesMap400("someInvalidArn")
 
       an[Exception] should be thrownBy await(connector.getAgencyNames(Seq(Arn("a"))))
     }

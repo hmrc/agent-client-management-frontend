@@ -1,6 +1,8 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.support
 
+import com.google.inject.AbstractModule
 import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -8,12 +10,13 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
-class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
+class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
 
   override implicit lazy val app: Application = appBuilder.build()
 
@@ -35,7 +38,18 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,
-        "auditing.consumer.baseUri.port" -> wireMockPort)
+        "auditing.consumer.baseUri.port" -> wireMockPort).overrides(new TestGuiceModule)
+  }
+
+  private class TestGuiceModule extends AbstractModule {
+    override def configure(): Unit = {
+      bind(classOf[SessionStoreService]).toInstance(sessionStoreService)
+    }
+  }
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    sessionStoreService.clear()
   }
 
   override def commonStubs(): Unit = {

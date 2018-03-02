@@ -31,4 +31,18 @@ trait PirRelationshipStub {
         aResponse()
           .withStatus(404)))
   }
+
+  def get500ForAfiRelationship(service: String, clientId: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(500)))
+  }
+
+  def get503ForAfiRelationship(service: String, clientId: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(503)))
+  }
 }
