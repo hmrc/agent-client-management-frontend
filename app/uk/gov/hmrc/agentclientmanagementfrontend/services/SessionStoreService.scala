@@ -27,10 +27,10 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SessionStoreService @Inject()(sessionCache: SessionCache) {
 
-  def fetchArnCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[ArnCache]] =
-    sessionCache.fetchAndGetEntry[ArnCache]("arnCache")
+  def fetchArnCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ArnCache]]] =
+    sessionCache.fetchAndGetEntry[Seq[ArnCache]]("arnCache")
 
-  def storeArnCache(arnCache: ArnCache)(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Unit] =
+  def storeArnCache(arnCache: Seq[ArnCache])(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Unit] =
     sessionCache.cache("arnCache", arnCache).map(_ => ())
 
   def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =

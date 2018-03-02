@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TestSessionStoreService extends SessionStoreService(null) {
 
-  class Session (var arnCache: Option[ArnCache] = None)
+  class Session (var arnCache: Option[Seq[ArnCache]] = None)
 
   private val sessions = collection.mutable.Map[String,Session]()
 
@@ -29,11 +29,11 @@ class TestSessionStoreService extends SessionStoreService(null) {
     sessions.isEmpty
   }
 
-  override def fetchArnCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ArnCache]] = {
+  override def fetchArnCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Seq[ArnCache]]] = {
     Future successful currentSession.arnCache
   }
 
-  override def storeArnCache(arnCache: ArnCache)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+  override def storeArnCache(arnCache: Seq[ArnCache])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future.successful(
       currentSession.arnCache = Some(arnCache)
     )

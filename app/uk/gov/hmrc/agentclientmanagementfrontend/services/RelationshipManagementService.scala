@@ -43,12 +43,14 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
 
     relationshipWithAgencyNames.flatMap {
       case (relationships, agencyNames) =>
-        val authorisedAgents = relationships.map { relationship =>
-          val uuId = UUID.randomUUID().toString.replace("-", "")
-          sessionStoreService.storeArnCache(ArnCache(uuId, relationship.arn))
-            .map(_ => AuthorisedAgent(uuId, relationship.serviceName, agencyNames.getOrElse(relationship.arn, "")))
+        def uuId = UUID.randomUUID().toString.replace("-", "")
+        val relationshipWithArnCache = relationships.map(r => ArnCache(uuId, r.arn))
+
+        sessionStoreService.storeArnCache(relationshipWithArnCache).map { _ =>
+          relationships.map(_.serviceName).zip(relationshipWithArnCache).map { case (serviceName, arnCache) =>
+            AuthorisedAgent(arnCache.uuId, serviceName, agencyNames.getOrElse(arnCache.arn, ""))
+          }
         }
-        Future.sequence(authorisedAgents)
     }
   }
 }
