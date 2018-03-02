@@ -49,11 +49,13 @@ class DesConnector @Inject()(@Named("des-baseUrl") baseUrl: URL,
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
   def getActiveClientItsaRelationships(mtdItId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[ItsaRelationship]] = {
-    val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
-    val url = new URL(s"$baseUrl/registration/relationship?ref-no=$encodedClientId&agent=false&active-only=true&regime=${Services.ITSA}")
+    monitor(s"ConsumedAPI-Get-ITSA-Relationship-GET") {
+      val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
+      val url = new URL(s"$baseUrl/registration/relationship?ref-no=$encodedClientId&agent=false&active-only=true&regime=${Services.ITSA}")
 
-    getWithDesHeaders[RelationshipResponse]("GetStatusAgentRelationship", url).map(_.relationship.headOption).recover{
-      case e:NotFoundException => None
+      getWithDesHeaders[RelationshipResponse]("GetStatusAgentRelationship", url).map(_.relationship.headOption).recover {
+        case e: NotFoundException => None
+      }
     }
   }
 

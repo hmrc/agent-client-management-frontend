@@ -38,7 +38,7 @@ class PirRelationshipConnector @Inject()(
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
   def getClientRelationships(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirRelationship]] = {
-    monitor(s"ConsumedAPI-Get-AfiRelationship-GET") {
+    monitor(s"ConsumedAPI-Get-AfiRelationships-GET") {
       val url = craftUrl(pirClientIdUrl(clientId.value))
       http.GET[Seq[PirRelationship]](url.toString).recover {
         case e: NotFoundException => Seq.empty
