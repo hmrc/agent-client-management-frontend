@@ -18,12 +18,13 @@ import java.net.URL
 import javax.inject.{ Inject, Provider, Singleton }
 
 import com.google.inject.AbstractModule
-import com.google.inject.name.{ Named, Names }
+import com.google.inject.name.{Named, Names}
 import org.slf4j.MDC
-import play.api.{ Configuration, Environment, Logger }
+import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -45,10 +46,20 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
 
+
+    bind(classOf[SessionCache]).to(classOf[AgentClientManagementSessionCache])
     bind(classOf[HttpGet]).to(classOf[HttpVerbs])
     bind(classOf[HttpPost]).to(classOf[HttpVerbs])
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
     bindBaseUrl("auth")
+
+    bindBaseUrl("agent-services-account")
+    bindBaseUrl("agent-fi-relationship")
+    bindBaseUrl("des")
+    bindBaseUrl("cachable.session-cache")
+    bindServiceConfigProperty[String]("des.authorization-token")
+    bindServiceConfigProperty[String]("des.environment")
+    bindServiceConfigProperty[String]("cachable.session-cache.domain")
   }
 
   private def bindBaseUrl(serviceName: String) =
@@ -113,4 +124,15 @@ class HttpVerbs @Inject() (val auditConnector: AuditConnector, @Named("appName")
   extends HttpGet with HttpPost with HttpPut with HttpPatch with HttpDelete with WSHttp
   with HttpAuditing {
   override val hooks = Seq(AuditingHook)
+}
+
+
+@Singleton
+class AgentClientManagementSessionCache @Inject()(val http: HttpGet with HttpPut with HttpDelete,
+                                              @Named("appName") val appName: String,
+                                              @Named("cachable.session-cache-baseUrl") val baseUrl: URL,
+                                              @Named("cachable.session-cache.domain") val domain: String
+                                             ) extends SessionCache {
+  override lazy val defaultSource = appName
+  override lazy val baseUri = baseUrl.toExternalForm
 }

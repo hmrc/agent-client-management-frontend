@@ -1,0 +1,69 @@
+@*
+ * Copyright 2018 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.Configuration
+@import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
+
+@(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
+
+    <h1 class="heading-xlarge">@Messages("client-authorised-agents.title")</h1>
+
+
+    <div data-tabs>
+        <ul class="tabs-nav" role="tablist">
+            <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
+                <span class="tabs-nav__tab tabs-nav__tab--active">Authorised agents</span>
+            </li>
+        </ul>
+        <ul>
+            <li id="tabContent1" data-tab-content="1" class="tab-content" role="tabpanel" aria-labelledby="tab1">
+                <div class="tab-content__first">
+                    <table>
+                        <caption class="visuallyhidden">Authorised agents</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agencyName")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.serviceName")s</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.actions")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @if(authorisedAgents.nonEmpty){
+                            @authorisedAgents.map{ authAgent =>
+                                <tr>
+                                    <td>@authAgent.agencyName</td>
+                                    <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
+                                    <td><a href="#">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a></td>
+                                </tr>
+                            }
+                        }else{
+                            <tr>
+                                <td scope="row">@Messages("client-authorised-agents-table-content.noAgentsFound")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+
+
+
+
+}

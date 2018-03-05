@@ -22,18 +22,24 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
+import uk.gov.hmrc.agentclientmanagementfrontend.services.RelationshipManagementService
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.authorised_agents
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ClientRelationshipManagementController @Inject()(
-  override val messagesApi: MessagesApi,
-  val authConnector: FrontendAuthConnector,
-  val env: Environment)(implicit val configuration: Configuration)
+                                                        override val messagesApi: MessagesApi,
+                                                        val authConnector: FrontendAuthConnector,
+                                                        val env: Environment,
+                                                        relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration)
   extends FrontendController with I18nSupport with AuthActions {
 
-  def root: Action[AnyContent] = ???
-  def start: Action[AnyContent] = ???
-
-
+  def root(): Action[AnyContent] = Action.async { implicit request =>
+    withAuthorisedAsClient { mtdItId =>
+       relationshipManagementService.getAuthorisedAgents(mtdItId).map(result => Ok(authorised_agents(result)))
+    }
+  }
 }
-
