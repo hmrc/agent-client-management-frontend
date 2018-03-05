@@ -37,7 +37,7 @@ class ClientRelationshipManagementController @Inject()(
                                                         relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration)
   extends FrontendController with I18nSupport with AuthActions {
 
-  def manageTaxAgents(): Action[AnyContent] = Action.async { implicit request =>
+  def root(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { mtdItId =>
        relationshipManagementService.getAuthorisedAgents(mtdItId).map(result => Ok(authorised_agents(result)))
     }

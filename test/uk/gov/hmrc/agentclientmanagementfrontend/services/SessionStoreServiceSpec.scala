@@ -45,8 +45,8 @@ class SessionStoreServiceSpec extends UnitSpec {
       await(store.storeArnCache(Seq(arnCache)))
 
       val result = await(store.fetchArnCache)
-      result shouldBe Some(arnCache)
-      //result.get.uuId shouldBe uuId
+      result.get shouldBe Seq(arnCache)
+      result.get.head.uuId shouldBe uuId
     }
 
     "return None when no arns have been stored" in {
@@ -66,7 +66,6 @@ class SessionStoreServiceSpec extends UnitSpec {
       await(store.fetchArnCache) shouldBe None
     }
   }
-
 }
 
 class TestSessionCache extends SessionCache {

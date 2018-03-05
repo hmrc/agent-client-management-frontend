@@ -17,7 +17,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
-  val urlJustWithPrefix = s"http://localhost:$port/agent-client-management"
+  val urlJustWithPrefix = s"http://localhost:$port/manage-your-tax-agents"
   val getViewAuthorisedAgentsRequest = (endOfUrl: String) => wsClient.url(s"$urlJustWithPrefix$endOfUrl").get()
 
   val mtdItId = MtdItId("AA123456A")
@@ -32,7 +32,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getActiveAfiRelationship(validArn, Services.HMRCPIR, mtdItId.value, fromCesa = false)
       getAgencyNameMap200(validArn, "This Agency Name")
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
@@ -45,7 +45,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getNotFoundForAfiRelationship(Services.HMRCPIR, mtdItId.value)
       getAgencyNameMap200(validArn, "This Agency Name")
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
@@ -58,7 +58,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getActiveAfiRelationship(validArn.copy(value="FARN0001131"), Services.HMRCPIR, mtdItId.value, fromCesa = false)
       getTwoAgencyNamesMap200((validArn,"This Agency Name"),(validArn.copy(value="FARN0001131"),"Different"))
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
@@ -71,7 +71,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getNotFoundClientActiveAgentRelationships(encodedClientId, Services.ITSA)
       getNotFoundForAfiRelationship(Services.HMRCPIR, mtdItId.value)
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 200
       result.body.contains("You have no authorised agents") shouldBe true
@@ -84,7 +84,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getActiveAfiRelationship(validArn, Services.HMRCPIR, mtdItId.value, fromCesa = false)
       getAgencyNamesMap400("someInvalidArn")
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -97,7 +97,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getActiveAfiRelationship(validArn, Services.HMRCPIR, mtdItId.value, fromCesa = false)
       getAgencyNamesMap400("")
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -109,7 +109,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       get400ClientActiveAgentRelationships(encodedClientId, Services.ITSA)
       getActiveAfiRelationship(validArn, Services.HMRCPIR, mtdItId.value, fromCesa = false)
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -121,7 +121,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       get500ClientActiveAgentRelationships(encodedClientId, Services.ITSA)
       getNotFoundForAfiRelationship(Services.HMRCPIR, mtdItId.value)
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -133,7 +133,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       get503ClientActiveAgentRelationships(encodedClientId, Services.ITSA)
       getActiveAfiRelationship(validArn, Services.HMRCPIR, mtdItId.value, fromCesa = false)
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -145,7 +145,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getClientActiveAgentRelationships(encodedClientId,Services.ITSA, validArn.value)
       get500ForAfiRelationship(Services.HMRCPIR, mtdItId.value)
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -157,7 +157,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       getNotFoundClientActiveAgentRelationships(encodedClientId, Services.ITSA)
       get503ForAfiRelationship(Services.HMRCPIR, mtdItId.value)
 
-      val result = await(getViewAuthorisedAgentsRequest("/manage-your-tax-agents"))
+      val result = await(getViewAuthorisedAgentsRequest(""))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
