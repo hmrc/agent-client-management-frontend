@@ -24,7 +24,7 @@ import com.kenshoo.play.metrics.Metrics
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.PirRelationship
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,22 +32,26 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PirRelationshipConnector @Inject()(
                                           @Named("agent-fi-relationship-baseUrl") baseUrl: URL,
-                                          http: HttpGet,
+                                          http: HttpGet with HttpDelete,
                                           metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
   def getClientRelationships(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirRelationship]] = {
     monitor(s"ConsumedAPI-Get-AfiRelationships-GET") {
-      val url = craftUrl(pirClientIdUrl(clientId.value))
+      val url = craftUrl(s"/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${clientId.value}")
       http.GET[Seq[PirRelationship]](url.toString).recover {
         case e: NotFoundException => Seq.empty
       }
     }
   }
 
-  private def craftUrl(location: String) = new URL(baseUrl, location)
+  def deleteClientRelationship(arn: Arn, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    monitor(s"ConsumedAPI-Delete-AfiRelationship-DELETE") {
+      val url = craftUrl(s"/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${clientId.value}")
+      http.DELETE[HttpResponse](url.toString).map(_.status == 200) recover { case _: NotFoundException => false }
+    }
+  }
 
-  private def pirClientIdUrl(clientId: String): String =
-    s"/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/$clientId"
+  private def craftUrl(location: String) = new URL(baseUrl, location)
 }

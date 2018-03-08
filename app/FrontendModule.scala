@@ -50,6 +50,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bind(classOf[SessionCache]).to(classOf[AgentClientManagementSessionCache])
     bind(classOf[HttpGet]).to(classOf[HttpVerbs])
     bind(classOf[HttpPost]).to(classOf[HttpVerbs])
+    bind(classOf[HttpDelete]).to(classOf[HttpVerbs])
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
     bindBaseUrl("auth")
 
@@ -57,6 +58,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("agent-fi-relationship")
     bindBaseUrl("des")
     bindBaseUrl("cachable.session-cache")
+    bindBaseUrl("agent-client-relationships")
     bindServiceConfigProperty[String]("des.authorization-token")
     bindServiceConfigProperty[String]("des.environment")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")

@@ -31,6 +31,8 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "microservice.services.des.authorization-token" -> "someToken",
         "microservice.services.des.environment" -> "",
         "microservice.services.agent-services-account.host" -> wireMockHost,
+        "microservice.services.agent-client-relationships.host" -> wireMockHost,
+        "microservice.services.agent-client-relationships.port" -> wireMockPort,
         "microservice.services.agent-services-account.port" -> wireMockPort,
         "microservice.services.cachable.session-cache.host" -> wireMockHost,
         "microservice.services.cachable.session-cache.port" -> wireMockPort,

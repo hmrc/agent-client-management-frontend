@@ -1,8 +1,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, delete, stubFor, urlEqualTo}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 trait PirRelationshipStub {
@@ -45,4 +44,12 @@ trait PirRelationshipStub {
         aResponse()
           .withStatus(503)))
   }
+
+  def deleteActivePIRRelationship(arn: String, clientId: String, httpStatus: Int = 200): Unit = {
+    stubFor(delete(urlEqualTo(s"/agent-fi-relationship/relationships/agent/$arn/service/PERSONAL-INCOME-RECORD/client/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(httpStatus)))
+  }
+
 }

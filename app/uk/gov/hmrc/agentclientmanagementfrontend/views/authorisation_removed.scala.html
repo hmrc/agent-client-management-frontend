@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.agentclientmanagementfrontend.models
-
-import play.api.libs.json.Json
-import uk.gov.hmrc.agentmtdidentifiers.model.Arn
-
-case class ArnCache(uuId: String, arn: Arn, agencyName: String, service: String)
-
-object ArnCache {
-  implicit val format = Json.format[ArnCache]
+@import play.api.Configuration
+@()(implicit request: Request[_], messages: Messages, configuration: Configuration)
+@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("clientEndsRelationshipEnded.title"), bodyClasses = None) {
+<h1 class="heading-large">
+    @Messages("clientEndsRelationshipEnded.title")
+</h1>
+<p>
+    @Messages("clientEndsRelationshipEnded.p1")
+</p>
+<a href="" class="button" role="button" id="goToPtaButton">@Messages("common.pta")</a>
 }
