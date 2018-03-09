@@ -66,9 +66,21 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
     for {
       clientCacheOpt <- sessionStoreService.fetchClientCache
       clientCache = clientCacheOpt.flatMap(_.find(_.uuId == id))
+      overrideCache = clientCacheOpt.getOrElse(throw new Exception).filterNot(_.uuId == id)
       deleteResponse <- clientCache match {
-        case Some(cache) => deleteAgentClientRelationshipFor(cache.arn, clientId, cache.nino, cache.service)
-          .map(DeleteResponse(_, cache.agencyName, cache.service))
+        case Some(cache) =>
+          for {
+            deletion <- deleteAgentClientRelationshipFor(cache.arn, clientId, cache.nino, cache.service)
+                .andThen{ case Success(_) =>
+                    for {
+                      _ <- sessionStoreService.remove()
+                      _ <- sessionStoreService.storeClientCache(overrideCache)
+                    } yield ()
+                }
+              .map(DeleteResponse(_, cache.agencyName, cache.service))
+            _ <- sessionStoreService.storeClientCache(overrideCache)
+          } yield deletion
+
         case None => Future.failed(new Exception("failed to retrieve session cache"))
       }
     } yield deleteResponse
