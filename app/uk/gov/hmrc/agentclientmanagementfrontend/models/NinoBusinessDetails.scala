@@ -17,10 +17,10 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.domain.Nino
 
-case class ArnCache(uuId: String, arn: Arn, agencyName: String, service: String)
+case class NinoBusinessDetails(nino: Nino)
 
-object ArnCache {
-  implicit val format = Json.format[ArnCache]
+object NinoBusinessDetails {
+  implicit val reads = Json.reads[NinoBusinessDetails]
 }

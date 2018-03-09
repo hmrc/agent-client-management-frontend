@@ -7,7 +7,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import play.api.libs.ws.{WSClient, WSResponse}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.ArnCache
+import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
 
@@ -36,7 +36,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
-      sessionStoreService.currentSession.arnCache.get.size == 1 shouldBe true
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
@@ -49,7 +49,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
-      sessionStoreService.currentSession.arnCache.get.size == 1 shouldBe true
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "200, project authorised agents for valid authenticated client with ITSA and PIR relationship" in {
@@ -63,7 +63,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Different") shouldBe true
-      sessionStoreService.currentSession.arnCache.get.size == 2 shouldBe true
+      sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
     }
 
     "200, no authorised agents message for valid authenticated client with no relationships" in {
@@ -75,7 +75,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 200
       result.body.contains("You have no authorised agents") shouldBe true
-      sessionStoreService.currentSession.arnCache.get.isEmpty shouldBe true
+      sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
     "500, when getAgencyNames in agent-services-account returns 400 invalid Arn" in {
@@ -88,7 +88,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
     "500, when getAgencyNames in agent-services-account returns 400 empty Arn" in {
@@ -101,7 +101,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
     "500, when Des returns 400" in {
@@ -113,7 +113,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
     "500, when Des returns 500" in {
@@ -125,7 +125,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
     "500, when Des returns 503" in {
@@ -137,7 +137,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
     "500, when agent-fi-relationship returns 500" in {
@@ -149,7 +149,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
     "500, when agent-fi-relationship returns 503" in {
@@ -161,7 +161,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec with DesStub
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.arnCache.isDefined shouldBe false
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
   }
 }

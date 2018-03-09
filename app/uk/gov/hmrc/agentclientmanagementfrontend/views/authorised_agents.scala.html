@@ -16,6 +16,7 @@
 
 @import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
+@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 
 @(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration)
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
@@ -47,7 +48,7 @@
                                 <tr>
                                     <td>@authAgent.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
-                                    <td><a href="#">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a></td>
+                                    <td><a href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a></td>
                                 </tr>
                             }
                         }else{

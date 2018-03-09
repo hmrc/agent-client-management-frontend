@@ -24,9 +24,10 @@ import com.kenshoo.play.metrics.Metrics
 import play.api.libs.json.Json
 import play.utils.UriEncoding
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentclientmanagementfrontend.models.ItsaRelationship
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{ItsaRelationship, NinoBusinessDetails}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpReads, NotFoundException}
 
@@ -57,6 +58,11 @@ class DesConnector @Inject()(@Named("des-baseUrl") baseUrl: URL,
         case e: NotFoundException => None
       }
     }
+  }
+
+  def getNinoFor(mtdbsa: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Nino] = {
+    val url = new URL(baseUrl, s"/registration/business-details/mtdbsa/${UriEncoding.encodePathSegment(mtdbsa.value, "UTF-8")}")
+    getWithDesHeaders[NinoBusinessDetails]("GetRegistrationBusinessDetailsByMtdbsa", url).map(_.nino)
   }
 
   private def getWithDesHeaders[A: HttpReads](apiName: String, url: URL)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {

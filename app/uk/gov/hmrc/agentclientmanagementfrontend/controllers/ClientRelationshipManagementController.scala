@@ -22,13 +22,12 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
-import uk.gov.hmrc.agentclientmanagementfrontend.services.RelationshipManagementService
-import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorised_agents, show_remove_authorisation, authorisation_removed}
+import uk.gov.hmrc.agentclientmanagementfrontend.services.{DeleteResponse, RelationshipManagementService}
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -40,7 +39,7 @@ object RadioConfirm {
     if (fieldValue.isDefined)
       Valid
     else
-      Invalid(ValidationError("error.confirmResponse.invalid"))
+      Invalid(ValidationError("error.confirmResponse.invalid.description"))
   }
   val confirmRadioForm: Form[RadioConfirm] = Form[RadioConfirm](
     mapping("confirmResponse" -> optional(boolean)
@@ -57,15 +56,15 @@ class ClientRelationshipManagementController @Inject()(
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { mtdItId =>
-       relationshipManagementService.getAuthorisedAgents(mtdItId).map(result => Ok(authorised_agents(result)))
+      relationshipManagementService.getAuthorisedAgents(mtdItId).map(result => Ok(authorised_agents(result)))
     }
   }
 
   def showRemoveAuthorisation(id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { mtdItId =>
+    withAuthorisedAsClient { _ =>
       relationshipManagementService.getAuthorisedAgentDetails(id).map {
         case Some((agencyName, service)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
-        case _ => ??? //TODO
+        case _ => throwNoSessionFoundException(s"id $id")
       }
     }
   }
@@ -76,19 +75,31 @@ class ClientRelationshipManagementController @Inject()(
         formWithErrors =>
           relationshipManagementService.getAuthorisedAgentDetails(id).map {
             case Some((agencyName, service)) => Ok(show_remove_authorisation(formWithErrors, agencyName, service, id))
+            case _ => throwNoSessionFoundException(s"id $id")
           },
         form =>
           if (form.value.getOrElse(false))
-          relationshipManagementService.deleteRelationship(id, clientId).map {
-            case true => Ok(authorisation_removed())
-            case false => ??? //TODO
-          }
+            relationshipManagementService.deleteRelationship(id, clientId).map {
+              case DeleteResponse(true, agencyName, service) =>
+                Redirect(routes.ClientRelationshipManagementController.authorisationRemoved).withSession(
+                  request.session + ("agencyName",agencyName) + ("service", service))
+            }
           else
             Future.successful(Redirect(routes.ClientRelationshipManagementController.root()))
       )
     }
   }
 
+  def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
+    withAuthorisedAsClient { _ =>
+      (request.session.get("agencyName"), request.session.get("service")) match {
+        case (Some(agencyName), Some(service)) => Future.successful(Ok(authorisation_removed(agencyName, service)))
+        case _ => throwNoSessionFoundException("agencyName", "service")
+      }
+    }
+  }
+
+  private def throwNoSessionFoundException(any: String*) = throw new Exception(s"No session data found for $any")
 
 
 }

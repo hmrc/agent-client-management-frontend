@@ -24,7 +24,8 @@ import com.kenshoo.play.metrics.Metrics
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.PirRelationship
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
+import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,18 +38,18 @@ class PirRelationshipConnector @Inject()(
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
-  def getClientRelationships(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirRelationship]] = {
+  def getClientRelationships(nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirRelationship]] = {
     monitor(s"ConsumedAPI-Get-AfiRelationships-GET") {
-      val url = craftUrl(s"/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${clientId.value}")
+      val url = craftUrl(s"/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${nino.value}")
       http.GET[Seq[PirRelationship]](url.toString).recover {
         case e: NotFoundException => Seq.empty
       }
     }
   }
 
-  def deleteClientRelationship(arn: Arn, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+  def deleteClientRelationship(arn: Arn, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     monitor(s"ConsumedAPI-Delete-AfiRelationship-DELETE") {
-      val url = craftUrl(s"/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${clientId.value}")
+      val url = craftUrl(s"/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${nino.value}")
       http.DELETE[HttpResponse](url.toString).map(_.status == 200) recover { case _: NotFoundException => false }
     }
   }

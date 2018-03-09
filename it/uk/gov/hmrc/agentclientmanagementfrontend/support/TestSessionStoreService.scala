@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.support
 
-import uk.gov.hmrc.agentclientmanagementfrontend.models.ArnCache
+import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TestSessionStoreService extends SessionStoreService(null) {
 
-  class Session (var arnCache: Option[Seq[ArnCache]] = None)
+  class Session (var clientCache: Option[Seq[ClientCache]] = None)
 
   private val sessions = collection.mutable.Map[String,Session]()
 
@@ -29,13 +29,13 @@ class TestSessionStoreService extends SessionStoreService(null) {
     sessions.isEmpty
   }
 
-  override def fetchArnCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Seq[ArnCache]]] = {
-    Future successful currentSession.arnCache
+  override def fetchClientCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Seq[ClientCache]]] = {
+    Future successful currentSession.clientCache
   }
 
-  override def storeArnCache(arnCache: Seq[ArnCache])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+  override def storeClientCache(arnCache: Seq[ClientCache])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future.successful(
-      currentSession.arnCache = Some(arnCache)
+      currentSession.clientCache = Some(arnCache)
     )
 
   override def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
