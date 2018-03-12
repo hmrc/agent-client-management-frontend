@@ -1,15 +1,14 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, delete, stubFor, urlEqualTo}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 trait PirRelationshipStub {
   me: WireMockSupport =>
 
-  def getActiveAfiRelationship(arn: Arn, service: String, clientId: String, fromCesa: Boolean): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
+  def getActivePIRRelationship(arn: Arn, service: String, nino: String, fromCesa: Boolean): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(
         aResponse()
           .withStatus(200)
@@ -18,31 +17,39 @@ trait PirRelationshipStub {
                |[{
                |  "arn" : "${arn.value}",
                |  "service" : "$service",
-               |  "clientId" : "$clientId",
+               |  "clientId" : "$nino",
                |  "relationshipStatus" : "ACTIVE",
                |  "startDate" : "2017-12-08T15:21:51.040",
                |  "fromCesa" : $fromCesa
                |}]""".stripMargin)))
   }
 
-  def getNotFoundForAfiRelationship(service: String, clientId: String): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
+  def getNotFoundForPIRRelationship(service: String, nino: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(
         aResponse()
           .withStatus(404)))
   }
 
-  def get500ForAfiRelationship(service: String, clientId: String): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
+  def get500ForPIRRelationship(service: String, nino: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(
         aResponse()
           .withStatus(500)))
   }
 
-  def get503ForAfiRelationship(service: String, clientId: String): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$clientId"))
+  def get503ForPIRRelationship(service: String, nino: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(
         aResponse()
           .withStatus(503)))
   }
+
+  def deleteActivePIRRelationship(arn: String, nino: String, httpStatus: Int = 200): Unit = {
+    stubFor(delete(urlEqualTo(s"/agent-fi-relationship/relationships/agent/$arn/service/PERSONAL-INCOME-RECORD/client/$nino"))
+      .willReturn(
+        aResponse()
+          .withStatus(httpStatus)))
+  }
+
 }

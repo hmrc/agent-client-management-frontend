@@ -1,3 +1,6 @@
 # microservice specific routes
 
-GET        /        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
+GET         /                                @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
+GET         /remove-authorisation/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.showRemoveAuthorisation(id: String)
+POST        /remove-authorisation/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.submitRemoveAuthorisation(id: String)
+GET         /authorisation-removed           @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.authorisationRemoved

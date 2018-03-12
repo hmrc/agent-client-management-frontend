@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
-import java.util.UUID
-
 import play.api.libs.json.{JsValue, Reads, Writes}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.ArnCache
+import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.cache.client.{CacheMap, NoSessionException, SessionCache}
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -37,33 +36,33 @@ class SessionStoreServiceSpec extends UnitSpec {
   def uuId = "0a8f58c84f51475595424176d172f488"
 
   "SessionStoreService" should {
-    "store arnCache" in {
+    "store clientCache" in {
       val store = new SessionStoreService(new TestSessionCache())
 
-      val arnCache = ArnCache(uuId, Arn("ABCDE123456"))
+      val cache = ClientCache(uuId, Arn("ABCDE123456"), Nino("AE123456A"), "Some agency name", "Some service name")
 
-      await(store.storeArnCache(Seq(arnCache)))
+      await(store.storeClientCache(Seq(cache)))
 
-      val result = await(store.fetchArnCache)
-      result.get shouldBe Seq(arnCache)
+      val result = await(store.fetchClientCache)
+      result.get shouldBe Seq(cache)
       result.get.head.uuId shouldBe uuId
     }
 
-    "return None when no arns have been stored" in {
+    "return None when no client data have been stored" in {
       val store = new SessionStoreService(new TestSessionCache())
 
-      await(store.fetchArnCache) shouldBe None
+      await(store.fetchClientCache) shouldBe None
     }
 
     "remove the underlying storage for the current session when remove is called" in {
       val store = new SessionStoreService(new TestSessionCache())
 
-      val arnCache = ArnCache(uuId, Arn("ABCDE123456"))
+      val cache = ClientCache(uuId, Arn("ABCDE123456"), Nino("AE123456A"), "Some agency name", "Some service name")
 
-      await(store.storeArnCache(Seq(arnCache)))
+      await(store.storeClientCache(Seq(cache)))
       await(store.remove())
 
-      await(store.fetchArnCache) shouldBe None
+      await(store.fetchClientCache) shouldBe None
     }
   }
 }
