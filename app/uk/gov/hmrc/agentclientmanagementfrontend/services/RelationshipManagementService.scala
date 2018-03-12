@@ -64,21 +64,21 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
 
   def deleteRelationship(id: String, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
     for {
-      clientCacheOpt <- sessionStoreService.fetchClientCache
+      clientCacheOpt: Option[Seq[ClientCache]] <- sessionStoreService.fetchClientCache
       clientCache = clientCacheOpt.flatMap(_.find(_.uuId == id))
-      overrideCache = clientCacheOpt.getOrElse(throw new Exception).filterNot(_.uuId == id)
+
       deleteResponse <- clientCache match {
         case Some(cache) =>
+          val remainingCache: Seq[ClientCache] = clientCacheOpt.get.filterNot(_ == cache)
           for {
             deletion <- deleteAgentClientRelationshipFor(cache.arn, clientId, cache.nino, cache.service)
-                .andThen{ case Success(_) =>
+                .andThen { case Success(true) =>
                     for {
                       _ <- sessionStoreService.remove()
-                      _ <- sessionStoreService.storeClientCache(overrideCache)
+                      _ <- sessionStoreService.storeClientCache(remainingCache)
                     } yield ()
                 }
               .map(DeleteResponse(_, cache.agencyName, cache.service))
-            _ <- sessionStoreService.storeClientCache(overrideCache)
           } yield deletion
 
         case None => Future.failed(new Exception("failed to retrieve session cache"))

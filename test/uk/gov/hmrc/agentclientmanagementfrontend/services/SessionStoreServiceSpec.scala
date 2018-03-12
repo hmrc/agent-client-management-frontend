@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
-import java.util.UUID
-
 import play.api.libs.json.{JsValue, Reads, Writes}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn

@@ -1,8 +1,9 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
-import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
+import uk.gov.hmrc.domain.Nino
 
 trait DesStub {
   me: WireMockSupport =>
@@ -57,5 +58,40 @@ trait DesStub {
       .willReturn(
         aResponse()
           .withStatus(503)))
+  }
+
+  def givenNinoIsKnownFor(mtdbsa: MtdItId, nino: Nino) = {
+    stubFor(
+      get(urlEqualTo(s"/registration/business-details/mtdbsa/${mtdbsa.value}"))
+        .willReturn(aResponse().withStatus(200).withBody(s"""{ "nino": "${nino.value}" }"""))
+    )
+  }
+
+  def givenNinoIsUnknownFor(mtdbsa: MtdItId) = {
+    stubFor(
+      get(urlEqualTo(s"/registration/business-details/mtdbsa/${mtdbsa.value}"))
+        .willReturn(aResponse().withStatus(404))
+    )
+  }
+
+  def givenMtdbsaIsInvalid(mtdbsa: MtdItId) = {
+    stubFor(
+      get(urlMatching(s"/registration/.*?/mtdbsa/${mtdbsa.value}"))
+        .willReturn(aResponse().withStatus(400))
+    )
+  }
+
+  def givenDesReturnsServerError() = {
+    stubFor(
+      get(urlMatching(s"/registration/.*"))
+        .willReturn(aResponse().withStatus(500))
+    )
+  }
+
+  def givenDesReturnsServiceUnavailable() = {
+    stubFor(
+      get(urlMatching(s"/registration/.*"))
+        .willReturn(aResponse().withStatus(503))
+    )
   }
 }

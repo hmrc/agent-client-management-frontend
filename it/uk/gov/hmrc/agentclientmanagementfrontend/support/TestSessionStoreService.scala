@@ -33,9 +33,9 @@ class TestSessionStoreService extends SessionStoreService(null) {
     Future successful currentSession.clientCache
   }
 
-  override def storeClientCache(arnCache: Seq[ClientCache])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+  override def storeClientCache(cache: Seq[ClientCache])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future.successful(
-      currentSession.clientCache = Some(arnCache)
+      currentSession.clientCache = Some(cache)
     )
 
   override def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =

@@ -64,7 +64,6 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
   protected lazy val sessionStoreService = new TestSessionStoreService
 
   protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Unit = {
-    status(result) shouldBe 200
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")
     bodyOf(result) should include(expectedSubstring)
