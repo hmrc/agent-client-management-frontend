@@ -15,7 +15,6 @@ import uk.gov.hmrc.http.logging.SessionId
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClientRelationshipManagementControllerISpec extends BaseISpec
-  with DesStub
   with PirRelationshipStub
   with AgentServicesAccountStub
   with AgentClientRelationshipsStub {
@@ -38,8 +37,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "200, project authorised agent for a valid authenticated client with just PIR relationship" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getNotFoundClientActiveAgentRelationships(encodedClientId, Services.ITSA)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
       getAgencyNameMap200(validArn, "This Agency Name")
 
@@ -52,8 +51,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getClientActiveAgentRelationships(encodedClientId,Services.ITSA, validArn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(validArn.value)
       getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
       getAgencyNameMap200(validArn, "This Agency Name")
 
@@ -66,8 +65,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "200, project authorised agents for valid authenticated client with ITSA and PIR relationship" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getClientActiveAgentRelationships(encodedClientId,Services.ITSA, validArn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(validArn.value)
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), Services.HMRCPIR, validNino.value, fromCesa = false)
       getTwoAgencyNamesMap200((validArn,"This Agency Name"),(validArn.copy(value="FARN0001131"),"Different"))
 
@@ -81,8 +80,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "200, no authorised agents message for valid authenticated client with no relationships" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getNotFoundClientActiveAgentRelationships(encodedClientId, Services.ITSA)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships
       getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
 
       val result = await(doGetRequest(""))
@@ -94,8 +93,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when getAgencyNames in agent-services-account returns 400 invalid Arn" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getClientActiveAgentRelationships(encodedClientId,Services.ITSA, Arn("someInvalidArn").value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(Arn("someInvalidArn").value)
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
       getAgencyNamesMap400("someInvalidArn")
 
@@ -108,8 +107,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when getAgencyNames in agent-services-account returns 400 empty Arn" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getClientActiveAgentRelationships(encodedClientId,Services.ITSA, Arn("").value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(Arn("").value)
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
       getAgencyNamesMap400("")
 
@@ -122,7 +121,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when getNino for clientId in DES returns an exception" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsUnknownFor(mtdItId)
+      givenNinoIsUnknownFor
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
@@ -132,8 +131,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when Des returns 400" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      get400ClientActiveAgentRelationships(encodedClientId, Services.ITSA)
+      givenNinoIsKnownFor(validNino)
+      get400ClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
 
       val result = await(doGetRequest(""))
@@ -145,8 +144,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when Des returns 500" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      get500ClientActiveAgentRelationships(encodedClientId, Services.ITSA)
+      givenNinoIsKnownFor(validNino)
+      get500ClientActiveAgentRelationships
       getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
 
       val result = await(doGetRequest(""))
@@ -158,8 +157,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when Des returns 503" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      get503ClientActiveAgentRelationships(encodedClientId, Services.ITSA)
+      givenNinoIsKnownFor(validNino)
+      get503ClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
 
       val result = await(doGetRequest(""))
@@ -171,8 +170,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when agent-fi-relationship returns 500" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getClientActiveAgentRelationships(encodedClientId,Services.ITSA, validArn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(validArn.value)
       get500ForPIRRelationship(Services.HMRCPIR, validNino.value)
 
       val result = await(doGetRequest(""))
@@ -184,8 +183,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "500, when agent-fi-relationship returns 503" in {
       authorisedAsClient(req, mtdItId.value)
-      givenNinoIsKnownFor(mtdItId, validNino)
-      getNotFoundClientActiveAgentRelationships(encodedClientId, Services.ITSA)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships
       get503ForPIRRelationship(Services.HMRCPIR, validNino.value)
 
       val result = await(doGetRequest(""))

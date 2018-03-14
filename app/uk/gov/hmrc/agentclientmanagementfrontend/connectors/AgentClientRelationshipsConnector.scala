@@ -22,14 +22,15 @@ import javax.inject.{Inject, Named}
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.models.ItsaRelationship
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpDelete, HttpResponse, NotFoundException}
+import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientRelationshipsConnector @Inject()(
                                                    @Named("agent-client-relationships-baseUrl") baseUrl: URL,
-                                                   http: HttpDelete, metrics: Metrics) extends HttpAPIMonitor {
+                                                   http: HttpDelete with HttpGet, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
@@ -37,6 +38,20 @@ class AgentClientRelationshipsConnector @Inject()(
     val deleteEndpoint = new URL(baseUrl, s"/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-IT/client/MTDITID/${clientId.value}")
     monitor(s"ConsumedAPI-Delete-AgentClientRelationship-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
+    }
+  }
+
+  def getActiveClientItsaRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[ItsaRelationship]] = {
+    val url = new URL(baseUrl, s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship")
+    monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-GET") {
+      http.GET[HttpResponse](url.toString).map { response =>
+        val arnOpt =  response.status match {
+          case 200 => (response.json \ "arn").asOpt[Arn]
+        }
+        arnOpt.map(arn => ItsaRelationship(arn))
+      }.recover {
+        case _ : NotFoundException => None
+      }
     }
   }
 }

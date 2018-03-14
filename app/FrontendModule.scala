@@ -56,11 +56,8 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindBaseUrl("agent-services-account")
     bindBaseUrl("agent-fi-relationship")
-    bindBaseUrl("des")
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-client-relationships")
-    bindServiceConfigProperty[String]("des.authorization-token")
-    bindServiceConfigProperty[String]("des.environment")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
   }
 

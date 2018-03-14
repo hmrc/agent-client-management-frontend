@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.domain.Nino
 
 trait AgentServicesAccountStub {
   me: WireMockSupport =>
@@ -49,5 +50,33 @@ trait AgentServicesAccountStub {
         aResponse()
           .withStatus(400)
       ))
+  }
+
+  def givenNinoIsKnownFor(nino: Nino) = {
+    stubFor(
+      get(urlEqualTo(s"/agent-services-account/client/nino"))
+        .willReturn(aResponse().withStatus(200).withBody(s"""{ "nino": "${nino.value}" }"""))
+    )
+  }
+
+  def givenNinoIsUnknownFor = {
+    stubFor(
+      get(urlEqualTo(s"/agent-services-account/client/nino"))
+        .willReturn(aResponse().withStatus(404))
+    )
+  }
+
+  def givenGetNinoReturnsServerError = {
+    stubFor(
+      get(urlMatching(s"/agent-services-account/client/nino"))
+        .willReturn(aResponse().withStatus(500))
+    )
+  }
+
+  def givenGetNinoReturnsServiceUnavailable = {
+    stubFor(
+      get(urlMatching(s"/agent-services-account/client/nino"))
+        .willReturn(aResponse().withStatus(503))
+    )
   }
 }

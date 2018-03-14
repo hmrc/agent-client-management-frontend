@@ -42,4 +42,20 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
     }
 
   }
+
+  "Get active itsa relationship" should {
+    "return existing active relationships for specified clientId" in {
+      getClientActiveAgentRelationships(arn.value)
+
+      val result = await(connector.getActiveClientItsaRelationship)
+      result.get.arn shouldBe arn
+    }
+
+    "return notFound active relationships for specified clientId" in {
+      getNotFoundClientActiveAgentRelationships
+
+      val result =  await(connector.getActiveClientItsaRelationship)
+      result shouldBe None
+    }
+  }
 }
