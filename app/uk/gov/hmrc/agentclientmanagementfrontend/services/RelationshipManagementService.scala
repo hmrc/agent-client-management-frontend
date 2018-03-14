@@ -56,7 +56,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
         sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
           relationshipWithArnCache.map { case cache =>
             AuthorisedAgent(cache.uuId, cache.service, cache.agencyName)
-          }
+          }.sortWith(_.agencyName < _.agencyName)
         }
     }
   }

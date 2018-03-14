@@ -75,6 +75,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Different") shouldBe true
+      result.body.indexOf("Different") < result.body.indexOf("This Agency Name") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
     }
 
