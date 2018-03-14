@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, delete, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 
 trait AgentClientRelationshipsStub {
@@ -11,6 +11,46 @@ trait AgentClientRelationshipsStub {
       .willReturn(
         aResponse()
           .withStatus(httpStatus)))
+  }
+
+  def getClientActiveAgentRelationships(agentArn: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"""
+               |{
+               | "arn": "$agentArn"
+               |}""".stripMargin)))
+  }
+
+  def get400ClientActiveAgentRelationships(): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+      .willReturn(
+        aResponse()
+          .withStatus(400)))
+  }
+
+  def getNotFoundClientActiveAgentRelationships(): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+      .willReturn(
+        aResponse()
+          .withStatus(404)))
+  }
+
+  def get500ClientActiveAgentRelationships(): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+      .willReturn(
+        aResponse()
+          .withStatus(500)))
+  }
+
+  def get503ClientActiveAgentRelationships(): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+      .willReturn(
+        aResponse()
+          .withStatus(503)))
   }
 
 }

@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import java.util.UUID
 import javax.inject.Inject
 
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, DesConnector, PirRelationshipConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
@@ -32,16 +32,15 @@ import scala.util.Success
 case class DeleteResponse(response: Boolean, agencyName: String, service: String)
 
 class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelationshipConnector,
-                                              desConnector: DesConnector,
                                               agentServicesAccountConnector: AgentServicesAccountConnector,
-                                              agentClientRelationshipsConnector: AgentClientRelationshipsConnector,
+                                              relationshipsConnector: AgentClientRelationshipsConnector,
                                               sessionStoreService: SessionStoreService) {
 
-  def getAuthorisedAgents(clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+  def getAuthorisedAgents(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
     val relationshipWithAgencyNames = for {
-      nino <- desConnector.getNinoFor(clientId)
+      nino <- agentServicesAccountConnector.getNino
       pir <- pirRelationshipConnector.getClientRelationships(nino)
-      itsa <- desConnector.getActiveClientItsaRelationships(clientId).map(_.toSeq)
+      itsa <- relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq)
       relationships = itsa ++ pir
       agencyNames <- if (relationships.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
@@ -95,7 +94,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
 
   private def deleteAgentClientRelationshipFor(arn: Arn, clientId: MtdItId, nino: Nino, service: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     service match {
-      case Services.ITSA => agentClientRelationshipsConnector.deleteRelationship(arn, clientId)
+      case Services.ITSA => relationshipsConnector.deleteRelationship(arn, clientId)
       case Services.HMRCPIR => pirRelationshipConnector.deleteClientRelationship(arn, nino)
     }
   }
