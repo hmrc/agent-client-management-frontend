@@ -24,7 +24,8 @@ class AuthActionsISpec extends BaseISpec {
     }
 
     def withAuthorisedAsClient[A]: Result = {
-      await(super.withAuthorisedAsClient { mtdItTd => Future.successful(Ok(mtdItTd.value)) })
+      await(super.withAuthorisedAsClient { (mtdItIdOpt, ninoOpt) =>
+        Future.successful(Ok(s"mtdItId: ${mtdItIdOpt.map(_.value).getOrElse("")} nino: ${ninoOpt.map(_.nino).getOrElse("")}")) })
     }
 
   }
@@ -95,7 +96,41 @@ class AuthActionsISpec extends BaseISpec {
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
-      bodyOf(result) shouldBe "fooMtdItId"
+      bodyOf(result) should include("fooMtdItId")
+    }
+
+    "call body with nino when valid nino client" in {
+      givenAuthorisedFor(
+        "{}",
+        s"""{
+           |"authorisedEnrolments": [
+           |  { "key":"HMRC-NI", "identifiers": [
+           |    { "key":"NI", "value": "AE123456A" }
+           |  ]}
+           |]}""".stripMargin)
+
+      val result = TestController.withAuthorisedAsClient
+      status(result) shouldBe 200
+      bodyOf(result) should include("AE123456A")
+    }
+
+    "call body with nino and mtdItId when valid client" in {
+      givenAuthorisedFor(
+        "{}",
+        s"""{
+           |"authorisedEnrolments": [
+           |{ "key":"HMRC-MTD-IT", "identifiers": [
+           |    { "key":"MTDITID", "value": "fooMtdItId" }
+           |  ]},
+           |  { "key":"HMRC-NI", "identifiers": [
+           |    { "key":"NI", "value": "AE123456A" }
+           |  ]}
+           |]}""".stripMargin)
+
+      val result = TestController.withAuthorisedAsClient
+      status(result) shouldBe 200
+      bodyOf(result) should include("fooMtdItId")
+      bodyOf(result) should include("AE123456A")
     }
 
     "throw InsufficientEnrolments when client not enrolled for service" in {

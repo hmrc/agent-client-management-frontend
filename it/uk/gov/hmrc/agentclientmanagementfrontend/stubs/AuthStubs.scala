@@ -10,17 +10,44 @@ trait AuthStubs {
 
   case class Enrolment(serviceName: String, identifierName: String, identifierValue: String)
 
-  def authorisedAsValidAgent[A](request: FakeRequest[A], arn: String) = authenticated(request, Enrolment("HMRC-AS-AGENT", "AgentReferenceNumber", arn), isAgent = true)
+  def authorisedAsValidAgent[A](request: FakeRequest[A], arn: String) = authenticated(request, Set(Enrolment("HMRC-AS-AGENT", "AgentReferenceNumber", arn)), isAgent = true)
 
-  def authorisedAsClient[A](request: FakeRequest[A], mtdItId: String): FakeRequest[A] = authenticated(request, Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId), isAgent = false )
+  def authorisedAsClientMtdItId[A](request: FakeRequest[A], mtdItId: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId)), isAgent = false )
+  def authorisedAsClientNi[A](request: FakeRequest[A], nino: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NI", nino)), isAgent = false )
+  def authorisedAsClientAll[A](request: FakeRequest[A], nino: String, mtdItId: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NI", nino), Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId)), isAgent = false )
 
-  def authenticated[A](request: FakeRequest[A], enrolment: Enrolment, isAgent: Boolean): FakeRequest[A] = {
+  def authenticated[A](request: FakeRequest[A], enrolment: Set[Enrolment], isAgent: Boolean): FakeRequest[A] = {
+    val enrolmentJson = enrolment.map { x =>
+    s"""
+       |{ "key":"${x.serviceName}", "identifiers": [
+       |      {"key":"${x.identifierName}", "value": "${x.identifierValue}"}
+       |      ]}
+     """.stripMargin
+    }.mkString(",")
+
     givenAuthorisedFor(
       s"""
          |{
          |  "authorise": [
-         |    { "identifiers":[], "state":"Activated", "enrolment": "${enrolment.serviceName}" },
-         |    { "authProviders": ["GovernmentGateway"] }
+         |    {
+         |            "$$or": [
+         |                {
+         |                    "enrolment": "HMRC-MTD-IT",
+         |                    "identifiers": [],
+         |                    "state": "Activated"
+         |                },
+         |                {
+         |                    "enrolment": "HMRC-NI",
+         |                    "identifiers": [],
+         |                    "state": "Activated"
+         |                }
+         |            ]
+         |        },
+         |        {
+         |            "authProviders": [
+         |                "GovernmentGateway"
+         |            ]
+         |        }
          |  ],
          |  "retrieve":["authorisedEnrolments"]
          |}
@@ -28,9 +55,7 @@ trait AuthStubs {
       s"""
          |{
          |"authorisedEnrolments": [
-         |  { "key":"${enrolment.serviceName}", "identifiers": [
-         |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
-         |  ]}
+         |  $enrolmentJson
          |]}
           """.stripMargin)
     request.withSession(request.session + SessionKeys.authToken -> "Bearer XYZ")

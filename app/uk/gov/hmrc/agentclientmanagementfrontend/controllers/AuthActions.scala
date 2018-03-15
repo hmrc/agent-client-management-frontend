@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import play.api.mvc.{ Request, Result }
-import uk.gov.hmrc.agentmtdidentifiers.model.{ Arn, MtdItId }
+import play.api.mvc.{Request, Result}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.Retrievals.authorisedEnrolments
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthActions extends AuthorisedFunctions {
 
@@ -33,11 +34,24 @@ trait AuthActions extends AuthorisedFunctions {
       case None => Future.failed(InsufficientEnrolments("AgentReferenceNumber identifier not found"))
     }
 
-  protected def withAuthorisedAsClient[A](body: MtdItId => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
-    withEnrolledFor("HMRC-MTD-IT", "MTDITID") {
-      case Some(mtdItID) => body(MtdItId(mtdItID))
-      case None => Future.failed(InsufficientEnrolments("MTDITID identifier not found"))
-    }
+  protected def withAuthorisedAsClient[A](body: (Option[MtdItId], Option[Nino]) => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
+
+    def clientId(serviceName: String, identifierKey: String)(implicit enrolments: Enrolments): Option[String] =
+      enrolments.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
+
+    authorised(
+      Enrolment("HMRC-MTD-IT") or Enrolment("HMRC-NI")
+        and AuthProviders(GovernmentGateway))
+      .retrieve(authorisedEnrolments) { implicit enrolments =>
+        val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
+        val nino = clientId("HMRC-NI", "NI").map(Nino(_))
+
+        if (mtdItId.isDefined || nino.isDefined)
+          body(mtdItId, nino)
+        else
+          Future.failed(InsufficientEnrolments("Identifiers not found"))
+      }
+  }
 
   protected def withEnrolledFor[A](serviceName: String, identifierKey: String)(body: Option[String] => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
     authorised(
