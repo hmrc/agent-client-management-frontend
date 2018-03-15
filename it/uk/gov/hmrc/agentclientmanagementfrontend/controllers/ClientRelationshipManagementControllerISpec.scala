@@ -231,7 +231,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       deleteActivePIRRelationship(validArn.value, validNino.value, 404)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", "PERSONAL-INCOME-RECORD")(authorisedAsClientAll(req, validNino.nino, mtdItId.value)withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value)withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -242,7 +242,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       deleteActivePIRRelationship(validArn.value, validNino.value, 500)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", "PERSONAL-INCOME-RECORD")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -259,7 +259,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       deleteActiveITSARelationship(validArn.value, mtdItId.value, 404)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", "ITSA")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation("ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -270,7 +270,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       deleteActiveITSARelationship(validArn.value, mtdItId.value, 500)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", "ITSA")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation( "ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -301,7 +301,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", serviceName)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 0 shouldBe true
@@ -316,7 +316,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", serviceName)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "false")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "false")))
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -327,7 +327,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", serviceName)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "")))
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "Select yes if you want to remove your authorisation.")
@@ -339,7 +339,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       deleteRelationshipStub
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", serviceName)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache shouldBe empty
     }
@@ -350,7 +350,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       deleteRelationshipStub
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("INVALID_ID", serviceName)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation(serviceName, "INVALID_ID")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
     }
 
     "remove deleted item from the session cache" in {
@@ -360,7 +360,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08", serviceName)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
