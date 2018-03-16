@@ -57,8 +57,8 @@ class ClientRelationshipManagementController @Inject()(
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, ninoOpt) =>
-      relationshipManagementService.getAuthorisedAgents(ninoOpt).map(result => Ok(authorised_agents(result)))
+    withAuthorisedAsClient { (mtdItIdOpt, ninoOpt) =>
+      relationshipManagementService.getAuthorisedAgents(mtdItIdOpt, ninoOpt).map(result => Ok(authorised_agents(result)))
     }
   }
 
