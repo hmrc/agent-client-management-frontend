@@ -26,10 +26,6 @@ trait AgentClientRelationshipsStub {
                |}""".stripMargin)))
   }
 
-  def verifyCallsForGetItsaRelationship(amount: Int)= {
-    verify(amount, getRequestedFor(urlContains(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship")))
-  }
-
   def get400ClientActiveAgentRelationships(): Unit = {
     stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
       .willReturn(

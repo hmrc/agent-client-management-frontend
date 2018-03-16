@@ -44,7 +44,7 @@ trait AuthActions extends AuthorisedFunctions {
         and AuthProviders(GovernmentGateway))
       .retrieve(authorisedEnrolments) { implicit enrolments =>
         val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
-        val nino = clientId("HMRC-NI", "NI").map(Nino(_))
+        val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
 
         if (mtdItId.isDefined || nino.isDefined)
           body(mtdItId, nino)

@@ -105,7 +105,7 @@ class AuthActionsISpec extends BaseISpec {
         s"""{
            |"authorisedEnrolments": [
            |  { "key":"HMRC-NI", "identifiers": [
-           |    { "key":"NI", "value": "AE123456A" }
+           |    { "key":"NINO", "value": "AE123456A" }
            |  ]}
            |]}""".stripMargin)
 
@@ -123,7 +123,7 @@ class AuthActionsISpec extends BaseISpec {
            |    { "key":"MTDITID", "value": "fooMtdItId" }
            |  ]},
            |  { "key":"HMRC-NI", "identifiers": [
-           |    { "key":"NI", "value": "AE123456A" }
+           |    { "key":"NINO", "value": "AE123456A" }
            |  ]}
            |]}""".stripMargin)
 

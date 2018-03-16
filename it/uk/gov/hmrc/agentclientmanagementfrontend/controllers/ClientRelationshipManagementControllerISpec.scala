@@ -48,8 +48,6 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
-      verifyCallsForGetItsaRelationship(0)
-      verifyCallsForGetPirRelationships(1)
     }
 
     "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
@@ -63,8 +61,6 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
-      verifyCallsForGetPirRelationships(0)
-      verifyCallsForGetItsaRelationship(1)
     }
 
     "200, project authorised agents in alphabetical order for valid authenticated client with ITSA and PIR relationship" in {
@@ -197,7 +193,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache))
 
-      val result = await(doGetRequest("/remove-authorisation/dc89f36b64c94060baa3ae87d6b7ac08"))
+      val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/dc89f36b64c94060baa3ae87d6b7ac08"))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
@@ -208,7 +204,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache))
 
-      val result = await(doGetRequest("/remove-authorisation/INVALID_ID"))
+      val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/INVALID_ID"))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -217,7 +213,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "return 500 exception when session cache not found" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
 
-      val result = await(doGetRequest("/remove-authorisation/dc89f36b64c94060baa3ae87d6b7ac08"))
+      val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/dc89f36b64c94060baa3ae87d6b7ac08"))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true

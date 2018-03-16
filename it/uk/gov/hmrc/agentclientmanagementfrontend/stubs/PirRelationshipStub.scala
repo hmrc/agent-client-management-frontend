@@ -24,10 +24,6 @@ trait PirRelationshipStub {
                |}]""".stripMargin)))
   }
 
-  def verifyCallsForGetPirRelationships(amount: Int)= {
-      verify(amount, getRequestedFor(urlContains(s"/agent-fi-relationship/relationships/service/")))
-  }
-
   def getNotFoundForPIRRelationship(service: String, nino: String): Unit = {
     stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(
@@ -54,12 +50,5 @@ trait PirRelationshipStub {
       .willReturn(
         aResponse()
           .withStatus(httpStatus)))
-  }
-
-  def pirInsufficientEnrolments(): Unit = {
-    stubFor(delete(urlEqualTo(s"/agent-fi-relationship/*"))
-      .willReturn(
-        aResponse()
-          .withStatus(403)))
   }
 }

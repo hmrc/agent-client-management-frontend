@@ -62,10 +62,10 @@ class ClientRelationshipManagementController @Inject()(
     }
   }
 
-  def showRemoveAuthorisation(id: String): Action[AnyContent] = Action.async { implicit request =>
+  def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _) =>
       relationshipManagementService.getAuthorisedAgentDetails(id).map {
-        case Some((agencyName, service)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
+        case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
         case _ => throwNoSessionFoundException(s"id $id")
       }
     }
