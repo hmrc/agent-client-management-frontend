@@ -19,7 +19,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import play.api.libs.json.{JsValue, Reads, Writes}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.cache.client.{CacheMap, NoSessionException, SessionCache}
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
