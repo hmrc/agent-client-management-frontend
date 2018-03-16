@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.matching.{MatchResult, UrlPattern}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 
 trait AgentClientRelationshipsStub {
@@ -23,6 +24,10 @@ trait AgentClientRelationshipsStub {
                |{
                | "arn": "$agentArn"
                |}""".stripMargin)))
+  }
+
+  def verifyCallsForGetItsaRelationship(amount: Int)= {
+    verify(amount, getRequestedFor(urlContains(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship")))
   }
 
   def get400ClientActiveAgentRelationships(): Unit = {
@@ -52,5 +57,4 @@ trait AgentClientRelationshipsStub {
         aResponse()
           .withStatus(503)))
   }
-
 }

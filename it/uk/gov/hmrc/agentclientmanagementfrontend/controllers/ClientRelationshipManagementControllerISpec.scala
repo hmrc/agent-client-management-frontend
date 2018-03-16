@@ -8,6 +8,8 @@ import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
@@ -38,7 +40,6 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "200, project authorised agent for a valid authenticated client with just PIR relationship" in {
       authorisedAsClientNi(req, validNino.nino)
       givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
       getAgencyNameMap200(validArn, "This Agency Name")
 
@@ -47,13 +48,14 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+      verifyCallsForGetItsaRelationship(0)
+      verifyCallsForGetPirRelationships(1)
     }
 
     "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(validArn.value)
-      getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -61,9 +63,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+      verifyCallsForGetPirRelationships(0)
+      verifyCallsForGetItsaRelationship(1)
     }
 
-    "200, project authorised agents for valid authenticated client with ITSA and PIR relationship" in {
+    "200, project authorised agents in alphabetical order for valid authenticated client with ITSA and PIR relationship" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(validArn.value)
@@ -246,6 +250,12 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
+
+    "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
+      an[InsufficientEnrolments] shouldBe thrownBy {
+        await(controller.submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientMtdItId(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      }
+    }
   }
 
   "removeAuthorisations for ITSA" should {
@@ -273,6 +283,12 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
         .submitRemoveAuthorisation( "ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
+    "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
+      an[InsufficientEnrolments] shouldBe thrownBy {
+        await(controller.submitRemoveAuthorisation("ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      }
     }
   }
 

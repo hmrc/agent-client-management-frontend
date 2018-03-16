@@ -4,9 +4,11 @@ import java.net.URL
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.scalatest.{ BeforeAndAfterAll, BeforeAndAfterEach, Suite }
+import com.github.tomakehurst.wiremock.matching.{MatchResult, UrlPattern}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import uk.gov.hmrc.play.it.Port
 
 case class WireMockBaseUrl(value: URL)
@@ -54,4 +56,8 @@ trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach {
   protected def stopWireMockServer() = wireMockServer.stop()
 
   protected def startWireMockServer() = wireMockServer.start()
+
+  def urlContains(str: String): UrlPattern = new UrlPattern(containing(str),false){
+    override def `match`(url: String): MatchResult = pattern.`match`(url)
+  }
 }

@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, delete, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
@@ -22,6 +22,10 @@ trait PirRelationshipStub {
                |  "startDate" : "2017-12-08T15:21:51.040",
                |  "fromCesa" : $fromCesa
                |}]""".stripMargin)))
+  }
+
+  def verifyCallsForGetPirRelationships(amount: Int)= {
+      verify(amount, getRequestedFor(urlContains(s"/agent-fi-relationship/relationships/service/")))
   }
 
   def getNotFoundForPIRRelationship(service: String, nino: String): Unit = {
@@ -52,4 +56,10 @@ trait PirRelationshipStub {
           .withStatus(httpStatus)))
   }
 
+  def pirInsufficientEnrolments(): Unit = {
+    stubFor(delete(urlEqualTo(s"/agent-fi-relationship/*"))
+      .willReturn(
+        aResponse()
+          .withStatus(403)))
+  }
 }
