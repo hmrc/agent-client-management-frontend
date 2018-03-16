@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.matching.{MatchResult, UrlPattern}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 
 trait AgentClientRelationshipsStub {
@@ -52,5 +53,4 @@ trait AgentClientRelationshipsStub {
         aResponse()
           .withStatus(503)))
   }
-
 }

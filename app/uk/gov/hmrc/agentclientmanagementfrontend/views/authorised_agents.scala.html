@@ -48,12 +48,12 @@
                                 <tr>
                                     <td>@authAgent.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
-                                    <td><a href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a></td>
+                                    <td><a href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a></td>
                                 </tr>
                             }
                         }else{
                             <tr>
-                                <td scope="row">@Messages("client-authorised-agents-table-content.noAgentsFound")</td>
+                                <td colspan="3" scope="row">@Messages("client-authorised-agents-table-content.noAgentsFound")</td>
                             </tr>
                         }
                         </tbody>

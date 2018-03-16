@@ -25,7 +25,7 @@
     <h1 class="heading-large">@Messages("clientEndsRelationship.title", agencyName)</h1>
     <p>@Messages("clientEndsRelationship.description", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
     <h3>@Messages("clientEndsRelationship.form.title", agencyName)</h3>
-    @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(id)) {
+    @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @inputRadioGroup(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),

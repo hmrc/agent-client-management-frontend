@@ -8,6 +8,8 @@ import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
@@ -30,15 +32,14 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val validArn = Arn("FARN0001132")
   val validNino =  Nino("AE123456A")
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
-  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, validNino, "This Agency Name", "Some service name")
+  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
 
   "manageTaxAgents" should {
     val req = FakeRequest()
 
     "200, project authorised agent for a valid authenticated client with just PIR relationship" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientNi(req, validNino.nino)
       givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
       getAgencyNameMap200(validArn, "This Agency Name")
 
@@ -50,10 +51,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(validArn.value)
-      getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -63,8 +63,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "200, project authorised agents for valid authenticated client with ITSA and PIR relationship" in {
-      authorisedAsClient(req, mtdItId.value)
+    "200, project authorised agents in alphabetical order for valid authenticated client with ITSA and PIR relationship" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(validArn.value)
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), Services.HMRCPIR, validNino.value, fromCesa = false)
@@ -80,7 +80,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "200, no authorised agents message for valid authenticated client with no relationships" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships
       getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
@@ -93,7 +93,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "500, when getAgencyNames in agent-services-account returns 400 invalid Arn" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(Arn("someInvalidArn").value)
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
@@ -107,7 +107,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "500, when getAgencyNames in agent-services-account returns 400 empty Arn" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(Arn("").value)
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
@@ -120,18 +120,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
-    "500, when getNino for clientId in DES returns an exception" in {
-      authorisedAsClient(req, mtdItId.value)
-      givenNinoIsUnknownFor
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
-      sessionStoreService.currentSession.clientCache.isDefined shouldBe false
-    }
-
     "500, when Des returns 400" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       get400ClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
@@ -144,7 +134,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "500, when Des returns 500" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       get500ClientActiveAgentRelationships
       getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
@@ -157,7 +147,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "500, when Des returns 503" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       get503ClientActiveAgentRelationships
       getActivePIRRelationship(validArn, Services.HMRCPIR, validNino.value, fromCesa = false)
@@ -170,7 +160,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "500, when agent-fi-relationship returns 500" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(validArn.value)
       get500ForPIRRelationship(Services.HMRCPIR, validNino.value)
@@ -183,7 +173,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "500, when agent-fi-relationship returns 503" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships
       get503ForPIRRelationship(Services.HMRCPIR, validNino.value)
@@ -200,10 +190,10 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     val req = FakeRequest()
 
     "return 200 OK and show remove authorisation page" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache))
 
-      val result = await(doGetRequest("/remove-authorisation/dc89f36b64c94060baa3ae87d6b7ac08"))
+      val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/dc89f36b64c94060baa3ae87d6b7ac08"))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
@@ -211,19 +201,19 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "return 500 exception when an invalid id is passed" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache))
 
-      val result = await(doGetRequest("/remove-authorisation/INVALID_ID"))
+      val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/INVALID_ID"))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
     }
 
     "return 500 exception when session cache not found" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
 
-      val result = await(doGetRequest("/remove-authorisation/dc89f36b64c94060baa3ae87d6b7ac08"))
+      val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/dc89f36b64c94060baa3ae87d6b7ac08"))
 
       result.status shouldBe 500
       result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
@@ -236,25 +226,31 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     val req = FakeRequest()
 
     "return 500  an exception if PIR Relationship is not found" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = "PERSONAL-INCOME-RECORD")))
       deleteActivePIRRelationship(validArn.value, validNino.value, 404)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value)withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "return an exception if PIR relationship service is unavailable" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = "PERSONAL-INCOME-RECORD")))
       deleteActivePIRRelationship(validArn.value, validNino.value, 500)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
+    "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
+      an[InsufficientEnrolments] shouldBe thrownBy {
+        await(controller.submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientMtdItId(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      }
     }
   }
 
@@ -264,25 +260,31 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     val req = FakeRequest()
 
     "return 500  an exception if the relationship is not found" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = "ITSA")))
       deleteActiveITSARelationship(validArn.value, mtdItId.value, 404)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation("ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "return an exception if relationship service is unavailable" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = "ITSA")))
       deleteActiveITSARelationship(validArn.value, mtdItId.value, 500)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation( "ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
+    "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
+      an[InsufficientEnrolments] shouldBe thrownBy {
+        await(controller.submitRemoveAuthorisation("ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      }
     }
   }
 
@@ -290,7 +292,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "show authorisation_removed page with required sessions" in {
       val req = FakeRequest().withSession("agencyName" -> cache.agencyName, "service" -> cache.service)
-      val result = await(controller.authorisationRemoved(authorisedAsClient(req, mtdItId.value)))
+      val result = await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value)))
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "This Agency Name")
@@ -299,7 +301,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "return exception if required session data not found" in {
       val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
-      an[Exception] should be thrownBy await(controller.authorisationRemoved(authorisedAsClient(req, mtdItId.value)))
+      an[Exception] should be thrownBy await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value)))
     }
   }
 
@@ -307,11 +309,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     implicit val req = FakeRequest()
 
     "return 200, remove the relationship if the client confirm deletion" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 0 shouldBe true
@@ -322,22 +324,22 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "redirect to manage-your-tax-agents if the client does not confirm deletion" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "false")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "false")))
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "show error message if the client does not select any choice from the confirm delete radio buttons" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "")))
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "Select yes if you want to remove your authorisation.")
@@ -345,32 +347,32 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "return an exception if the session cache is not found" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       deleteRelationshipStub
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache shouldBe empty
     }
 
     "return an exception if an invalid id is submitted" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("INVALID_ID")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation(serviceName, "INVALID_ID")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
     }
 
     "remove deleted item from the session cache" in {
-      authorisedAsClient(req, mtdItId.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName),
         cache.copy(uuId = "dc89f36b64c94060baa3ae87d6b7ac09next", service = serviceName)))
       sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
       deleteRelationshipStub
 
-      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClient(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true

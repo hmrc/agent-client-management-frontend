@@ -20,7 +20,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.domain.Nino
 
-case class ClientCache(uuId: String, arn: Arn, nino: Nino, agencyName: String, service: String)
+case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String)
 
 object ClientCache {
   implicit val format = Json.format[ClientCache]

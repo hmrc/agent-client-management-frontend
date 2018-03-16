@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, delete, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
@@ -51,5 +51,4 @@ trait PirRelationshipStub {
         aResponse()
           .withStatus(httpStatus)))
   }
-
 }

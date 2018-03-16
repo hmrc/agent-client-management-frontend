@@ -24,8 +24,7 @@ import com.kenshoo.play.metrics.Metrics
 import play.api.libs.json._
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,16 +47,6 @@ class AgentServicesAccountConnector @Inject()(
     monitor(s"ConsumedAPI-Get-AgencyNames-GET") {
       http.POST[Seq[String], JsValue](craftUrl(getAgentServicesAccountAgencyNamesUrl()).toString, arns.map(_.value))
         .map { json => json.as[Map[Arn, String]] }
-    }
-  }
-
-  def getNino(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Nino] = {
-    monitor(s"ConsumedAPI-Get-Nino-GET") {
-      http.GET[HttpResponse](craftUrl(s"/agent-services-account/client/nino").toString).map { response =>
-        response.status match {
-          case 200 => (response.json \ "nino").as[Nino]
-        }
-      }
     }
   }
 

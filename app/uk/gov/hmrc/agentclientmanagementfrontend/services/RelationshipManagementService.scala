@@ -20,10 +20,9 @@ import java.util.UUID
 import javax.inject.Inject
 
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, AuthorisedAgent}
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, ClientCache, Relationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,22 +35,21 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
                                               relationshipsConnector: AgentClientRelationshipsConnector,
                                               sessionStoreService: SessionStoreService) {
 
-  def getAuthorisedAgents(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+  def getAuthorisedAgents(clientIdOpt: Option[MtdItId], ninoOpt: Option[Nino])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
     val relationshipWithAgencyNames = for {
-      nino <- agentServicesAccountConnector.getNino
-      pir <- pirRelationshipConnector.getClientRelationships(nino)
-      itsa <- relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq)
+      pir <- relationships(ninoOpt) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
+      itsa <- relationships(clientIdOpt)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
       relationships = itsa ++ pir
       agencyNames <- if (relationships.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
       else Future.successful(Map.empty[Arn, String])
-    } yield (relationships, agencyNames, nino)
+    } yield (relationships, agencyNames)
 
     relationshipWithAgencyNames.flatMap {
-      case (relationships, agencyNames, nino) =>
+      case (relationships, agencyNames) =>
         def uuId = UUID.randomUUID().toString.replace("-", "")
         val relationshipWithArnCache = relationships.map(r =>
-          ClientCache(uuId, r.arn, nino, agencyNames.getOrElse(r.arn, ""), r.serviceName))
+          ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName))
 
         sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
           relationshipWithArnCache.map { case cache =>
@@ -61,7 +59,15 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
     }
   }
 
-  def deleteRelationship(id: String, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
+  def deleteITSARelationship(id: String, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
+    deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
+  }
+
+  def deletePIRelationship(id: String, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
+    deleteRelationship(id, nino)(arn => pirRelationshipConnector.deleteClientRelationship(arn, nino))
+  }
+
+  private def deleteRelationship(id: String, clientId: TaxIdentifier)(f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
     for {
       clientCacheOpt: Option[Seq[ClientCache]] <- sessionStoreService.fetchClientCache
       clientCache = clientCacheOpt.flatMap(_.find(_.uuId == id))
@@ -70,8 +76,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
         case Some(cache) =>
           val remainingCache: Seq[ClientCache] = clientCacheOpt.get.filterNot(_ == cache)
           for {
-            deletion <- deleteAgentClientRelationshipFor(cache.arn, clientId, cache.nino, cache.service)
-                .andThen { case Success(true) =>
+            deletion <- f(cache.arn).andThen { case Success(true) =>
                     for {
                       _ <- sessionStoreService.remove()
                       _ <- sessionStoreService.storeClientCache(remainingCache)
@@ -92,10 +97,8 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
     } yield cache.map(cache => (cache.agencyName, cache.service))
   }
 
-  private def deleteAgentClientRelationshipFor(arn: Arn, clientId: MtdItId, nino: Nino, service: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    service match {
-      case Services.ITSA => relationshipsConnector.deleteRelationship(arn, clientId)
-      case Services.HMRCPIR => pirRelationshipConnector.deleteClientRelationship(arn, nino)
-    }
+  def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]) = identifierOpt match {
+    case Some(identifier) => f(identifier)
+    case None => Future.successful(Seq.empty)
   }
 }
