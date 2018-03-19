@@ -68,14 +68,14 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(validArn.value)
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), Services.HMRCPIR, validNino.value, fromCesa = false)
-      getTwoAgencyNamesMap200((validArn,"This Agency Name"),(validArn.copy(value="FARN0001131"),"Different"))
+      getTwoAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"))
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
-      result.body.contains("This Agency Name") shouldBe true
-      result.body.contains("Different") shouldBe true
-      result.body.indexOf("Different") < result.body.indexOf("This Agency Name") shouldBe true
+      result.body.contains("abc") shouldBe true
+      result.body.contains("DEF") shouldBe true
+      result.body.indexOf("abc") < result.body.indexOf("DEF") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
     }
 
