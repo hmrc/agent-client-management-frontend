@@ -49,7 +49,6 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
   private class TestGuiceModule extends AbstractModule {
     override def configure(): Unit = {
       bind(classOf[SessionStoreService]).toInstance(sessionStoreService)
-      "features.remove-authorisation.PERSONAL-INCOME-RECORD" -> false
     }
   }
 
