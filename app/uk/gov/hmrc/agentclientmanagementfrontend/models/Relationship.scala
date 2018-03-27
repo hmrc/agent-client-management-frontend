@@ -55,3 +55,14 @@ object PirRelationship {
 
   implicit val reads: Reads[PirRelationship] = Json.reads[PirRelationship]
 }
+case class VatRelationship(arn: Arn) extends Relationship {
+  val serviceName = Services.VAT
+}
+
+object VatRelationship {
+  implicit val relationshipWrites = Json.writes[VatRelationship]
+
+  implicit val reads: Reads[VatRelationship] =
+    (JsPath \ "agentReferenceNumber").read[Arn].map(arn => VatRelationship(arn))
+
+}

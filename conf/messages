@@ -31,6 +31,7 @@ client-authorised-agents-table-row-header.actions=Actions
 client-authorised-agents-table-content.noAgentsFound=You have no authorised agents
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=Income record
 client-authorised-agents-table-content.ITSA=ITSA
+client-authorised-agents-table-content.VAT=VAT
 client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
 client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation
 clientEndsRelationship.title=Remove authorisation for {0}
