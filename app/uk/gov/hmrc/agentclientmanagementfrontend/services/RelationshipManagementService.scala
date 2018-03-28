@@ -36,11 +36,11 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
                                               sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(clientIdOpt: OptionalClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+    val pirRelationships = relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
+    val itsaRelationships = relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
+    val vatRelationships = relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val relationshipWithAgencyNames = for {
-      pir <- relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
-      itsa <- relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
-      vat <- relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
-      relationships = itsa ++ pir ++ vat
+      relationships <- Future.sequence(Seq(itsaRelationships, pirRelationships, vatRelationships)).map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
       else Future.successful(Map.empty[Arn, String])
