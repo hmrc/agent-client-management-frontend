@@ -18,6 +18,10 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 
 class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
 
+  def featureRemoveAuthorisationPir = false
+  def featureRemoveAuthorisationITSA = false
+  def featureRemoveAuthorisationVat = false
+
   override implicit lazy val app: Application = appBuilder.build()
 
   protected def appBuilder: GuiceApplicationBuilder = {
@@ -33,6 +37,9 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "microservice.services.cachable.session-cache.host" -> wireMockHost,
         "microservice.services.cachable.session-cache.port" -> wireMockPort,
         "microservice.services.cachable.session-cache.domain" -> "someDomain",
+        "features.remove-authorisation.PERSONAL-INCOME-RECORD" -> featureRemoveAuthorisationPir,
+        "features.remove-authorisation.HMRC-MTD-IT" -> featureRemoveAuthorisationITSA,
+        "features.remove-authorisation.HMRC-MTD-VAT" -> featureRemoveAuthorisationVat,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,

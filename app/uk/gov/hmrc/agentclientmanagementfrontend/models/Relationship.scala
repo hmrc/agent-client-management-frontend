@@ -39,7 +39,7 @@ object Relationship {
 }
 
 case class ItsaRelationship(arn: Arn) extends Relationship {
-  val serviceName = Services.ITSA
+  val serviceName = Services.HMRCMTDIT
 }
 
 object ItsaRelationship {
