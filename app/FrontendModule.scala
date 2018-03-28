@@ -60,6 +60,10 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-client-relationships")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
+
+    bindBooleanProperty("features.remove-authorisation.PERSONAL-INCOME-RECORD")
+    bindBooleanProperty("features.remove-authorisation.HMRC-MTD-IT")
+    bindBooleanProperty("features.remove-authorisation.HMRC-MTD-VAT")
   }
 
   private def bindBaseUrl(serviceName: String) =
@@ -73,7 +77,15 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bind(classOf[String]).annotatedWith(Names.named(propertyName)).toProvider(new PropertyProvider(propertyName))
 
   private class PropertyProvider(confKey: String) extends Provider[String] {
-    override lazy val get = configuration.getString(confKey)
+    override lazy val get: String = configuration.getString(confKey)
+      .getOrElse(throw new IllegalStateException(s"No value found for configuration property $confKey"))
+  }
+
+  private def bindBooleanProperty(propertyName: String) =
+    bind(classOf[Boolean]).annotatedWith(Names.named(propertyName)).toProvider(new PropertyBooleanProvider(propertyName))
+
+  private class PropertyBooleanProvider(confKey: String) extends Provider[Boolean] {
+    override lazy val get: Boolean = configuration.getBoolean(confKey)
       .getOrElse(throw new IllegalStateException(s"No value found for configuration property $confKey"))
   }
 

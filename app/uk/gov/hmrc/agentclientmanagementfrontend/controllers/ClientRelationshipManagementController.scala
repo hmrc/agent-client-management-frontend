@@ -50,6 +50,7 @@ object RadioConfirm {
 @Singleton
 class ClientRelationshipManagementController @Inject()(
                                                         override val messagesApi: MessagesApi,
+                                                        featureFlags: FeatureFlags,
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration)
@@ -63,13 +64,21 @@ class ClientRelationshipManagementController @Inject()(
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _) =>
-      if (configuration.getBoolean(s"features.remove-authorisation.$service").getOrElse(false)) {
-
+      if (determineService(service, featureFlags)) {
         relationshipManagementService.getAuthorisedAgentDetails(id).map {
           case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
           case _ => throwNoSessionFoundException(s"id $id")
         }
       } else Future.successful(BadRequest)
+    }
+  }
+
+  private def determineService(service: String, featureFlags: FeatureFlags): Boolean = {
+    service match {
+      case "PERSONAL-INCOME-RECORD" => featureFlags.rmAuthIRV
+      case "HMRC-MTD-IT" => featureFlags.rmAuthITSA
+      case "HMRC-MTD-VAT" => featureFlags.rmAuthVAT
+      case _ => throw new Exception("Unsupported Service")
     }
   }
 

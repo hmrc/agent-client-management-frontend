@@ -39,7 +39,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
   val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
 
-  "manageTaxAgents, works  normal except projections of remove authorisation links for false service flag" should {
+  "manageTaxAgents, works as normal except projections of remove authorisation links for false service flag" should {
     "200, do not show remove authorisation links, other than that works normal" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
       givenNinoIsKnownFor(validNino)
@@ -52,7 +52,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
     }
   }
 
-  "view removeAuthorisation, BadRequest as flags are false" should {
+  "view removeAuthorisation" should {
     behave like getRemoveAuthorisationPage(Services.HMRCPIR)
     behave like getRemoveAuthorisationPage(Services.HMRCMTDIT)
 
@@ -72,7 +72,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
     behave like postRemoveAuthorisationForm(Services.HMRCPIR)
 
     def postRemoveAuthorisationForm(service: String) = {
-      s"return BadRquest for attempting to remove relationship when flag for service: $service is false" in {
+      s"return BadRequest for attempting to remove relationship when flag for service: $service is false" in {
         authorisedAsClientAll(req, validNino.nino, mtdItId.value)
 
         val result = await(controller.submitRemoveAuthorisation(service, cache.uuId)(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
