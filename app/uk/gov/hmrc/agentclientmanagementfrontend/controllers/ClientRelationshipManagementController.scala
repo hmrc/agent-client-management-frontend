@@ -75,9 +75,9 @@ class ClientRelationshipManagementController @Inject()(
 
   private def determineService(service: String, featureFlags: FeatureFlags): Boolean = {
     service match {
-      case "PERSONAL-INCOME-RECORD" => featureFlags.rmAuthIRV
-      case "HMRC-MTD-IT" => featureFlags.rmAuthITSA
-      case "HMRC-MTD-VAT" => featureFlags.rmAuthVAT
+      case Services.HMRCPIR => featureFlags.rmAuthIRV
+      case Services.HMRCMTDIT => featureFlags.rmAuthITSA
+      case Services.HMRCMTDVAT => featureFlags.rmAuthVAT
       case _ => throw new Exception("Unsupported Service")
     }
   }
@@ -86,18 +86,19 @@ class ClientRelationshipManagementController @Inject()(
     withAuthorisedAsClient { clientIds =>
       def response = {
         service match {
-          case Services.ITSA => relationshipManagementService.deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCMTDIT => relationshipManagementService.deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
           case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, clientIds.nino.getOrElse(throw new InsufficientEnrolments))
-          case Services.VAT => relationshipManagementService.deleteVATRelationship(id, clientIds.vrn.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCMTDVAT => relationshipManagementService.deleteVATRelationship(id, clientIds.vrn.getOrElse(throw new InsufficientEnrolments))
+          case _ => throw new Exception("Unsupported Service")
         }
       }
 
-      if (determineService(service, featureFlags)) {
+      if (determineService(`service`, featureFlags)) {
         validateRemoveAuthorisationForm(id) {
           response.map {
             case DeleteResponse(true, agencyName, `service`) =>
-              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved()).withSession(
-                request.session + ("agencyName", agencyName) + ("service", service))
+              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved())
+                .addingToSession(("agencyName", agencyName), ("service", service))
           }
         }
       } else

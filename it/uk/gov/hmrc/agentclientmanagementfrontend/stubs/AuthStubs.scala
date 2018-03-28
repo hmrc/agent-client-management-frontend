@@ -41,6 +41,10 @@ trait AuthStubs {
          |                    "enrolment": "HMRC-NI",
          |                    "identifiers": [],
          |                    "state": "Activated"
+         |                },
+         |                {   "enrolment": "HMRC-MTD-VAT",
+         |                    "identifiers": [],
+         |                    "state": "Activated"
          |                }
          |            ]
          |        },
