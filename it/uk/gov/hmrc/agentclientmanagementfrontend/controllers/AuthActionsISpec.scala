@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import play.api.mvc.{ Request, Result }
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisationException, InsufficientEnrolments }
@@ -24,8 +24,8 @@ class AuthActionsISpec extends BaseISpec {
     }
 
     def withAuthorisedAsClient[A]: Result = {
-      await(super.withAuthorisedAsClient { (mtdItIdOpt, ninoOpt, vrnOpt) =>
-        Future.successful(Ok(s"mtdItId: ${mtdItIdOpt.map(_.value).getOrElse("")} nino: ${ninoOpt.map(_.nino).getOrElse("")} vrn: ${vrnOpt.map(_.value).getOrElse("")}")) })
+      await(super.withAuthorisedAsClient { clientIds =>
+        Future.successful(Ok(s"mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")}")) })
     }
 
   }

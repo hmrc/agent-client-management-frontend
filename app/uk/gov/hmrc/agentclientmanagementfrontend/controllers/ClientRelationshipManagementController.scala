@@ -57,13 +57,13 @@ class ClientRelationshipManagementController @Inject()(
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (mtdItIdOpt, ninoOpt, vrnOpt) =>
-      relationshipManagementService.getAuthorisedAgents(mtdItIdOpt, ninoOpt, vrnOpt).map(result => Ok(authorised_agents(result)))
+    withAuthorisedAsClient { clientIds =>
+      relationshipManagementService.getAuthorisedAgents(clientIds).map(result => Ok(authorised_agents(result)))
     }
   }
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, _, _) =>
+    withAuthorisedAsClient { _ =>
       relationshipManagementService.getAuthorisedAgentDetails(id).map {
         case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
         case _ => throwNoSessionFoundException(s"id $id")
@@ -72,12 +72,12 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   def submitRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (clientIdOpt, ninoOpt, vrnOpt) =>
+    withAuthorisedAsClient { clientIds =>
       def response = {
         service match {
-          case Services.ITSA => relationshipManagementService.deleteITSARelationship(id, clientIdOpt.getOrElse(throw new InsufficientEnrolments))
-          case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, ninoOpt.getOrElse(throw new InsufficientEnrolments))
-          case Services.VAT => relationshipManagementService.deleteVATRelationship(id, vrnOpt.getOrElse(throw new InsufficientEnrolments))
+          case Services.ITSA => relationshipManagementService.deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, clientIds.nino.getOrElse(throw new InsufficientEnrolments))
+          case Services.VAT => relationshipManagementService.deleteVATRelationship(id, clientIds.vrn.getOrElse(throw new InsufficientEnrolments))
         }
       }
 
@@ -93,7 +93,7 @@ class ClientRelationshipManagementController @Inject()(
 
 
   def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, _, _) =>
+    withAuthorisedAsClient { _ =>
       (request.session.get("agencyName"), request.session.get("service")) match {
         case (Some(agencyName), Some(service)) => Future.successful(Ok(authorisation_removed(agencyName, service)))
         case _ => throwNoSessionFoundException("agencyName", "service")

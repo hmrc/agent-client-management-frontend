@@ -20,7 +20,7 @@ import java.util.UUID
 
 import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, ClientCache, Relationship}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, ClientCache, OptionalClientIdentifiers, Relationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,11 +35,11 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
                                               relationshipsConnector: AgentClientRelationshipsConnector,
                                               sessionStoreService: SessionStoreService) {
 
-  def getAuthorisedAgents(clientIdOpt: Option[MtdItId], ninoOpt: Option[Nino], vrnOpt: Option[Vrn])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+  def getAuthorisedAgents(clientIdOpt: OptionalClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
     val relationshipWithAgencyNames = for {
-      pir <- relationships(ninoOpt) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
-      itsa <- relationships(clientIdOpt)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
-      vat <- relationships(vrnOpt)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
+      pir <- relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
+      itsa <- relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
+      vat <- relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
       relationships = itsa ++ pir ++ vat
       agencyNames <- if (relationships.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))

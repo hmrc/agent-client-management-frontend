@@ -184,6 +184,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value)
+      getClientActiveAgentRelationships(serviceVat, validVrn.value)
       get500ForPIRRelationship(Services.HMRCPIR, validNino.value)
 
       val result = await(doGetRequest(""))
@@ -197,6 +198,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getClientActiveAgentRelationships(serviceVat, validVrn.value)
       get503ForPIRRelationship(Services.HMRCPIR, validNino.value)
 
       val result = await(doGetRequest(""))
