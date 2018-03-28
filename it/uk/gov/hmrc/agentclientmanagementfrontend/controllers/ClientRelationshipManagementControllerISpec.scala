@@ -106,7 +106,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getNotFoundForPIRRelationship(Services.HMRCPIR, validNino.value)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
 
       val result = await(doGetRequest(""))
@@ -285,7 +285,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   "removeAuthorisations for ITSA" should {
 
-    behave like checkRemoveAuthorisationForService(Services.HMRCMTDIT, deleteActiveITSARelationship(validArn.value, mtdItId.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceItsa, deleteActiveITSARelationship(validArn.value, mtdItId.value, 204))
     val req = FakeRequest()
 
     "return 500 an exception if the relationship is not found" in {
@@ -380,7 +380,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(controller.submitRemoveAuthorisation(serviceName, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
-      sessionStoreService.currentSession.clientCache.get.size == 0 shouldBe true
+      sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
 
       result.session should not be empty
       result.session.get("agencyName") shouldBe Some(cache.agencyName)

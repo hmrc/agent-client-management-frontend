@@ -37,8 +37,9 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   val validArn = Arn("FARN0001132")
   val validNino = Nino("AE123456A")
   val validVrn =  Vrn("101747641")
-  val serviceItsa = "HMRC-MTD-IT"
-  val serviceVat = "HMRC-MTD-VAT"
+  val serviceItsa = Services.HMRCMTDIT
+  val serviceVat = Services.HMRCMTDVAT
+  val serviceIrv = Services.HMRCPIR
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
   val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
 
@@ -47,7 +48,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value)
-      getActivePIRRelationship(validArn.copy(value = "FARN0001131"), Services.HMRCPIR, validNino.value, fromCesa = false)
+      getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validVrn.value)
       getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "DEF"))
 
@@ -57,8 +58,8 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   }
 
   "view removeAuthorisation" should {
-    behave like getRemoveAuthorisationPage(Services.HMRCPIR)
-    behave like getRemoveAuthorisationPage(Services.HMRCMTDIT)
+    behave like getRemoveAuthorisationPage(serviceIrv)
+    behave like getRemoveAuthorisationPage(serviceItsa)
 
     def getRemoveAuthorisationPage(service: String) = {
       s"return BadRequest for service: $service when flag for service is false" in {
@@ -72,8 +73,8 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   }
 
   "post removeAuthorisation, BadRequest as flags are false" should {
-    behave like postRemoveAuthorisationForm(Services.HMRCMTDIT)
-    behave like postRemoveAuthorisationForm(Services.HMRCPIR)
+    behave like postRemoveAuthorisationForm(serviceItsa)
+    behave like postRemoveAuthorisationForm(serviceIrv)
 
     def postRemoveAuthorisationForm(service: String) = {
       s"return BadRequest for attempting to remove relationship when flag for service: $service is false" in {

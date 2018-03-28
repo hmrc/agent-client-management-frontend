@@ -93,7 +93,7 @@ class ClientRelationshipManagementController @Inject()(
         }
       }
 
-      if (determineService(`service`, featureFlags)) {
+      if (determineService(service, featureFlags)) {
         validateRemoveAuthorisationForm(id) {
           response.map {
             case DeleteResponse(true, agencyName, `service`) =>
