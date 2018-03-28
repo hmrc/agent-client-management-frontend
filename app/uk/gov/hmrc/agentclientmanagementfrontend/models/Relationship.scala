@@ -29,10 +29,13 @@ object Relationship {
   implicit val relationshipWrites: Writes[Relationship] =  Writes[Relationship] {
     case itsa: ItsaRelationship => ItsaRelationship.relationshipWrites.writes(itsa)
     case pir: PirRelationship => PirRelationship.relationshipWrites.writes(pir)
+    case vat: VatRelationship => VatRelationship.relationshipWrites.writes(vat)
   }
 
   implicit val relationshipReads =
-    __.read[ItsaRelationship].map(x => x: Relationship) orElse __.read[PirRelationship].map(x => x: Relationship)
+    __.read[ItsaRelationship].map(x => x: Relationship)orElse
+      __.read[PirRelationship].map(x => x: Relationship)orElse
+        __.read[VatRelationship].map(x => x: Relationship)
 }
 
 case class ItsaRelationship(arn: Arn) extends Relationship {

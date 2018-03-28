@@ -24,8 +24,8 @@ class AuthActionsISpec extends BaseISpec {
     }
 
     def withAuthorisedAsClient[A]: Result = {
-      await(super.withAuthorisedAsClient { (mtdItIdOpt, ninoOpt) =>
-        Future.successful(Ok(s"mtdItId: ${mtdItIdOpt.map(_.value).getOrElse("")} nino: ${ninoOpt.map(_.nino).getOrElse("")}")) })
+      await(super.withAuthorisedAsClient { (mtdItIdOpt, ninoOpt, vrnOpt) =>
+        Future.successful(Ok(s"mtdItId: ${mtdItIdOpt.map(_.value).getOrElse("")} nino: ${ninoOpt.map(_.nino).getOrElse("")} vrn: ${vrnOpt.map(_.value).getOrElse("")}")) })
     }
 
   }
@@ -114,7 +114,22 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("AE123456A")
     }
 
-    "call body with nino and mtdItId when valid client" in {
+    "call body with vrn when valid VAT client" in {
+      givenAuthorisedFor(
+        "{}",
+        s"""{
+           |"authorisedEnrolments": [
+           |  { "key":"HMRC-MTD-VAT", "identifiers": [
+           |    { "key":"VRN", "value": "fooVrn" }
+           |  ]}
+           |]}""".stripMargin)
+
+      val result = TestController.withAuthorisedAsClient
+      status(result) shouldBe 200
+      bodyOf(result) should include("fooVrn")
+    }
+
+    "call body with nino and mtdItId and vrn when valid client" in {
       givenAuthorisedFor(
         "{}",
         s"""{
@@ -124,6 +139,9 @@ class AuthActionsISpec extends BaseISpec {
            |  ]},
            |  { "key":"HMRC-NI", "identifiers": [
            |    { "key":"NINO", "value": "AE123456A" }
+           |  ]},
+           |  { "key":"HMRC-MTD-VAT", "identifiers": [
+           |    { "key":"VRN", "value": "fooVrn" }
            |  ]}
            |]}""".stripMargin)
 
@@ -131,6 +149,7 @@ class AuthActionsISpec extends BaseISpec {
       status(result) shouldBe 200
       bodyOf(result) should include("fooMtdItId")
       bodyOf(result) should include("AE123456A")
+      bodyOf(result) should include("fooVrn")
     }
 
     "throw InsufficientEnrolments when client not enrolled for service" in {
