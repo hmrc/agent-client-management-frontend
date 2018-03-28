@@ -21,6 +21,10 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   with AgentServicesAccountStub
   with AgentClientRelationshipsStub {
 
+  override def featureRemoveAuthorisationPir = true
+  override def featureRemoveAuthorisationITSA = true
+  override def featureRemoveAuthorisationVat = true
+
   private lazy val controller: ClientRelationshipManagementController = app.injector.instanceOf[ClientRelationshipManagementController]
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
@@ -72,6 +76,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       val result = await(doGetRequest(""))
 
+      result.body.contains("Remove authorisation") shouldBe true
       result.status shouldBe 200
       result.body.contains("abc") shouldBe true
       result.body.contains("DEF") shouldBe true
@@ -256,34 +261,34 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   "removeAuthorisations for ITSA" should {
 
-    behave like checkRemoveAuthorisationForService("ITSA", deleteActiveITSARelationship(validArn.value, mtdItId.value, 204))
+    behave like checkRemoveAuthorisationForService(Services.HMRCMTDIT, deleteActiveITSARelationship(validArn.value, mtdItId.value, 204))
     val req = FakeRequest()
 
     "return 500  an exception if the relationship is not found" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
-      sessionStoreService.storeClientCache(Seq(cache.copy(service = "ITSA")))
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = Services.HMRCMTDIT)))
       deleteActiveITSARelationship(validArn.value, mtdItId.value, 404)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation("ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation(Services.HMRCMTDIT, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "return an exception if relationship service is unavailable" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value)
-      sessionStoreService.storeClientCache(Seq(cache.copy(service = "ITSA")))
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = Services.HMRCMTDIT)))
       deleteActiveITSARelationship(validArn.value, mtdItId.value, 500)
 
       an[Exception] should be thrownBy await(controller
-        .submitRemoveAuthorisation( "ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        .submitRemoveAuthorisation(Services.HMRCMTDIT, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
     "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
       an[InsufficientEnrolments] shouldBe thrownBy {
-        await(controller.submitRemoveAuthorisation("ITSA", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        await(controller.submitRemoveAuthorisation(Services.HMRCMTDIT, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
   }

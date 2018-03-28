@@ -15,7 +15,7 @@
  */
 
 import java.net.URL
-import javax.inject.{ Inject, Provider, Singleton }
+import javax.inject.{Inject, Provider, Singleton}
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.{Named, Names}
@@ -33,6 +33,7 @@ import uk.gov.hmrc.play.http.ws.WSHttp
 class FrontendModule(val environment: Environment, val configuration: Configuration) extends AbstractModule with ServicesConfig {
 
   override val runModeConfiguration: Configuration = configuration
+
   override protected def mode = environment.mode
 
   def configure(): Unit = {
@@ -59,6 +60,10 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-client-relationships")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
+
+    bindBooleanProperty("features.remove-authorisation.PERSONAL-INCOME-RECORD")
+    bindBooleanProperty("features.remove-authorisation.HMRC-MTD-IT")
+    bindBooleanProperty("features.remove-authorisation.HMRC-MTD-VAT")
   }
 
   private def bindBaseUrl(serviceName: String) =
@@ -72,7 +77,15 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bind(classOf[String]).annotatedWith(Names.named(propertyName)).toProvider(new PropertyProvider(propertyName))
 
   private class PropertyProvider(confKey: String) extends Provider[String] {
-    override lazy val get = configuration.getString(confKey)
+    override lazy val get: String = configuration.getString(confKey)
+      .getOrElse(throw new IllegalStateException(s"No value found for configuration property $confKey"))
+  }
+
+  private def bindBooleanProperty(propertyName: String) =
+    bind(classOf[Boolean]).annotatedWith(Names.named(propertyName)).toProvider(new PropertyBooleanProvider(propertyName))
+
+  private class PropertyBooleanProvider(confKey: String) extends Provider[Boolean] {
+    override lazy val get: Boolean = configuration.getBoolean(confKey)
       .getOrElse(throw new IllegalStateException(s"No value found for configuration property $confKey"))
   }
 
@@ -96,6 +109,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
       private class StringServiceConfigPropertyProvider(propertyName: String) extends Provider[String] {
         override lazy val get = getConfString(propertyName, throw new RuntimeException(s"No service configuration value found for '$propertyName'"))
       }
+
     }
 
     implicit val intServiceConfigProperty: ServiceConfigPropertyType[Int] = new ServiceConfigPropertyType[Int] {
@@ -105,6 +119,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
       private class IntServiceConfigPropertyProvider(propertyName: String) extends Provider[Int] {
         override lazy val get = getConfInt(propertyName, throw new RuntimeException(s"No service configuration value found for '$propertyName'"))
       }
+
     }
 
     implicit val booleanServiceConfigProperty: ServiceConfigPropertyType[Boolean] = new ServiceConfigPropertyType[Boolean] {
@@ -119,19 +134,19 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 }
 
 @Singleton
-class HttpVerbs @Inject() (val auditConnector: AuditConnector, @Named("appName") val appName: String)
+class HttpVerbs @Inject()(val auditConnector: AuditConnector, @Named("appName") val appName: String)
   extends HttpGet with HttpPost with HttpPut with HttpPatch with HttpDelete with WSHttp
-  with HttpAuditing {
+    with HttpAuditing {
   override val hooks = Seq(AuditingHook)
 }
 
 
 @Singleton
 class AgentClientManagementSessionCache @Inject()(val http: HttpGet with HttpPut with HttpDelete,
-                                              @Named("appName") val appName: String,
-                                              @Named("cachable.session-cache-baseUrl") val baseUrl: URL,
-                                              @Named("cachable.session-cache.domain") val domain: String
-                                             ) extends SessionCache {
+                                                  @Named("appName") val appName: String,
+                                                  @Named("cachable.session-cache-baseUrl") val baseUrl: URL,
+                                                  @Named("cachable.session-cache.domain") val domain: String
+                                                 ) extends SessionCache {
   override lazy val defaultSource = appName
   override lazy val baseUri = baseUrl.toExternalForm
 }

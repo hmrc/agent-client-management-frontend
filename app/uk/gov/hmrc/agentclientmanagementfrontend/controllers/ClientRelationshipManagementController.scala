@@ -24,10 +24,9 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -51,6 +50,7 @@ object RadioConfirm {
 @Singleton
 class ClientRelationshipManagementController @Inject()(
                                                         override val messagesApi: MessagesApi,
+                                                        featureFlags: FeatureFlags,
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration)
@@ -64,10 +64,21 @@ class ClientRelationshipManagementController @Inject()(
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _) =>
-      relationshipManagementService.getAuthorisedAgentDetails(id).map {
-        case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
-        case _ => throwNoSessionFoundException(s"id $id")
-      }
+      if (determineService(service, featureFlags)) {
+        relationshipManagementService.getAuthorisedAgentDetails(id).map {
+          case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
+          case _ => throwNoSessionFoundException(s"id $id")
+        }
+      } else Future.successful(BadRequest)
+    }
+  }
+
+  private def determineService(service: String, featureFlags: FeatureFlags): Boolean = {
+    service match {
+      case "PERSONAL-INCOME-RECORD" => featureFlags.rmAuthIRV
+      case "HMRC-MTD-IT" => featureFlags.rmAuthITSA
+      case "HMRC-MTD-VAT" => featureFlags.rmAuthVAT
+      case _ => throw new Exception("Unsupported Service")
     }
   }
 
@@ -75,21 +86,23 @@ class ClientRelationshipManagementController @Inject()(
     withAuthorisedAsClient { (clientIdOpt, ninoOpt) =>
       def response = {
         service match {
-          case Services.ITSA => relationshipManagementService.deleteITSARelationship(id, clientIdOpt.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCMTDIT => relationshipManagementService.deleteITSARelationship(id, clientIdOpt.getOrElse(throw new InsufficientEnrolments))
           case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, ninoOpt.getOrElse(throw new InsufficientEnrolments))
         }
       }
 
-      validateRemoveAuthorisationForm(id) {
-        response.map {
-          case DeleteResponse(true, agencyName, service) =>
-            Redirect(routes.ClientRelationshipManagementController.authorisationRemoved).withSession(
-              request.session + ("agencyName", agencyName) + ("service", service))
+      if (configuration.getBoolean(s"features.remove-authorisation.$service").getOrElse(false)) {
+        validateRemoveAuthorisationForm(id) {
+          response.map {
+            case DeleteResponse(true, agencyName, service) =>
+              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved).withSession(
+                request.session + ("agencyName", agencyName) + ("service", service))
+          }
         }
-      }
+      } else
+        Future.successful(BadRequest)
     }
   }
-
 
   def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _) =>
