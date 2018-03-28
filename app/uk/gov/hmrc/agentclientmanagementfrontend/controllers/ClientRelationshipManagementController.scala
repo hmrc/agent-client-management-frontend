@@ -91,11 +91,11 @@ class ClientRelationshipManagementController @Inject()(
         }
       }
 
-      if (configuration.getBoolean(s"features.remove-authorisation.$service").getOrElse(false)) {
+      if (determineService(service, featureFlags)) {
         validateRemoveAuthorisationForm(id) {
           response.map {
-            case DeleteResponse(true, agencyName, service) =>
-              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved).withSession(
+            case DeleteResponse(true, agencyName, `service`) =>
+              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved()).withSession(
                 request.session + ("agencyName", agencyName) + ("service", service))
           }
         }
