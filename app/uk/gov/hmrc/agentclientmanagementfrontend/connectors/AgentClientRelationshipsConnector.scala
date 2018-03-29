@@ -36,14 +36,14 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
 
   def deleteItsaRelationship(arn: Arn, clientId: TaxIdentifier)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     val deleteEndpoint = new URL(baseUrl, s"/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-IT/client/MTDITID/${clientId.value}")
-    monitor(s"ConsumedAPI-Delete-AgentClientRelationship-MTD-IT-DELETE") {
+    monitor(s"ConsumedAPI-AgentClientRelationship-MTD-IT-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
     }
   }
 
   def deleteVatRelationship(arn: Arn, clientId: Vrn)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     val deleteEndpoint = new URL(baseUrl, s"/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-VAT/client/VRN/${clientId.value}")
-    monitor(s"ConsumedAPI-Delete-AgentClientRelationship-MTD-VAT-DELETE") {
+    monitor(s"ConsumedAPI-AgentClientRelationship-MTD-VAT-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
     }
   }

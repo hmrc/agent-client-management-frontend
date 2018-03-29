@@ -49,7 +49,7 @@ trait AuthActions extends AuthorisedFunctions {
         val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
         val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
 
-        if (clientIds.atLeastOneFieldDefined)
+        if (clientIds.haveAtLeastOneFieldDefined)
           body(clientIds)
         else
           Future.failed(InsufficientEnrolments("Identifiers not found"))

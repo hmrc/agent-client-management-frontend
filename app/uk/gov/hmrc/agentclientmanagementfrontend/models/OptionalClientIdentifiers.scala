@@ -21,5 +21,5 @@ import uk.gov.hmrc.domain.Nino
 
 case class OptionalClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn]) {
 
-  val atLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined
+  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined
 }

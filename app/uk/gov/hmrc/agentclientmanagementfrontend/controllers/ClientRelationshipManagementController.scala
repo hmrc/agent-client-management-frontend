@@ -64,7 +64,7 @@ class ClientRelationshipManagementController @Inject()(
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
       withAuthorisedAsClient { _ =>
-        if (determineService(service, featureFlags)) {
+        if (isActiveService(service, featureFlags)) {
           relationshipManagementService.getAuthorisedAgentDetails(id).map {
             case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
             case _ => throwNoSessionFoundException(s"id $id")
@@ -73,7 +73,7 @@ class ClientRelationshipManagementController @Inject()(
       }
   }
 
-  private def determineService(service: String, featureFlags: FeatureFlags): Boolean = {
+  private def isActiveService(service: String, featureFlags: FeatureFlags): Boolean = {
     service match {
       case Services.HMRCPIR => featureFlags.rmAuthIRV
       case Services.HMRCMTDIT => featureFlags.rmAuthITSA
@@ -93,7 +93,7 @@ class ClientRelationshipManagementController @Inject()(
         }
       }
 
-      if (determineService(service, featureFlags)) {
+      if (isActiveService(service, featureFlags)) {
         validateRemoveAuthorisationForm(id) {
           response.map {
             case DeleteResponse(true, agencyName, `service`) =>
