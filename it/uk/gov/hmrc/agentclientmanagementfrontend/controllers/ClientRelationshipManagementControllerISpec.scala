@@ -316,6 +316,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
         await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
+
+    "return exception if session data not found" in {
+      val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
+      an[Exception] should be thrownBy await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)))
+    }
   }
 
   "removeAuthorisations for VAT" should {
@@ -349,6 +354,22 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(controller.submitRemoveAuthorisation(serviceVat, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
+    }
+  }
+
+  "removeAuthorisations for invalid services" should {
+
+    val req = FakeRequest()
+
+    "return an exception because service is invalid" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = "InvalidService")))
+      deleteActiveITSARelationship(validArn.value, mtdItId.value, 500)
+
+      an[Exception] should be thrownBy await(controller
+        .submitRemoveAuthorisation("InvalidService", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
   }
 

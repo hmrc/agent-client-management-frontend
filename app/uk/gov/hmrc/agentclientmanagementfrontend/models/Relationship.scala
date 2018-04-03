@@ -48,7 +48,7 @@ object PirRelationship {
 }
 
 case class VatRelationship(arn: Arn) extends Relationship {
-  val serviceName = Services.VAT
+  val serviceName = Services.HMRCMTDVAT
 }
 
 object VatRelationship {

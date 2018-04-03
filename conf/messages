@@ -1,3 +1,5 @@
+servicename.titleSuffix=- Agent Services - GOV.UK
+
 # Error messages for digital services
 global.error.400.title=Bad request - 400
 global.error.400.heading=Bad request
@@ -20,6 +22,7 @@ start.helpdesklink.text1=Contact the online services helpdesk
 start.helpdesklink.text2=if you need help.
 
 button.continue=Continue
+button.back=Back
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
@@ -30,18 +33,20 @@ client-authorised-agents-table-row-header.actions=Actions
 
 client-authorised-agents-table-content.noAgentsFound=You have no authorised agents
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=Income record
-client-authorised-agents-table-content.ITSA=ITSA
-client-authorised-agents-table-content.VAT=VAT
 client-authorised-agents-table-content.HMRC-MTD-VAT=VAT
 client-authorised-agents-table-content.HMRC-MTD-IT=ITSA
 client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
 client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation
 clientEndsRelationship.title=Remove authorisation for {0}
-clientEndsRelationship.description=If you remove your authorisation, {0} will no longer be able to view your {1}.
+clientEndsRelationship.description.HMRC-MTD-IT=If you remove your authorisation, {0} will no longer be able to view your {1}.
+clientEndsRelationship.description.HMRC-MTD-VAT=If you remove your authorisation, {0} will no longer be able to report your VAT returns through software.
 clientEndsRelationship.form.title=Are you sure you want to remove your authorisation for {0}?
 error.summary.heading=There is a problem
 error.confirmResponse.invalid.description=Select yes if you want to remove your authorisation.
-clientEndsRelationshipEnded.title={0} can no longer view your {1}
+clientEndsRelationshipEnded.title.HMRC-MTD-IT={0} can no longer view your {1}
+clientEndsRelationshipEnded.title.HMRC-MTD-VAT={0} can no longer report your VAT returns through software
 clientEndsRelationshipEnded.p1=If you want to allow {0} to view your record, ask them to send you a new authorisation request.
+clientEndsRelationshipEnded.p1.HMRC-MTD-VAT=If you want to allow {0} to report your VAT returns through software, ask them to send you a new authorisation request.
 clientEndsRelationship.yes=Yes
 clientEndsRelationship.no=No
+error.prefix=Error:
