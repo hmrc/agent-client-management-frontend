@@ -23,7 +23,11 @@
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("clientEndsRelationship.title", agencyName), bodyClasses = None) {
     @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
     <h1 class="heading-large">@Messages("clientEndsRelationship.title", agencyName)</h1>
-    <p>@Messages("clientEndsRelationship.description", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
+    @if(service == "HMRC-MTD-VAT"){
+        <p>@Messages("clientEndsRelationship.description.VAT", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
+    } else{
+        <p>@Messages("clientEndsRelationship.description", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
+    }
     <h3>@Messages("clientEndsRelationship.form.title", agencyName)</h3>
     @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @inputRadioGroup(
