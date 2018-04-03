@@ -80,6 +80,8 @@
     uiHelpers.reportAProblemLink(configuration.getString("reportAProblemPartialUrl").get, configuration.getString("reportAProblemNonJSUrl").get)
 }
 
+@titleSuffix = @{ Messages("servicename.titleSuffix") }
+
 @content = {
 @uiLayouts.main_content(article = mainContent,
     mainClass = mainClass,
@@ -90,4 +92,4 @@
     sidebar = sidebar)
 }
 
-@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links()), nav = true)(content)
+@hmrcGovUkTemplate(Some(title + " " + titleSuffix), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links()), nav = true)(content)

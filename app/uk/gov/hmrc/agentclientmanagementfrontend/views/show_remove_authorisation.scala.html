@@ -20,27 +20,25 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.RadioConfirm
 
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("clientEndsRelationship.title", agencyName), bodyClasses = None) {
+@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = error_prefix(confirmForm) + Messages("clientEndsRelationship.title", agencyName), bodyClasses = None) {
     @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
     <h1 class="heading-large">@Messages("clientEndsRelationship.title", agencyName)</h1>
-    @if(service == "HMRC-MTD-VAT"){
-        <p>@Messages("clientEndsRelationship.description.VAT", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
-    } else{
-        <p>@Messages("clientEndsRelationship.description", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
-    }
-    <h3>@Messages("clientEndsRelationship.form.title", agencyName)</h3>
+
+    <p>@Messages(s"clientEndsRelationship.description.$service", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
+
     @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @inputRadioGroup(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
-            '_legend -> Messages("clientEndsRelationship.title"),
-            '_legendClass -> "visuallyhidden",
-            '_groupClass -> "form-group soft--ends",
+            '_legend -> Messages("clientEndsRelationship.form.title", agencyName),
+            '_legendClass -> "heading-medium",
+            '_groupDivClass -> "form-group soft--ends",
+            '_groupClass -> "inline",
             '_fieldsetAttributes -> Html("""id='confirmResponse'""")
         )
         <div class="form-group">
             <button type="submit" class="button" id="buttonDeauthorise">@Messages("button.continue")</button>
         </div>
-        <a href="@routes.ClientRelationshipManagementController.root()">@Messages("button.back")</a>
+        <a href="@routes.ClientRelationshipManagementController.root()" class="back-link" id="backlink">@Messages("button.back")</a>
     }
 }
