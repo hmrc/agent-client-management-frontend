@@ -20,6 +20,7 @@ start.helpdesklink.text1=Contact the online services helpdesk
 start.helpdesklink.text2=if you need help.
 
 button.continue=Continue
+button.back=Back
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
@@ -45,3 +46,5 @@ clientEndsRelationshipEnded.title={0} can no longer view your {1}
 clientEndsRelationshipEnded.p1=If you want to allow {0} to view your record, ask them to send you a new authorisation request.
 clientEndsRelationship.yes=Yes
 clientEndsRelationship.no=No
+
+clientEndsRelationshipEnded.p1.HMRC-MTD-VAT=If you want to allow {0} to report your VAT returns through software, ask them to send you a new authorisation request.
