@@ -57,46 +57,48 @@ class ClientRelationshipManagementController @Inject()(
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (mtdItIdOpt, ninoOpt) =>
-      relationshipManagementService.getAuthorisedAgents(mtdItIdOpt, ninoOpt).map(result => Ok(authorised_agents(result)))
+    withAuthorisedAsClient { clientIds =>
+      relationshipManagementService.getAuthorisedAgents(clientIds).map(result => Ok(authorised_agents(result)))
     }
   }
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, _) =>
-      if (determineService(service, featureFlags)) {
-        relationshipManagementService.getAuthorisedAgentDetails(id).map {
-          case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
-          case _ => throwNoSessionFoundException(s"id $id")
-        }
-      } else Future.successful(BadRequest)
-    }
+      withAuthorisedAsClient { _ =>
+        if (isActiveService(service, featureFlags)) {
+          relationshipManagementService.getAuthorisedAgentDetails(id).map {
+            case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
+            case _ => throwNoSessionFoundException(s"id $id")
+          }
+        } else Future.successful(BadRequest)
+      }
   }
 
-  private def determineService(service: String, featureFlags: FeatureFlags): Boolean = {
+  private def isActiveService(service: String, featureFlags: FeatureFlags): Boolean = {
     service match {
-      case "PERSONAL-INCOME-RECORD" => featureFlags.rmAuthIRV
-      case "HMRC-MTD-IT" => featureFlags.rmAuthITSA
-      case "HMRC-MTD-VAT" => featureFlags.rmAuthVAT
+      case Services.HMRCPIR => featureFlags.rmAuthIRV
+      case Services.HMRCMTDIT => featureFlags.rmAuthITSA
+      case Services.HMRCMTDVAT => featureFlags.rmAuthVAT
       case _ => throw new Exception("Unsupported Service")
     }
   }
 
   def submitRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (clientIdOpt, ninoOpt) =>
+    withAuthorisedAsClient { clientIds =>
       def response = {
         service match {
-          case Services.HMRCMTDIT => relationshipManagementService.deleteITSARelationship(id, clientIdOpt.getOrElse(throw new InsufficientEnrolments))
-          case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, ninoOpt.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCMTDIT => relationshipManagementService.deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, clientIds.nino.getOrElse(throw new InsufficientEnrolments))
+          case Services.HMRCMTDVAT => relationshipManagementService.deleteVATRelationship(id, clientIds.vrn.getOrElse(throw new InsufficientEnrolments))
+          case _ => throw new Exception("Unsupported Service")
         }
       }
 
-      if (determineService(service, featureFlags)) {
+      if (isActiveService(service, featureFlags)) {
         validateRemoveAuthorisationForm(id) {
           response.map {
             case DeleteResponse(true, agencyName, `service`) =>
-              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved()).withSession(
-                request.session + ("agencyName", agencyName) + ("service", service))
+              Redirect(routes.ClientRelationshipManagementController.authorisationRemoved())
+                .addingToSession(("agencyName", agencyName), ("service", service))
           }
         }
       } else
@@ -105,7 +107,7 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, _) =>
+    withAuthorisedAsClient { _ =>
       (request.session.get("agencyName"), request.session.get("service")) match {
         case (Some(agencyName), Some(service)) => Future.successful(Ok(authorisation_removed(agencyName, service)))
         case _ => throwNoSessionFoundException("agencyName", "service")

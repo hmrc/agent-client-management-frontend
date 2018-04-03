@@ -17,12 +17,13 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.Retrievals.authorisedEnrolments
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.agentclientmanagementfrontend.models.OptionalClientIdentifiers
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,20 +35,22 @@ trait AuthActions extends AuthorisedFunctions {
       case None => Future.failed(InsufficientEnrolments("AgentReferenceNumber identifier not found"))
     }
 
-  protected def withAuthorisedAsClient[A](body: (Option[MtdItId], Option[Nino]) => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
+  protected def withAuthorisedAsClient[A](body: OptionalClientIdentifiers => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
 
     def clientId(serviceName: String, identifierKey: String)(implicit enrolments: Enrolments): Option[String] =
       enrolments.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
 
     authorised(
-      Enrolment("HMRC-MTD-IT") or Enrolment("HMRC-NI")
+      Enrolment("HMRC-MTD-IT") or Enrolment("HMRC-NI") or Enrolment("HMRC-MTD-VAT")
         and AuthProviders(GovernmentGateway))
       .retrieve(authorisedEnrolments) { implicit enrolments =>
         val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
         val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
+        val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
+        val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
 
-        if (mtdItId.isDefined || nino.isDefined)
-          body(mtdItId, nino)
+        if (clientIds.haveAtLeastOneFieldDefined)
+          body(clientIds)
         else
           Future.failed(InsufficientEnrolments("Identifiers not found"))
       }

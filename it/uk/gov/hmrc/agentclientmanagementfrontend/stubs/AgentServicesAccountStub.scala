@@ -25,10 +25,10 @@ trait AgentServicesAccountStub {
       ))
   }
 
-  def getTwoAgencyNamesMap200(arnWithName1: (Arn, String), arnWithName2: (Arn, String)): Unit = {
+  def getThreeAgencyNamesMap200(arnWithName1: (Arn, String), arnWithName2: (Arn, String), arnWithName3: (Arn, String)): Unit = {
     stubFor(post(urlEqualTo(s"/agent-services-account/client/agency-names"))
       .withHeader("Content-Type", containing("application/json"))
-      .withRequestBody(equalTo(s"""["${arnWithName1._1.value}","${arnWithName2._1.value}"]"""))
+      .withRequestBody(equalTo(s"""["${arnWithName1._1.value}","${arnWithName2._1.value}","${arnWithName3._1.value}"]"""))
       .willReturn(
         aResponse()
           .withStatus(200)
@@ -36,7 +36,8 @@ trait AgentServicesAccountStub {
             s"""
                |[
                |{"arn": "${arnWithName1._1.value}", "agencyName": "${arnWithName1._2}" },
-               |{"arn": "${arnWithName2._1.value}", "agencyName": "${arnWithName2._2}" }
+               |{"arn": "${arnWithName2._1.value}", "agencyName": "${arnWithName2._2}" },
+               |{"arn": "${arnWithName3._1.value}", "agencyName": "${arnWithName3._2}" }
                |]
             """.stripMargin)
       ))

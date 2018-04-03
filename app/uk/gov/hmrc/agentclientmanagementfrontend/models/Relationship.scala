@@ -25,16 +25,6 @@ sealed trait Relationship extends Product with Serializable {
   val serviceName: String
 }
 
-object Relationship {
-  implicit val relationshipWrites: Writes[Relationship] =  Writes[Relationship] {
-    case itsa: ItsaRelationship => ItsaRelationship.relationshipWrites.writes(itsa)
-    case pir: PirRelationship => PirRelationship.relationshipWrites.writes(pir)
-  }
-
-  implicit val relationshipReads =
-    __.read[ItsaRelationship].map(x => x: Relationship) orElse __.read[PirRelationship].map(x => x: Relationship)
-}
-
 case class ItsaRelationship(arn: Arn) extends Relationship {
   val serviceName = Services.HMRCMTDIT
 }
@@ -46,6 +36,7 @@ object ItsaRelationship {
     (JsPath \ "agentReferenceNumber").read[Arn].map(arn => ItsaRelationship(arn))
 
 }
+
 case class PirRelationship(arn: Arn) extends Relationship {
   val serviceName = Services.HMRCPIR
 }
@@ -54,4 +45,16 @@ object PirRelationship {
   implicit val relationshipWrites = Json.writes[PirRelationship]
 
   implicit val reads: Reads[PirRelationship] = Json.reads[PirRelationship]
+}
+
+case class VatRelationship(arn: Arn) extends Relationship {
+  val serviceName = Services.VAT
+}
+
+object VatRelationship {
+  implicit val relationshipWrites = Json.writes[VatRelationship]
+
+  implicit val reads: Reads[VatRelationship] =
+    (JsPath \ "agentReferenceNumber").read[Arn].map(arn => VatRelationship(arn))
+
 }

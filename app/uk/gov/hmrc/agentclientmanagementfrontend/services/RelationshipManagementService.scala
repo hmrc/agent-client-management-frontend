@@ -17,11 +17,11 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import java.util.UUID
-import javax.inject.Inject
 
+import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, ClientCache, Relationship}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, ClientCache, OptionalClientIdentifiers, Relationship}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -35,11 +35,12 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
                                               relationshipsConnector: AgentClientRelationshipsConnector,
                                               sessionStoreService: SessionStoreService) {
 
-  def getAuthorisedAgents(clientIdOpt: Option[MtdItId], ninoOpt: Option[Nino])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+  def getAuthorisedAgents(clientIdOpt: OptionalClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+    val pirRelationships = relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
+    val itsaRelationships = relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
+    val vatRelationships = relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val relationshipWithAgencyNames = for {
-      pir <- relationships(ninoOpt) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
-      itsa <- relationships(clientIdOpt)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
-      relationships = itsa ++ pir
+      relationships <- Future.sequence(Seq(itsaRelationships, pirRelationships, vatRelationships)).map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
       else Future.successful(Map.empty[Arn, String])
@@ -60,11 +61,15 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
   }
 
   def deleteITSARelationship(id: String, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
-    deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
+    deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteItsaRelationship(arn, clientId))
   }
 
   def deletePIRelationship(id: String, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
     deleteRelationship(id, nino)(arn => pirRelationshipConnector.deleteClientRelationship(arn, nino))
+  }
+
+  def deleteVATRelationship(id: String, vrn: Vrn)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
+    deleteRelationship(id, vrn)(arn => relationshipsConnector.deleteVatRelationship(arn, vrn))
   }
 
   private def deleteRelationship(id: String, clientId: TaxIdentifier)(f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {

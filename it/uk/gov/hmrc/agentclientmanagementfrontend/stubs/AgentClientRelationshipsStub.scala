@@ -14,8 +14,15 @@ trait AgentClientRelationshipsStub {
           .withStatus(httpStatus)))
   }
 
-  def getClientActiveAgentRelationships(agentArn: String): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+  def deleteActiveVATRelationship(arn: String, clientId: String, httpStatus: Int = 204): Unit = {
+    stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$arn/service/HMRC-MTD-VAT/client/VRN/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(httpStatus)))
+  }
+
+  def getClientActiveAgentRelationships(service: String, agentArn: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(
         aResponse()
           .withStatus(200)
@@ -26,29 +33,29 @@ trait AgentClientRelationshipsStub {
                |}""".stripMargin)))
   }
 
-  def get400ClientActiveAgentRelationships(): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+  def get400ClientActiveAgentRelationships(service: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(
         aResponse()
           .withStatus(400)))
   }
 
-  def getNotFoundClientActiveAgentRelationships(): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+  def getNotFoundClientActiveAgentRelationships(service: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(
         aResponse()
           .withStatus(404)))
   }
 
-  def get500ClientActiveAgentRelationships(): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+  def get500ClientActiveAgentRelationships(service: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(
         aResponse()
           .withStatus(500)))
   }
 
-  def get503ClientActiveAgentRelationships(): Unit = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship"))
+  def get503ClientActiveAgentRelationships(service: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(
         aResponse()
           .withStatus(503)))
