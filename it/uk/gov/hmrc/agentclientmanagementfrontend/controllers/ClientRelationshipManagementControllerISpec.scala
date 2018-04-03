@@ -37,6 +37,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val validVrn =  Vrn("101747641")
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
   val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
+  val cacheItsa = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "HMRC-MTD-IT")
   val serviceItsa = Services.HMRCMTDIT
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
@@ -376,12 +377,12 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   "authorisationRemoved" should {
 
     "show authorisation_removed page with required sessions" in {
-      val req = FakeRequest().withSession("agencyName" -> cache.agencyName, "service" -> cache.service)
+      val req = FakeRequest().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service)
       val result = await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)))
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "This Agency Name")
-      checkHtmlResultWithBodyText(result, "Some service name")
+      checkHtmlResultWithBodyText(result, "HMRC-MTD-IT")
     }
 
     "return exception if required session data not found" in {
