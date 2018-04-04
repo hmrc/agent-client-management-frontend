@@ -24,7 +24,7 @@
     @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
     <h1 class="heading-large">@Messages("clientEndsRelationship.title", agencyName)</h1>
 
-    <p>@Messages(s"clientEndsRelationship.description.$service", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</p>
+    <p>@Messages(s"clientEndsRelationship.description.$service", agencyName)</p>
 
     @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @inputRadioGroup(
