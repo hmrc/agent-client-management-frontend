@@ -317,11 +317,6 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
         await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
-
-    "return exception if session data not found" in {
-      val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
-      an[Exception] should be thrownBy await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)))
-    }
   }
 
   "removeAuthorisations for VAT" should {
@@ -356,6 +351,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
         await(controller.submitRemoveAuthorisation(serviceVat, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
+
+    "return exception if session data not found" in {
+      val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
+      an[Exception] should be thrownBy await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)))
+    }
   }
 
   "removeAuthorisations for invalid services" should {
@@ -382,7 +382,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "This Agency Name")
-      checkHtmlResultWithBodyText(result, "HMRC-MTD-IT")
+      checkHtmlResultWithBodyText(result, "ITSA")
     }
 
     "return exception if required session data not found" in {
@@ -394,7 +394,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => Unit) = {
     implicit val req = FakeRequest()
 
-    "return 200, remove the relationship if the client confirm deletion" in {
+    "return 200, remove the relationship if the client confirms deletion" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub

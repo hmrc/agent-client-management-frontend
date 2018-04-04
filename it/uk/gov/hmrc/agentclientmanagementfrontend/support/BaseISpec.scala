@@ -12,11 +12,11 @@ import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AuthStubs, DataStreamStubs}
+import uk.gov.hmrc.agentclientmanagementfrontend.stubs.AuthStubs
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
-class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
+class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with MetricsTestSupport {
 
   def featureRemoveAuthorisationPir = false
   def featureRemoveAuthorisationITSA = false
@@ -59,7 +59,6 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
 
   override def commonStubs(): Unit = {
     givenCleanMetricRegistry()
-    givenAuditConnector()
   }
 
   protected implicit val materializer = app.materializer
