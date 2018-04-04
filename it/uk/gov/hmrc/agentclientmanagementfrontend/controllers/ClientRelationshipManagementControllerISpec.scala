@@ -382,7 +382,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "This Agency Name")
-      checkHtmlResultWithBodyText(result, "ITSA")
+      checkHtmlResultWithBodyText(result, "cannot report your income and expenses through software")
     }
 
     "return exception if required session data not found" in {

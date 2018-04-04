@@ -18,8 +18,8 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 
 @(agencyName: String, service: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("clientEndsRelationshipEnded.title", agencyName, Messages(s"client-authorised-agents-table-content.$service")), bodyClasses = None) {
- <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.title.$service", agencyName, Messages(s"client-authorised-agents-table-content.$service"))</h1>
+@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages(s"clientEndsRelationshipEnded.title.$service", agencyName), bodyClasses = None) {
+ <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.title.$service", agencyName)</h1>
  <p>@Messages(s"clientEndsRelationshipEnded.p1.$service", agencyName)</p>
 <a href="@routes.ClientRelationshipManagementController.root()" class="button" role="button" id="goToPtaButton">@Messages("button.continue")</a>
 }
