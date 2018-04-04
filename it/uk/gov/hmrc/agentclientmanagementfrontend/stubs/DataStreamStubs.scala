@@ -4,7 +4,6 @@ import org.scalatest.concurrent.Eventually
 import org.scalatest.time.{ Millis, Seconds, Span }
 import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.agentclientmanagementfrontend.services.AgentclientmanagementFrontendEvent.AgentclientmanagementFrontendEvent
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 
 trait DataStreamStubs extends Eventually {

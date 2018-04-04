@@ -37,6 +37,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val validVrn =  Vrn("101747641")
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
   val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
+  val cacheItsa = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "HMRC-MTD-IT")
   val serviceItsa = Services.HMRCMTDIT
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
@@ -350,17 +351,38 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
         await(controller.submitRemoveAuthorisation(serviceVat, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
+
+    "return exception if session data not found" in {
+      val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
+      an[Exception] should be thrownBy await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)))
+    }
+  }
+
+  "removeAuthorisations for invalid services" should {
+
+    val req = FakeRequest()
+
+    "return an exception because service is invalid" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = "InvalidService")))
+      deleteActiveITSARelationship(validArn.value, mtdItId.value, 500)
+
+      an[Exception] should be thrownBy await(controller
+        .submitRemoveAuthorisation("InvalidService", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
   }
 
   "authorisationRemoved" should {
 
     "show authorisation_removed page with required sessions" in {
-      val req = FakeRequest().withSession("agencyName" -> cache.agencyName, "service" -> cache.service)
+      val req = FakeRequest().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service)
       val result = await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)))
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "This Agency Name")
-      checkHtmlResultWithBodyText(result, "Some service name")
+      checkHtmlResultWithBodyText(result, "HMRC-MTD-IT")
     }
 
     "return exception if required session data not found" in {
@@ -372,7 +394,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => Unit) = {
     implicit val req = FakeRequest()
 
-    "return 200, remove the relationship if the client confirm deletion" in {
+    "return 200, remove the relationship if the client confirms deletion" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
