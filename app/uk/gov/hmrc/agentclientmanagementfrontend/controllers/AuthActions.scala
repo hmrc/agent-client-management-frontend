@@ -41,7 +41,7 @@ trait AuthActions extends AuthorisedFunctions {
       enrolments.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
 
     authorised(
-      Enrolment("HMRC-MTD-IT") or Enrolment("HMRC-NI") or Enrolment("HMRC-MTD-VAT")
+      (Enrolment("HMRC-MTD-IT") or Enrolment("HMRC-NI") or Enrolment("HMRC-MTD-VAT"))
         and AuthProviders(GovernmentGateway))
       .retrieve(authorisedEnrolments) { implicit enrolments =>
         val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
