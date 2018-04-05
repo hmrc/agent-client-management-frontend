@@ -19,67 +19,11 @@ class AuthActionsISpec extends BaseISpec {
     implicit val request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    def withAuthorisedAsAgent[A]: Result = {
-      await(super.withAuthorisedAsAgent { arn => Future.successful(Ok(arn.value)) })
-    }
-
     def withAuthorisedAsClient[A]: Result = {
       await(super.withAuthorisedAsClient { clientIds =>
         Future.successful(Ok(s"mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")}")) })
     }
 
-  }
-
-  "withAuthorisedAsAgent" should {
-
-    "call body with arn when valid agent" in {
-      givenAuthorisedFor(
-        "{}",
-        s"""{
-           |"authorisedEnrolments": [
-           |  { "key":"HMRC-AS-AGENT", "identifiers": [
-           |    { "key":"AgentReferenceNumber", "value": "fooArn" }
-           |  ]}
-           |]}""".stripMargin)
-      val result = TestController.withAuthorisedAsAgent
-      status(result) shouldBe 200
-      bodyOf(result) shouldBe "fooArn"
-    }
-
-    "throw AutorisationException when user not logged in" in {
-      givenUnauthorisedWith("MissingBearerToken")
-      an[AuthorisationException] shouldBe thrownBy {
-        TestController.withAuthorisedAsAgent
-      }
-    }
-
-    "throw InsufficientEnrolments when agent not enrolled for service" in {
-      givenAuthorisedFor(
-        "{}",
-        s"""{
-           |"authorisedEnrolments": [
-           |  { "key":"HMRC-MTD-IT", "identifiers": [
-           |    { "key":"MTDITID", "value": "fooMtdItId" }
-           |  ]}
-           |]}""".stripMargin)
-      an[InsufficientEnrolments] shouldBe thrownBy {
-        TestController.withAuthorisedAsAgent
-      }
-    }
-
-    "throw InsufficientEnrolments when expected agent's identifier missing" in {
-      givenAuthorisedFor(
-        "{}",
-        s"""{
-           |"authorisedEnrolments": [
-           |  { "key":"HMRC-AS-AGENT", "identifiers": [
-           |    { "key":"BAR", "value": "fooArn" }
-           |  ]}
-           |]}""".stripMargin)
-      an[InsufficientEnrolments] shouldBe thrownBy {
-        TestController.withAuthorisedAsAgent
-      }
-    }
   }
 
   "withAuthorisedAsClient" should {
@@ -88,7 +32,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
-           |"authorisedEnrolments": [
+           |"allEnrolments": [
            |  { "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"MTDITID", "value": "fooMtdItId" }
            |  ]}
@@ -103,7 +47,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
-           |"authorisedEnrolments": [
+           |"allEnrolments": [
            |  { "key":"HMRC-NI", "identifiers": [
            |    { "key":"NINO", "value": "AE123456A" }
            |  ]}
@@ -118,7 +62,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
-           |"authorisedEnrolments": [
+           |"allEnrolments": [
            |  { "key":"HMRC-MTD-VAT", "identifiers": [
            |    { "key":"VRN", "value": "fooVrn" }
            |  ]}
@@ -133,7 +77,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
-           |"authorisedEnrolments": [
+           |"allEnrolments": [
            |{ "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"MTDITID", "value": "fooMtdItId" }
            |  ]},
@@ -156,7 +100,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
-           |"authorisedEnrolments": [
+           |"allEnrolments": [
            |  { "key":"HMRC-AS-AGENT", "identifiers": [
            |    { "key":"AgentReferenceNumber", "value": "fooArn" }
            |  ]}
@@ -170,7 +114,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
-           |"authorisedEnrolments": [
+           |"allEnrolments": [
            |  { "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"BAR", "value": "fooMtdItId" }
            |  ]}

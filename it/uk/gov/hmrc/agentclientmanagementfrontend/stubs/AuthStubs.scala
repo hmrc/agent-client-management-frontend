@@ -10,8 +10,6 @@ trait AuthStubs {
 
   case class Enrolment(serviceName: String, identifierName: String, identifierValue: String)
 
-  def authorisedAsValidAgent[A](request: FakeRequest[A], arn: String) = authenticated(request, Set(Enrolment("HMRC-AS-AGENT", "AgentReferenceNumber", arn)), isAgent = true)
-
   def authorisedAsClientMtdItId[A](request: FakeRequest[A], mtdItId: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId)), isAgent = false )
   def authorisedAsClientNi[A](request: FakeRequest[A], nino: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino)), isAgent = false )
   def authorisedAsClientVat[A](request: FakeRequest[A], vrn: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-VAT", "VRN", vrn)), isAgent = false )
@@ -31,35 +29,17 @@ trait AuthStubs {
          |{
          |  "authorise": [
          |    {
-         |            "$$or": [
-         |                {
-         |                    "enrolment": "HMRC-MTD-IT",
-         |                    "identifiers": [],
-         |                    "state": "Activated"
-         |                },
-         |                {
-         |                    "enrolment": "HMRC-NI",
-         |                    "identifiers": [],
-         |                    "state": "Activated"
-         |                },
-         |                {   "enrolment": "HMRC-MTD-VAT",
-         |                    "identifiers": [],
-         |                    "state": "Activated"
-         |                }
-         |            ]
-         |        },
-         |        {
-         |            "authProviders": [
-         |                "GovernmentGateway"
-         |            ]
-         |        }
+         |        "authProviders": [
+         |           "GovernmentGateway"
+         |        ]
+         |    }
          |  ],
-         |  "retrieve":["authorisedEnrolments"]
+         |  "retrieve":["allEnrolments"]
          |}
            """.stripMargin,
       s"""
          |{
-         |"authorisedEnrolments": [
+         |"allEnrolments": [
          |  $enrolmentJson
          |]}
           """.stripMargin)
