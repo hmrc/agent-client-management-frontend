@@ -1,4 +1,4 @@
-servicename.titleSuffix=- Agent Services - GOV.UK
+servicename.titleSuffix=- Manage your tax agents - GOV.UK
 
 # Error messages for digital services
 global.error.400.title=Bad request - 400
