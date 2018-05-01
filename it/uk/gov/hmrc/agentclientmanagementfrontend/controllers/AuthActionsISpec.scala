@@ -20,7 +20,7 @@ class AuthActionsISpec extends BaseISpec {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     def withAuthorisedAsClient[A]: Result = {
-      await(super.withAuthorisedAsClient { clientIds =>
+      await(super.withAuthorisedAsClient { (clientIds, _) =>
         Future.successful(Ok(s"mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")}")) })
     }
 
@@ -34,9 +34,13 @@ class AuthActionsISpec extends BaseISpec {
         s"""{
            |"allEnrolments": [
            |  { "key":"HMRC-MTD-IT", "identifiers": [
-           |    { "key":"MTDITID", "value": "fooMtdItId" }
-           |  ]}
-           |]}""".stripMargin)
+           |    { "key":"MTDITID", "value": "fooMtdItId" }]
+           |}],
+           |  "credentials": {
+           |    "providerId": "12345-credId",
+           |    "providerType": "GovernmentGateway"
+           |  }
+           |}""".stripMargin)
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -49,9 +53,13 @@ class AuthActionsISpec extends BaseISpec {
         s"""{
            |"allEnrolments": [
            |  { "key":"HMRC-NI", "identifiers": [
-           |    { "key":"NINO", "value": "AE123456A" }
-           |  ]}
-           |]}""".stripMargin)
+           |    { "key":"NINO", "value": "AE123456A" }]
+           |}],
+           |"credentials": {
+           |    "providerId": "12345-credId",
+           |    "providerType": "GovernmentGateway"
+           |}
+           |}""".stripMargin)
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -64,9 +72,13 @@ class AuthActionsISpec extends BaseISpec {
         s"""{
            |"allEnrolments": [
            |  { "key":"HMRC-MTD-VAT", "identifiers": [
-           |    { "key":"VRN", "value": "fooVrn" }
-           |  ]}
-           |]}""".stripMargin)
+           |    { "key":"VRN", "value": "fooVrn" }]
+           |}],
+           |"credentials": {
+           |    "providerId": "12345-credId",
+           |    "providerType": "GovernmentGateway"
+           |}
+           |}""".stripMargin)
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -85,9 +97,13 @@ class AuthActionsISpec extends BaseISpec {
            |    { "key":"NINO", "value": "AE123456A" }
            |  ]},
            |  { "key":"HMRC-MTD-VAT", "identifiers": [
-           |    { "key":"VRN", "value": "fooVrn" }
-           |  ]}
-           |]}""".stripMargin)
+           |    { "key":"VRN", "value": "fooVrn" }]
+           |}],
+           |"credentials": {
+           |    "providerId": "12345-credId",
+           |    "providerType": "GovernmentGateway"
+           |}
+           |}""".stripMargin)
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -102,9 +118,13 @@ class AuthActionsISpec extends BaseISpec {
         s"""{
            |"allEnrolments": [
            |  { "key":"HMRC-AS-AGENT", "identifiers": [
-           |    { "key":"AgentReferenceNumber", "value": "fooArn" }
-           |  ]}
-           |]}""".stripMargin)
+           |    { "key":"AgentReferenceNumber", "value": "fooArn" }]
+           |}],
+           |"credentials": {
+           |    "providerId": "12345-credId",
+           |    "providerType": "GovernmentGateway"
+           |}
+           |}""".stripMargin)
       an[InsufficientEnrolments] shouldBe thrownBy {
         TestController.withAuthorisedAsClient
       }
@@ -116,9 +136,27 @@ class AuthActionsISpec extends BaseISpec {
         s"""{
            |"allEnrolments": [
            |  { "key":"HMRC-MTD-IT", "identifiers": [
-           |    { "key":"BAR", "value": "fooMtdItId" }
-           |  ]}
-           |]}""".stripMargin)
+           |    { "key":"BAR", "value": "fooMtdItId" }]
+           |}],
+           |"credentials": {
+           |    "providerId": "12345-credId",
+           |    "providerType": "GovernmentGateway"
+           |}
+           |}""".stripMargin)
+      an[InsufficientEnrolments] shouldBe thrownBy {
+        TestController.withAuthorisedAsClient
+      }
+    }
+
+    "throw InsufficientEnrolments when expected client's credentials are missing" in {
+      givenAuthorisedFor(
+        "{}",
+        s"""{
+           |"allEnrolments": [
+           |  { "key":"HMRC-MTD-IT", "identifiers": [
+           |    { "key":"BAR", "value": "fooMtdItId" }]
+           |}]
+           |}""".stripMargin)
       an[InsufficientEnrolments] shouldBe thrownBy {
         TestController.withAuthorisedAsClient
       }

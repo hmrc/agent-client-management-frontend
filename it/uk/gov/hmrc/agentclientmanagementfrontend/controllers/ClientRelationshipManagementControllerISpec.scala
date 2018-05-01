@@ -3,12 +3,12 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 import play.api.libs.ws._
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
+import uk.gov.hmrc.agentclientmanagementfrontend.audit.{AgentClientManagementEvent, AuditService}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
-import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
@@ -26,6 +26,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   private lazy val controller: ClientRelationshipManagementController = app.injector.instanceOf[ClientRelationshipManagementController]
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  val auditService: AuditService = app.injector.instanceOf[AuditService]
 
   private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
   val urlJustWithPrefix = s"http://localhost:$port/manage-your-tax-agents"
@@ -41,6 +42,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val serviceItsa = Services.HMRCMTDIT
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
+  val credId = "12345-credId"
 
   "manageTaxAgents" should {
     val req = FakeRequest()
@@ -252,7 +254,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   "removeAuthorisations for PERSONAL-INCOME-RECORD" should {
 
-    behave like checkRemoveAuthorisationForService("PERSONAL-INCOME-RECORD", deleteActivePIRRelationship(validArn.value, validNino.value, 200))
+    behave like checkRemoveAuthorisationForService("PERSONAL-INCOME-RECORD", validNino.value, deleteActivePIRRelationship(validArn.value, validNino.value, 200))
     val req = FakeRequest()
 
     "return 500  an exception if PIR Relationship is not found" in {
@@ -278,7 +280,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
-      an[InsufficientEnrolments] shouldBe thrownBy {
+      an[Exception] shouldBe thrownBy {
         await(controller.submitRemoveAuthorisation("PERSONAL-INCOME-RECORD", "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientMtdItId(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
@@ -286,7 +288,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   "removeAuthorisations for ITSA" should {
 
-    behave like checkRemoveAuthorisationForService(serviceItsa, deleteActiveITSARelationship(validArn.value, mtdItId.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceItsa, mtdItId.value, deleteActiveITSARelationship(validArn.value, mtdItId.value, 204))
     val req = FakeRequest()
 
     "return 500 an exception if the relationship is not found" in {
@@ -313,7 +315,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
-      an[InsufficientEnrolments] shouldBe thrownBy {
+      an[Exception] shouldBe thrownBy {
         await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
@@ -321,7 +323,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   "removeAuthorisations for VAT" should {
 
-    behave like checkRemoveAuthorisationForService(serviceVat, deleteActiveVATRelationship(validArn.value, validVrn.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceVat, validVrn.value, deleteActiveVATRelationship(validArn.value, validVrn.value, 204))
     val req = FakeRequest()
 
     "return 500  an exception if the relationship is not found" in {
@@ -347,7 +349,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
 
     "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
-      an[InsufficientEnrolments] shouldBe thrownBy {
+      an[Exception] shouldBe thrownBy {
         await(controller.submitRemoveAuthorisation(serviceVat, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
       }
     }
@@ -391,7 +393,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
   }
 
-  def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => Unit) = {
+  def checkRemoveAuthorisationForService(serviceName: String, clientId: String, deleteRelationshipStub: => Unit) = {
     implicit val req = FakeRequest()
 
     "return 200, remove the relationship if the client confirms deletion" in {
@@ -407,6 +409,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.session should not be empty
       result.session.get("agencyName") shouldBe Some(cache.agencyName)
       result.session.get("service") shouldBe Some(serviceName)
+      verifyClientRemovedAgentServiceAuthorisation(credId, validArn.value, serviceName, clientId)
     }
 
     "redirect to manage-your-tax-agents if the client does not confirm deletion" in {
@@ -464,5 +467,19 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
       sessionStoreService.currentSession.clientCache.get.head.uuId shouldBe "dc89f36b64c94060baa3ae87d6b7ac09next"
     }
+  }
+
+  def verifyClientRemovedAgentServiceAuthorisation(userID: String, arn: String, service: String, clientId: String): Unit = {
+    verifyAuditRequestSent(1, AgentClientManagementEvent.ClientRemovedAgentServiceAuthorisation,
+      detail = Map(
+        "userID" -> userID,
+        "agentReferenceNumber" -> arn,
+        "clientID" -> clientId,
+        "service" -> service
+      ),
+      tags = Map(
+        "transactionName" -> "client removed agent:service authorisation"
+      )
+    )
   }
 }

@@ -95,11 +95,11 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
     } yield deleteResponse
   }
 
-  def getAuthorisedAgentDetails(id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String)]] = {
+  def getAuthorisedAgentDetails(id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(Arn, String, String)]] = {
     for {
       cacheOpt <- sessionStoreService.fetchClientCache
       cache = cacheOpt.flatMap(_.find(_.uuId == id))
-    } yield cache.map(cache => (cache.agencyName, cache.service))
+    } yield cache.map(cache => (cache.arn, cache.agencyName, cache.service))
   }
 
   def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]) = identifierOpt match {

@@ -16,36 +16,42 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
+import play.api.libs.json.JsResultException
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.OptionalClientIdentifiers
+import uk.gov.hmrc.agentmtdidentifiers.model.{MtdItId, Vrn}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Retrievals.{allEnrolments,authorisedEnrolments}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals.{allEnrolments, authorisedEnrolments, credentials}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.agentclientmanagementfrontend.models.OptionalClientIdentifiers
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthActions extends AuthorisedFunctions {
 
-  protected def withAuthorisedAsClient[A](body: OptionalClientIdentifiers => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
+  protected def withAuthorisedAsClient[A](body: (OptionalClientIdentifiers, Credentials) => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
 
     def clientId(serviceName: String, identifierKey: String)(implicit enrolments: Enrolments): Option[String] =
       enrolments.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
 
     authorised(AuthProviders(GovernmentGateway))
-      .retrieve(allEnrolments) { implicit enrolments =>
-        val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
-        val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
-        val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
-        val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
+      .retrieve(allEnrolments and credentials) {
+        case enrolments ~ creds =>
+          val mtdItId = clientId("HMRC-MTD-IT", "MTDITID")(enrolments).map(MtdItId(_))
+          val nino = clientId("HMRC-NI", "NINO")(enrolments).map(Nino(_))
+          val vrn = clientId("HMRC-MTD-VAT", "VRN")(enrolments).map(Vrn(_))
+          val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
 
-        if (clientIds.haveAtLeastOneFieldDefined)
-          body(clientIds)
-        else
-          Future.failed(InsufficientEnrolments("Identifiers not found"))
-      }
+          if (clientIds.haveAtLeastOneFieldDefined)
+            body(clientIds, creds)
+          else
+            Future.failed(InsufficientEnrolments("Identifiers not found"))
+        case _ => Future.failed(InsufficientEnrolments("Used an unsupported enrolment"))
+      }.recoverWith {
+      case e:JsResultException => Future.failed(InsufficientEnrolments(s"Unfortunately Missing: $e"))
+    }
   }
 
   protected def withEnrolledFor[A](serviceName: String, identifierKey: String)(body: Option[String] => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
