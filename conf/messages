@@ -26,6 +26,7 @@ button.back=Back
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
+client-authorised-agents.p1=Check which tax agents have permission to act on your behalf, and remove authorisations that you no longer need.
 client-authorised-agents-table-relationships.title=Authorised agents
 client-authorised-agents-table-row-header.agencyName=Agency name
 client-authorised-agents-table-row-header.serviceName=Viewable services
