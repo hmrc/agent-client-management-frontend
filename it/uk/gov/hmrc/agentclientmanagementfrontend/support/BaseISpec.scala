@@ -11,12 +11,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
-import uk.gov.hmrc.agentclientmanagementfrontend.stubs.AuthStubs
+import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.test.UnitSpec
 
-class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with MetricsTestSupport {
+class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with MetricsTestSupport with DataStreamStubs {
 
   def featureRemoveAuthorisationPir = false
 
