@@ -1,36 +1,78 @@
 $(function() {
-    //Accessibility
-    var errorSummary =  $('#error-summary-display'),
-    $input = $('input:text')
-    //Error summary focus
-    if (errorSummary){ errorSummary.focus() }
-    $input.each( function(){
-        if($(this).closest('label').hasClass('form-field--error')){
-            $(this).attr('aria-invalid', true)
-        }else{
-            $(this).attr('aria-invalid', false)
-        }
+    function cat(_this){
+    	if($(_this).hasClass('button')){
+    		return 'button'
+    	}else if($(_this)[0].hasAttribute("data-focuses") ){
+    		return 'link-errors'
+    	}else{
+    		return 'link'
+    	}
+    }
+    function disclosureOpenClose(_this){
+    	if($(_this).attr('aria-expanded') == 'true'){
+    		return ' - close'
+    	}else{
+    		return ' - open'
+    	}
+    }
+    // links
+    $('a:not([data-ga-event="false"]').each(function(){
+    	$(this).click(function(e){
+     		ga('send', 'event', cat(this), 'click', $(this).text())
+     	});
     });
-    //Trim inputs and Capitalize postode
-    $('[type="submit"]').click(function(){
-        $input.each( function(){
-            if($(this).val() && $(this).attr('name') === 'postcode'){
-                $(this).val($(this).val().toUpperCase().replace(/\s\s+/g, ' ').trim())
-            }else{
-                $(this).val($(this).val().trim())
-            }
-        });
+
+    // buttons
+    $('button, input[type="submit"]').not('[data-ga-event="false"]').each(function(){
+    	$(this).click(function(e){
+     		ga('send', 'event', 'button', 'submit', $(this).text())
+     	});
     });
-    //Add aria-hidden to hidden inputs
-    $('[type="hidden"]').attr("aria-hidden", true)
 
-    //arrange validation messages/classes to correct pattern
-
-    $('.form-date label.form-field--error').each(function () {
-
-            $(this).closest('div').addClass('form-field--error')
-            var $relocate = $(this).closest('fieldset').find('legend')
-            $(this).find('.error-notification').appendTo($relocate)
-
+    // details summary
+    $('details summary:not([data-ga-event="false"])').each(function(){
+    	$(this).click(function(e){
+    		ga('send', 'event', 'disclosure', 'click', $(this).text() + disclosureOpenClose(this))
+    	});
     })
+
+    // radio onclick
+    $('fieldset:not([data-ga-event="false"]) input:radio').each(function(){
+    	$(this).click(function(e){
+     		ga('send', 'event', 'radio', 'click', $(this).closest('fieldset').find('legend').text() + " - " + $(this).val())
+     	});
+    });
+
+    // checkbox onclick
+    $('fieldset:not([data-ga-event="false"]) input:checkbox').each(function(){
+    	$(this).click(function(e){
+     		ga('send', 'event', 'checkbox', 'click', $(this).closest('fieldset').find('legend').text() + " - " + $(this).val())
+     	});
+    });
+
+    // on form submit
+    $('form').submit(function(){
+
+    	// selected radio on submit
+    	$('fieldset:not([data-ga-event="false"]) input:radio:checked').each(function(){
+     		ga('send', 'event', 'radio', 'selected', $(this).closest('fieldset').find('legend').text() + " - " + $(this).val())
+    	});
+
+    	// selected checkbox on submit
+    	var getName;
+
+    	$('fieldset:not([data-ga-event="false"])').each(function(){
+    		var allVals = [];
+
+    		getName = $(this).find('input:checkbox:first').attr('name')
+
+    		$('[name="' + getName + '"]:checked').each(function(){
+    			allVals.push($(this).val());
+    		});
+
+    		if(getName){
+    			ga('send', 'event', 'checkbox', 'selected', $('[name="' + getName + '"]').closest('fieldset').find('legend').text() + " - " + allVals)
+    		}
+    	});
+    });
 });
