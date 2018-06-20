@@ -4,3 +4,5 @@ GET         /                                                    @uk.gov.hmrc.ag
 GET         /remove-authorisation/service/:service/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.showRemoveAuthorisation(service: String, id: String)
 POST        /remove-authorisation/service/:service/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.submitRemoveAuthorisation(service: String, id: String)
 GET         /authorisation-removed                               @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.authorisationRemoved
+
+GET         /assets/*file                                       controllers.Assets.at(path="/public", file)
