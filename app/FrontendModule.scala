@@ -59,6 +59,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("agent-fi-relationship")
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-client-relationships")
+    bindBaseUrl("contact-frontend")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
 
     bindBooleanProperty("features.remove-authorisation.PERSONAL-INCOME-RECORD")

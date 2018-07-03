@@ -30,6 +30,7 @@ import scala.concurrent.Future
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 
@@ -53,7 +54,7 @@ class ClientRelationshipManagementController @Inject()(
                                                         featureFlags: FeatureFlags,
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
-                                                        relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration)
+                                                        relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration, externalUrls: ExternalUrls)
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>

@@ -14,7 +14,8 @@
  * limitations under the License.
  *@
 
-@(form: Form[_])(implicit messages: Messages)
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+@(form: Form[_])(implicit messages: Messages, externalUrls: ExternalUrls)
 @if(form.hasErrors){
     @Messages("error.prefix")
 }

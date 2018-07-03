@@ -18,7 +18,8 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 
-@(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+@(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls)
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
     <h1 class="heading-xlarge">@Messages("client-authorised-agents.title")</h1>

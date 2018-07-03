@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import play.api.Configuration
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-@(pageTitle: String, heading: String, message: String)(implicit messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
+package uk.gov.hmrc.agentclientmanagementfrontend.config
 
-@contentHeader = {
-    <h1>@heading</h1>
+import java.net.URL
+
+import javax.inject.{Inject, Named, Singleton}
+
+@Singleton
+class ExternalUrls @Inject()(
+  @Named("contact-frontend-baseUrl") val contactFrontendBaseUrl: URL,
+  @Named("appName") val appName: String) {
+
+  val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
+
+  val contactFrontendAjaxUrl: String =
+    s"${contactFrontendUrl}ajax?service=$appName"
+
+  val contactFrontendNonJsUrl: String =
+    s"${contactFrontendUrl}nonjs?service=$appName"
 }
-
-@mainContent = {
-    <p>@message</p>
-}
-
-@govuk_wrapper(title = pageTitle, contentHeader = Some(contentHeader), mainContent = mainContent)
