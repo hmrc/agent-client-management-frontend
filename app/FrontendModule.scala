@@ -46,6 +46,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     loggerDateFormat.foreach(str => MDC.put("logger.json.dateformat", str))
 
     bindProperty("appName")
+    bindServiceProperty("contact-frontend.external-url")
 
 
     bind(classOf[SessionCache]).to(classOf[AgentClientManagementSessionCache])
@@ -59,7 +60,6 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("agent-fi-relationship")
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-client-relationships")
-    bindBaseUrl("contact-frontend")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
 
     bindBooleanProperty("features.remove-authorisation.PERSONAL-INCOME-RECORD")
@@ -72,6 +72,16 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
   private class BaseUrlProvider(serviceName: String) extends Provider[URL] {
     override lazy val get = new URL(baseUrl(serviceName))
+  }
+
+  private def bindServiceProperty(propertyName: String) =
+    bind(classOf[String])
+      .annotatedWith(Names.named(s"$propertyName"))
+      .toProvider(new ServicePropertyProvider(propertyName))
+
+  private class ServicePropertyProvider(propertyName: String) extends Provider[String] {
+    override lazy val get =
+      getConfString(propertyName, throw new RuntimeException(s"No configuration value found for '$propertyName'"))
   }
 
   private def bindProperty(propertyName: String) =

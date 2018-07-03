@@ -22,7 +22,7 @@ import javax.inject.{Inject, Named, Singleton}
 
 @Singleton
 class ExternalUrls @Inject()(
-  @Named("contact-frontend-baseUrl") val contactFrontendBaseUrl: URL,
+  @Named("contact-frontend.external-url") val contactFrontendBaseUrl: String,
   @Named("appName") val appName: String) {
 
   val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
