@@ -159,7 +159,6 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         Some(Html("My custom script")),
         Seq("My custom GA code")
       )(Messages.Implicits.applicationMessages, app.configuration, new ExternalUrls("", ""))
-      )(Messages.Implicits.applicationMessages, app.configuration, new ExternalUrls("", ""))
       contentAsString(html2) shouldBe (content)
     }
   }
