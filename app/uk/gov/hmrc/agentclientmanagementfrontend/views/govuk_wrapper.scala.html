@@ -17,6 +17,7 @@
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{helpers => uiHelpers, layouts => uiLayouts}
 @import play.api.Configuration
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 @(title: String,
         mainClass: Option[String] = None,
         mainDataAttributes: Option[Html] = None,
@@ -26,7 +27,7 @@
         mainContent: Html = HtmlFormat.empty,
         serviceInfoContent: Html = HtmlFormat.empty,
         scriptElem: Option[Html] = None,
-        gaCode: Seq[String] = Seq.empty)(implicit messages: Messages, configuration: Configuration)
+        gaCode: Seq[String] = Seq.empty)(implicit messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
 
 @head = {
 @uiLayouts.head(
@@ -82,7 +83,7 @@
 }
 
 @getHelpForm = @{
-    uiHelpers.reportAProblemLink(configuration.getString("reportAProblemPartialUrl").get, configuration.getString("reportAProblemNonJSUrl").get)
+    uiHelpers.reportAProblemLink(externalUrls.contactFrontendAjaxUrl, externalUrls.contactFrontendNonJsUrl)
 }
 
 @titleSuffix = @{ Messages("servicename.titleSuffix") }
