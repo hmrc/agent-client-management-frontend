@@ -1,5 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
+import org.joda.time.LocalDate
 import play.api.libs.ws._
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
@@ -35,9 +36,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val validArn = Arn("FARN0001132")
   val validNino =  Nino("AE123456A")
   val validVrn =  Vrn("101747641")
+  val startDate = Some(LocalDate.parse("2017-06-06"))
+  val startDateString = "2017-06-06"
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
-  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
-  val cacheItsa = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "HMRC-MTD-IT")
+  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name", startDate)
+  val cacheItsa = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "HMRC-MTD-IT", startDate)
   val serviceItsa = Services.HMRCMTDIT
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
@@ -61,7 +64,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -74,7 +77,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "200, project authorised agent for a valid authenticated client with just Vat relationship" in {
       authorisedAsClientVat(req, validVrn.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceVat, validArn.value)
+      getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -87,9 +90,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "200, project authorised agents in alphabetical order for valid authenticated client with ITSA, PIR and VAT relationships" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
-      getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
 
       val result = await(doGetRequest(""))
@@ -117,10 +120,23 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
+    "200, project authorised agents when startDate is blank" in {
+      authorisedAsClientMtdItId(req, mtdItId.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationshipsNoStartDate(serviceItsa, validArn.value)
+      getAgencyNameMap200(validArn, "This Agency Name")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("This Agency Name") shouldBe true
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
     "500, when getAgencyNames in agent-services-account returns 400 invalid Arn" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, Arn("someInvalidArn").value)
+      getClientActiveAgentRelationships(serviceItsa, Arn("someInvalidArn").value, startDateString)
       getActivePIRRelationship(validArn, serviceIrv, validNino.value, fromCesa = false)
       getAgencyNamesMap400("someInvalidArn")
 
@@ -134,7 +150,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "500, when getAgencyNames in agent-services-account returns 400 empty Arn" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, Arn("").value)
+      getClientActiveAgentRelationships(serviceItsa, Arn("").value, startDateString)
       getActivePIRRelationship(validArn, serviceIrv, validNino.value, fromCesa = false)
       getAgencyNamesMap400("")
 
@@ -190,8 +206,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     "500, when agent-fi-relationship returns 500" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value)
-      getClientActiveAgentRelationships(serviceVat, validVrn.value)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getClientActiveAgentRelationships(serviceVat, validVrn.value, startDateString)
       get500ForPIRRelationship(serviceIrv, validNino.value)
 
       val result = await(doGetRequest(""))
@@ -205,7 +221,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getClientActiveAgentRelationships(serviceVat, validVrn.value)
+      getClientActiveAgentRelationships(serviceVat, validVrn.value, startDateString)
       get503ForPIRRelationship(serviceIrv, validNino.value)
 
       val result = await(doGetRequest(""))

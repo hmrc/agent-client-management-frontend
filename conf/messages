@@ -27,15 +27,16 @@ button.back=Back
 # Client Content
 client-authorised-agents.title=Manage your tax agents
 client-authorised-agents.p1=Check which tax agents have permission to act on your behalf, and remove authorisations that you no longer need.
-client-authorised-agents-table-relationships.title=Authorised agents
-client-authorised-agents-table-row-header.agencyName=Agency name
-client-authorised-agents-table-row-header.serviceName=Viewable services
+client-authorised-agents-table-relationships.title=Your Authorised agents
+client-authorised-agents-table-row-header.agentName=Agent name
+client-authorised-agents-table-row-header.serviceName=Authorised services
+client-authorised-agents-table-row-header.dateAuthorised=Date authorised
 client-authorised-agents-table-row-header.actions=Actions
 
 client-authorised-agents-table-content.noAgentsFound=You have no authorised agents
-client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=Income record
+client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View their PAYE income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Report VAT returns through software
-client-authorised-agents-table-content.HMRC-MTD-IT=ITSA
+client-authorised-agents-table-content.HMRC-MTD-IT=Report your income or expenses through software
 client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
 client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation
 clientEndsRelationship.title=Remove authorisation for {0}

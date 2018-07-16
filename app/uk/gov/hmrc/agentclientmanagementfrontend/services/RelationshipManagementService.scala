@@ -20,7 +20,7 @@ import java.util.UUID
 
 import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AuthorisedAgent, ClientCache, OptionalClientIdentifiers, Relationship}
+import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -50,11 +50,11 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
       case (relationships, agencyNames) =>
         def uuId = UUID.randomUUID().toString.replace("-", "")
         val relationshipWithArnCache = relationships.map(r =>
-          ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName))
+          ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom))
 
         sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
           relationshipWithArnCache.map { case cache =>
-            AuthorisedAgent(cache.uuId, cache.service, cache.agencyName)
+            AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised)
           }.sortWith(_.agencyName.toLowerCase < _.agencyName.toLowerCase)
         }
     }

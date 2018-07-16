@@ -16,6 +16,7 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
   val validVrn = Vrn("101747641")
   val serviceItsa = "HMRC-MTD-IT"
   val serviceVat = "HMRC-MTD-VAT"
+  val startDate = "2007-07-07"
 
   "Delete agent client relationships" should {
     "return true when a relationship for ITSA service has been deleted successfully" in {
@@ -74,7 +75,7 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
 
   "Get active itsa relationship" should {
     "return existing active relationships for specified clientId" in {
-      getClientActiveAgentRelationships(serviceItsa, arn.value)
+      getClientActiveAgentRelationships(serviceItsa, arn.value, startDate)
 
       val result = await(connector.getActiveClientItsaRelationship)
       result.get.arn shouldBe arn
@@ -90,7 +91,7 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
 
   "Get active vat relationship" should {
     "return existing active relationships for specified clientId for VAT service" in {
-      getClientActiveAgentRelationships(serviceVat, arn.value)
+      getClientActiveAgentRelationships(serviceVat, arn.value, startDate)
 
       val result = await(connector.getActiveClientVatRelationship)
       result.get.arn shouldBe arn

@@ -17,30 +17,42 @@
 @import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
+@import org.joda.time.LocalDate
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+
 @(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls)
+
+@displayDate(date: Option[LocalDate]) = @{
+    date match {
+        case Some(d) => d.toString("dd MMMM yyyy", messages.lang.locale)
+        case None => ""
+    }
+}
+
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
-    <h1 class="heading-xlarge">@Messages("client-authorised-agents.title")</h1>
+    <h1 class="heading-large">@Messages("client-authorised-agents.title")</h1>
 
-    <p>@Messages("client-authorised-agents.p1")</p>
+
 
     <div data-tabs>
         <ul class="tabs-nav" role="tablist">
             <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
-                <span class="tabs-nav__tab tabs-nav__tab--active">Authorised agents</span>
+                <span class="tabs-nav__tab tabs-nav__tab--active">@Messages("client-authorised-agents-table-relationships.title")</span>
             </li>
         </ul>
         <ul>
             <li id="tabContent1" data-tab-content="1" class="tab-content" role="tabpanel" aria-labelledby="tab1">
                 <div class="tab-content__first">
                     <table>
-                        <caption class="visuallyhidden">Authorised agents</caption>
+                        <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>
+                        <p>@Messages("client-authorised-agents.p1")</p>
                         <thead>
                             <tr>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agencyName")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.serviceName")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.dateAuthorised")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.actions")</th>
                             </tr>
                         </thead>
@@ -50,7 +62,8 @@
                                 <tr>
                                     <td>@authAgent.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
-                                 <td><a @if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
+                                    <td>@displayDate(authAgent.dateAuthorised))</td>
+                                 <td><a@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
                                 </tr>
                             }
                         }else{

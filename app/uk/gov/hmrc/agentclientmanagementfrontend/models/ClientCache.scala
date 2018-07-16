@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
+import org.joda.time.LocalDate
 import play.api.libs.json.Json
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
-import uk.gov.hmrc.domain.Nino
 
-case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String)
+case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String, dateAuthorised: Option[LocalDate])
 
 object ClientCache {
   implicit val format = Json.format[ClientCache]
