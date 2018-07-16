@@ -55,10 +55,7 @@ object PirRelationship {
     (JsPath \ "startDate").readNullable[LocalDateTime].map(date => javaDateTimeToJodaDate(date.get)))(PirRelationship.apply _)
 
   def javaDateTimeToJodaDate(javaTime: LocalDateTime): Option[LocalDate] = {
-    LocalDate.parse(javaTime.toLocalDate.toString) match {
-      case localDate => Some(localDate)
-      case _ => None
-    }
+    Some(LocalDate.parse(javaTime.toLocalDate.toString))
   }
 }
 
