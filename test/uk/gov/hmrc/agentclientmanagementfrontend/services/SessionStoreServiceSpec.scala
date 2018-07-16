@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
+import org.joda.time.LocalDate
 import play.api.libs.json.{JsValue, Reads, Writes}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
@@ -38,7 +39,7 @@ class SessionStoreServiceSpec extends UnitSpec {
     "store clientCache" in {
       val store = new SessionStoreService(new TestSessionCache())
 
-      val cache = ClientCache(uuId, Arn("ABCDE123456"), "Some agency name", "Some service name")
+      val cache = ClientCache(uuId, Arn("ABCDE123456"), "Some agency name", "Some service name", Some(LocalDate.parse("2017-06-06")))
 
       await(store.storeClientCache(Seq(cache)))
 
@@ -56,7 +57,7 @@ class SessionStoreServiceSpec extends UnitSpec {
     "remove the underlying storage for the current session when remove is called" in {
       val store = new SessionStoreService(new TestSessionCache())
 
-      val cache = ClientCache(uuId, Arn("ABCDE123456"), "Some agency name", "Some service name")
+      val cache = ClientCache(uuId, Arn("ABCDE123456"), "Some agency name", "Some service name", Some(LocalDate.parse("2017-06-06")))
 
       await(store.storeClientCache(Seq(cache)))
       await(store.remove())

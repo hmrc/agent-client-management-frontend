@@ -16,16 +16,21 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
+import java.time.LocalDateTime
+
+import org.joda.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import play.api.libs.functional.syntax._
 
 sealed trait Relationship extends Product with Serializable {
   val arn: Arn
   val serviceName: String
+  val dateFrom: Option[LocalDate]
 }
 
-case class ItsaRelationship(arn: Arn) extends Relationship {
+case class ItsaRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCMTDIT
 }
 
@@ -33,21 +38,28 @@ object ItsaRelationship {
   implicit val relationshipWrites = Json.writes[ItsaRelationship]
 
   implicit val reads: Reads[ItsaRelationship] =
-    (JsPath \ "agentReferenceNumber").read[Arn].map(arn => ItsaRelationship(arn))
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+     (JsPath \ "dateFrom").readNullable[LocalDate])(ItsaRelationship.apply _)
 
 }
 
-case class PirRelationship(arn: Arn) extends Relationship {
+case class PirRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCPIR
 }
 
 object PirRelationship {
   implicit val relationshipWrites = Json.writes[PirRelationship]
 
-  implicit val reads: Reads[PirRelationship] = Json.reads[PirRelationship]
+  implicit val reads: Reads[PirRelationship] = (
+    (JsPath \ "arn").read[Arn] and
+    (JsPath \ "startDate").readNullable[LocalDateTime].map(date => javaDateTimeToJodaDate(date.get)))(PirRelationship.apply _)
+
+  def javaDateTimeToJodaDate(javaTime: LocalDateTime): Option[LocalDate] = {
+    Some(LocalDate.parse(javaTime.toLocalDate.toString))
+  }
 }
 
-case class VatRelationship(arn: Arn) extends Relationship {
+case class VatRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCMTDVAT
 }
 
@@ -55,6 +67,7 @@ object VatRelationship {
   implicit val relationshipWrites = Json.writes[VatRelationship]
 
   implicit val reads: Reads[VatRelationship] =
-    (JsPath \ "agentReferenceNumber").read[Arn].map(arn => VatRelationship(arn))
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+     (JsPath \ "dateFrom").readNullable[LocalDate])(VatRelationship.apply _)
 
 }

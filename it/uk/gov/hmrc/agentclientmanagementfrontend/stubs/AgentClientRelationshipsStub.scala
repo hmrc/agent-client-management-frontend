@@ -21,7 +21,20 @@ trait AgentClientRelationshipsStub {
           .withStatus(httpStatus)))
   }
 
-  def getClientActiveAgentRelationships(service: String, agentArn: String): Unit = {
+  def getClientActiveAgentRelationships(service: String, agentArn: String, startDate: String): Unit = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"""
+               |{
+               | "arn": "$agentArn",
+               | "dateFrom": "$startDate"
+               |}""".stripMargin)))
+  }
+
+  def getClientActiveAgentRelationshipsNoStartDate(service: String, agentArn: String): Unit = {
     stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(
         aResponse()

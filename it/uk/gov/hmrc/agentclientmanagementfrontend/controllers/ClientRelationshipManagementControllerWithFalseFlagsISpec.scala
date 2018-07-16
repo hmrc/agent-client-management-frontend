@@ -1,5 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
+import org.joda.time.LocalDate
 import play.api.libs.ws.WSClient
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
@@ -37,19 +38,21 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   val validArn = Arn("FARN0001132")
   val validNino = Nino("AE123456A")
   val validVrn =  Vrn("101747641")
+  val startDate = Some(LocalDate.parse("2017-06-06"))
+  val startDateString = "2017-06-06"
   val serviceItsa = Services.HMRCMTDIT
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
-  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name")
+  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name", startDate)
 
   "manageTaxAgents, works as normal except projections of remove authorisation links for false service flag" should {
     "200, do not show remove authorisation links, other than that works normal" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
-      getClientActiveAgentRelationships(serviceVat, validVrn.value)
+      getClientActiveAgentRelationships(serviceVat, validVrn.value, startDateString)
       getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "DEF"))
 
       val result = await(doGetRequest(""))

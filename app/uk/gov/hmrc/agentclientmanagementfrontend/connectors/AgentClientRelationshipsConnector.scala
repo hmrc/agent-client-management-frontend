@@ -21,6 +21,7 @@ import java.net.URL
 import javax.inject.{Inject, Named}
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
+import org.joda.time.LocalDate
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ItsaRelationship, VatRelationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
@@ -55,7 +56,10 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
         val arnOpt =  response.status match {
           case 200 => (response.json \ "arn").asOpt[Arn]
         }
-        arnOpt.map(arn => ItsaRelationship(arn))
+        val dateFromOpt = response.status match {
+          case 200 => (response.json \ "dateFrom").asOpt[LocalDate]
+        }
+        arnOpt.map(arn => ItsaRelationship(arn, dateFromOpt))
       }.recover {
         case _ : NotFoundException => None
       }
@@ -69,7 +73,10 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
         val arnOpt =  response.status match {
           case 200 => (response.json \ "arn").asOpt[Arn]
         }
-        arnOpt.map(arn => VatRelationship(arn))
+        val dateFromOpt = response.status match {
+          case 200 => (response.json \ "dateFrom").asOpt[LocalDate]
+        }
+        arnOpt.map(arn => VatRelationship(arn, dateFromOpt))
       }.recover {
         case _ : NotFoundException => None
       }
