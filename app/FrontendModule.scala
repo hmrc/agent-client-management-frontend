@@ -47,6 +47,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
     bindServiceProperty("contact-frontend.external-url")
+    bindServiceProperty("agent-invitations-frontend.external-url")
 
 
     bind(classOf[SessionCache]).to(classOf[AgentClientManagementSessionCache])
@@ -60,6 +61,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("agent-fi-relationship")
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-client-relationships")
+    bindBaseUrl("agent-client-authorisation")
     bindServiceConfigProperty[String]("cachable.session-cache.domain")
 
     bindBooleanProperty("features.remove-authorisation.PERSONAL-INCOME-RECORD")

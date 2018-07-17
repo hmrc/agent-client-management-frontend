@@ -26,14 +26,25 @@ button.back=Back
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
-client-authorised-agents.p1=Check which tax agents have permission to act on your behalf, and remove authorisations that you no longer need.
+client-authorised-agents.tab1.p1=Check which tax agents have asked for your permission to act on your behalf, and respond to their requests.
+client-authorised-agents.tab2.p1=Check which tax agents have permission to act on your behalf, and remove authorisations that you no longer need.
 client-authorised-agents-table-relationships.title=Your Authorised agents
+client-authorised-agents-table-relationships.tab1.title=Requests from agents
 client-authorised-agents-table-row-header.agentName=Agent name
 client-authorised-agents-table-row-header.serviceName=Authorised services
+client-authorised-agents-table-row-header.authRequested=Authorisation requested
 client-authorised-agents-table-row-header.dateAuthorised=Date authorised
+client-authorised-agents-table-row-header.requestStatus=Status of request
 client-authorised-agents-table-row-header.actions=Actions
+client-authorised-agents-table.pending.date=Expires: {0}
+client-authorised-agents-table.actions.no-action=No action needed
+client-authorised-agents-table.actions.respond=Respond to request
+client-authorised-agents-table.actions.remove=Remove authorisation
+
+
 
 client-authorised-agents-table-content.noAgentsFound=You have no authorised agents
+client-authorised-agents-table-content.noRequests=You have no pending requests from tax agents
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View their PAYE income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Report VAT returns through software
 client-authorised-agents-table-content.HMRC-MTD-IT=Report your income or expenses through software

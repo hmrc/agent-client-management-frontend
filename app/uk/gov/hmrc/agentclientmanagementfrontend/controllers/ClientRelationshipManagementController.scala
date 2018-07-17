@@ -17,12 +17,11 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
-import uk.gov.hmrc.agentclientmanagementfrontend.services.{DeleteResponse, RelationshipManagementService}
+import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -30,7 +29,9 @@ import scala.concurrent.Future
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import play.api.libs.json.Reads
 import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 
@@ -54,12 +55,16 @@ class ClientRelationshipManagementController @Inject()(
                                                         featureFlags: FeatureFlags,
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
-                                                        relationshipManagementService: RelationshipManagementService)(implicit val configuration: Configuration, externalUrls: ExternalUrls)
+                                                        relationshipManagementService: RelationshipManagementService,
+                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val configuration: Configuration, externalUrls: ExternalUrls)
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { clientIds =>
-      relationshipManagementService.getAuthorisedAgents(clientIds).map(result => Ok(authorised_agents(result)))
+      for {
+        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds.mtdItId.get)
+        authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
+      }yield Ok(authorised_agents(authRequests, agentRequests))
     }
   }
 
