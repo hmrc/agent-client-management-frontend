@@ -32,7 +32,6 @@ case class DeleteResponse(response: Boolean, agencyName: String, service: String
 
 class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelationshipConnector,
                                               agentServicesAccountConnector: AgentServicesAccountConnector,
-                                              agentClientAuthorisationService: AgentClientAuthorisationService,
                                               relationshipsConnector: AgentClientRelationshipsConnector,
                                               sessionStoreService: SessionStoreService) {
 
