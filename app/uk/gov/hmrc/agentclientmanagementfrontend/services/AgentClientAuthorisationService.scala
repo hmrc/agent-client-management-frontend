@@ -30,18 +30,27 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnector: AgentClientAuthorisationConnector, agentClientRelationshipsConnector: AgentClientRelationshipsConnector, agentServicesAccountConnector: AgentServicesAccountConnector) {
 
-  def getAgentRequests(mtdItId: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
-    val storedInvitations = agentClientAuthorisationConnector.getInvitation(mtdItId)
+  def getAgentRequests(clientIdOpt: OptionalClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
+    val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => agentClientAuthorisationConnector.getItsaInvitation(MtdItId(clientId.value)))
+    val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => agentClientAuthorisationConnector.getIrvInvitation(Nino(clientId.value)))
+    val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => agentClientAuthorisationConnector.getVatInvitation(Vrn(clientId.value)))
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
-      storedInvitations <- Future.sequence(Seq(storedInvitations)).map(_.flatten)
-      agencyNames <- agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn))
+      storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedVatInvitations)).map(_.flatten)
+      agencyNames <- if(storedInvitations.nonEmpty)
+        agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn))
+      else Future.successful(Map.empty[Arn, String])
     } yield (agencyNames, storedInvitations)
 
     relationshipsWithAgencyNamesWithStoredInvitations.map {
       case (agencyNames, storedInvites) =>
         storedInvites.map(si =>
-          AgentRequest(si.service, agencyNames.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated.toLocalDate)
+          AgentRequest(si.service, agencyNames.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated.toLocalDate, si.invitationId)
         )
     }
+  }
+
+  def invitations(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[StoredInvitation]]) = identifierOpt match {
+    case Some(identifier) => f(identifier)
+    case None => Future.successful(Seq.empty)
   }
 }

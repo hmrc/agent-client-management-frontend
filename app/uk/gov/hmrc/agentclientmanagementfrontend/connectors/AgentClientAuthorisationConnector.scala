@@ -24,8 +24,9 @@ import javax.inject.{Inject, Named}
 import org.joda.time.{DateTime, LocalDate}
 import play.api.libs.json.{JsObject, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{StoredInvitation}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId, MtdItId}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId, MtdItId, Vrn}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,9 +39,25 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
   import StoredReads._
 
 
-  def getInvitation(mtdItId: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
+  def getItsaInvitation(mtdItId: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/MTDITID/${mtdItId.value}/invitations/received")
-    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]])
+    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover{
+      case e: NotFoundException => Seq.empty
+    }
+  }
+
+  def getVatInvitation(vrn: Vrn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
+    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/VRN/${vrn.value}/invitations/received")
+    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover{
+      case e: NotFoundException => Seq.empty
+    }
+  }
+
+  def getIrvInvitation(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
+    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/NI/${nino.value}/invitations/received")
+    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover{
+      case e: NotFoundException => Seq.empty
+    }
   }
 
   object StoredReads {
@@ -63,8 +80,9 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
           (JsPath \ "created").read[DateTime] and
           (JsPath \ "lastUpdated").read[DateTime] and
           (JsPath \ "expiryDate").read[LocalDate] and
+          (JsPath \ "invitationId").read[String] and
           (JsPath \ "_links" \ "self").read[URL]) (
-          (a, b, c, d, e, f, g, h, i, j, k) => StoredInvitation.apply(a, b, c, d, e, f, g, h, i, j, k)
+          (a, b, c, d, e, f, g, h, i, j, k, l) => StoredInvitation.apply(a, b, c, d, e, f, g, h, i, j, k, l)
         )
       }
   }

@@ -38,8 +38,8 @@ client-authorised-agents-table-row-header.requestStatus=Status of request
 client-authorised-agents-table-row-header.actions=Actions
 client-authorised-agents-table.pending.date=Expires: {0}
 client-authorised-agents-table.actions.no-action=No action needed
-client-authorised-agents-table.actions.respond=Respond to request
-client-authorised-agents-table.actions.remove=Remove authorisation
+client-authorised-agents-table.actions.respond=<a href={0}>Respond to request</a>
+client-authorised-agents-table.actions.remove=<a href={0}>Remove authorisation</a>
 
 
 

@@ -33,6 +33,7 @@ case class StoredInvitation(
   created: DateTime,
   lastUpdated: DateTime,
   expiryDate: LocalDate,
+  invitationId: String,
   selfUrl: URL)
 
 object StoredInvitation {
@@ -52,6 +53,7 @@ object StoredInvitation {
              created: DateTime,
              lastUpdated: DateTime,
              expiryDate: LocalDate,
+             invitationId: String,
              selfUrl: URL): StoredInvitation =
     StoredInvitation(
       arn,
@@ -64,6 +66,7 @@ object StoredInvitation {
       created,
       lastUpdated,
       expiryDate,
+      invitationId,
       selfUrl)
 
 }

@@ -33,6 +33,7 @@ import play.api.libs.json.Reads
 import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
+import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 
 case class RadioConfirm(value: Option[Boolean])
@@ -62,7 +63,7 @@ class ClientRelationshipManagementController @Inject()(
   def root(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { clientIds =>
       for {
-        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds.mtdItId.get)
+        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
       }yield Ok(authorised_agents(authRequests, agentRequests))
     }

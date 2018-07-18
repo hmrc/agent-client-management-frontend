@@ -76,8 +76,8 @@
                                         }</span></td>
                                         <td>
                                         @{agentReq.status match {
-                                            case "Pending" => <a href="">Messages("client-authorised-agents-table.actions.respond")</a>
-                                            case "Accepted" => Messages("client-authorised-agents-table.actions.remove")
+                                            case "Pending" => Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
+                                            case "Accepted" => Messages("client-authorised-agents-table.actions.remove", externalUrls.confirmDeclineUrl(agentReq.invitationId))
                                             case _ => Messages("client-authorised-agents-table.actions.no-action")
                                         }
                                         }
@@ -114,8 +114,7 @@
                             @authorisedAgents.map{ authAgent =>
                                 <tr>
                                     <td>@authAgent.agencyName</td>
-                                    <td>@Messages(s"client-authorised-age" +
-                                            s"ts-table-content.${authAgent.serviceName}")</td>
+                                    <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
                                     <td>@displayDate(authAgent.dateFrom)</td>
                                  <td><a@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
                                 </tr>

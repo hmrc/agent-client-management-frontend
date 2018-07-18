@@ -17,5 +17,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import org.joda.time.LocalDate
+import uk.gov.hmrc.agentmtdidentifiers.model.InvitationId
 
-case class AgentRequest(serviceName: String, agencyName: String, status: String, expiryDate: LocalDate, lastUpdated: LocalDate)
+case class AgentRequest(serviceName: String, agencyName: String, status: String, expiryDate: LocalDate, lastUpdated: LocalDate, invitationId: String)
