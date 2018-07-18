@@ -36,6 +36,10 @@ client-authorised-agents-table-row-header.authRequested=Authorisation requested
 client-authorised-agents-table-row-header.dateAuthorised=Date authorised
 client-authorised-agents-table-row-header.requestStatus=Status of request
 client-authorised-agents-table-row-header.actions=Actions
+client-authorised-agents-table.Pending=Pending
+client-authorised-agents-table.Accepted=Accepted
+client-authorised-agents-table.Rejected=Declined
+client-authorised-agents-table.Expired=Expired
 client-authorised-agents-table.pending.date=Expires: {0}
 client-authorised-agents-table.actions.no-action=No action needed
 client-authorised-agents-table.actions.respond=<a href={0}>Respond to request</a>

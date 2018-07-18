@@ -67,7 +67,7 @@
                                     <tr>
                                         <td>@agentReq.agencyName</td>
                                         <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
-                                        <td>@agentReq.status<span style="display: block; font-size: 0.85em; color: #6f777b;">
+                                        <td>@Messages(s"client-authorised-agents-table.${agentReq.status}")<span style="display: block; font-size: 0.85em; color: #6f777b;">
                                             @{agentReq.status match {
                                             case "Pending" => Messages("client-authorised-agents-table.pending.date", displayDate(Some(agentReq.expiryDate)))
                                             case "Expired" => displayDate(Some(agentReq.expiryDate))

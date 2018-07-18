@@ -101,7 +101,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Report VAT returns through software") shouldBe true
-      result.body.contains("Rejected") shouldBe true
+      result.body.contains("Declined") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
       result.body.contains("No action needed") shouldBe true
       result.body.contains("06 June 2017") shouldBe true
