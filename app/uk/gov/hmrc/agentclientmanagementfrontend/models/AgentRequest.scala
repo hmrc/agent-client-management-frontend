@@ -16,11 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import play.api.libs.json.{Json, Reads}
-import uk.gov.hmrc.domain.Nino
+import org.joda.time.LocalDate
+import uk.gov.hmrc.agentmtdidentifiers.model.InvitationId
 
-case class NinoBusinessDetails(nino: Nino)
-
-object NinoBusinessDetails {
-  implicit val reads: Reads[NinoBusinessDetails] = Json.reads[NinoBusinessDetails]
-}
+case class AgentRequest(serviceName: String, agencyName: String, status: String, expiryDate: LocalDate, lastUpdated: LocalDate, invitationId: String)

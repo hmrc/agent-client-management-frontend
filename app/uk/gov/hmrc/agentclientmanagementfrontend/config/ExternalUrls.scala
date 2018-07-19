@@ -19,11 +19,19 @@ package uk.gov.hmrc.agentclientmanagementfrontend.config
 import java.net.URL
 
 import javax.inject.{Inject, Named, Singleton}
+import uk.gov.hmrc.agentmtdidentifiers.model.InvitationId
 
 @Singleton
 class ExternalUrls @Inject()(
   @Named("contact-frontend.external-url") val contactFrontendBaseUrl: String,
+  @Named("agent-invitations-frontend.external-url") val agentInvitationsFrontendBaseUrl: String,
   @Named("appName") val appName: String) {
+
+  def confirmTermsUrl(invitationId: String): String =
+    s"$agentInvitationsFrontendBaseUrl/invitations/accept-tax-agent-invitation/consent/${invitationId}"
+
+  def confirmDeclineUrl(invitationId: String): String =
+    s"$agentInvitationsFrontendBaseUrl/invitations/accept-tax-agent-invitation/confirm-decline/${invitationId}"
 
   val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
 

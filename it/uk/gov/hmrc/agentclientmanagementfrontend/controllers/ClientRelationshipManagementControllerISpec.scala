@@ -19,7 +19,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ClientRelationshipManagementControllerISpec extends BaseISpec
   with PirRelationshipStub
   with AgentServicesAccountStub
-  with AgentClientRelationshipsStub {
+  with AgentClientRelationshipsStub
+  with AgentClientAuthorisationStub {
 
   override def featureRemoveAuthorisationPir = true
   override def featureRemoveAuthorisationITSA = true
@@ -48,42 +49,63 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   "manageTaxAgents" should {
     val req = FakeRequest()
 
-    "200, project authorised agent for a valid authenticated client with just PIR relationship" in {
+    "200, project authorised agent for a valid authenticated client with just PIR relationship and pending irv request" in {
       authorisedAsClientNi(req, validNino.nino)
       givenNinoIsKnownFor(validNino)
       getActivePIRRelationship(validArn, serviceIrv, validNino.value, fromCesa = false)
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
+      result.body.contains("View their PAYE income record") shouldBe true
+      result.body.contains("Pending") shouldBe true
+      result.body.contains("Expires: 07 March 2018") shouldBe true
+      result.body.contains("Respond to request") shouldBe true
+      result.body.contains("08 December 2017") shouldBe true
+      result.body.contains("Remove authorisation") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "200, project authorised agent for a valid authenticated client with just Itsa relationship" in {
+    "200, project authorised agent for a valid authenticated client with just Itsa relationship and expired itsa request" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
+      result.body.contains("Report your income or expenses through software") shouldBe true
+      result.body.contains("Expired") shouldBe true
+      result.body.contains("07 March 2018") shouldBe true
+      result.body.contains("No action needed") shouldBe true
+      result.body.contains("06 June 2017") shouldBe true
+      result.body.contains("Remove authorisation") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "200, project authorised agent for a valid authenticated client with just Vat relationship" in {
+    "200, project authorised agent for a valid authenticated client with just Vat relationship and rejected vat request" in {
       authorisedAsClientVat(req, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
+      result.body.contains("Report VAT returns through software") shouldBe true
+      result.body.contains("Declined") shouldBe true
+      result.body.contains("15 January 2017") shouldBe true
+      result.body.contains("No action needed") shouldBe true
+      result.body.contains("06 June 2017") shouldBe true
+      result.body.contains("Remove authorisation") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
@@ -94,6 +116,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Accepted")
 
       val result = await(doGetRequest(""))
 
@@ -103,6 +128,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("abc") < result.body.indexOf("DEF") && result.body.indexOf("DEF")< result.body.indexOf("ghi") shouldBe true
+      result.body.contains("Report VAT returns through software") shouldBe true
+      result.body.contains("Report your income or expenses through software") shouldBe true
+      result.body.contains("View their PAYE income record") shouldBe true
+      result.body.contains("15 January 2017") shouldBe true
+      result.body.contains("07 March 2018") shouldBe false
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
@@ -112,11 +142,16 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getNotFoundClientActiveAgentRelationships(serviceItsa)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn,"DEF"),(validArn, "ghi"))
+      getInvitationsNotFound(validVrn.value, "VRN")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.contains("You have no authorised agents") shouldBe true
+      result.body.contains("You have no pending requests from tax agents") shouldBe true
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
@@ -125,6 +160,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationshipsNoStartDate(serviceItsa, validArn.value)
       getAgencyNameMap200(validArn, "This Agency Name")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending")
 
       val result = await(doGetRequest(""))
 

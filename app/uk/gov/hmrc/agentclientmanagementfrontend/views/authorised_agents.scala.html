@@ -16,12 +16,13 @@
 
 @import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
+@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import org.joda.time.LocalDate
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 
-@(authorisedAgents: Seq[AuthorisedAgent])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls)
+@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls)
 
 @displayDate(date: Option[LocalDate]) = @{
     date match {
@@ -38,7 +39,11 @@
 
     <div data-tabs>
         <ul class="tabs-nav" role="tablist">
+
             <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
+                <span class="tabs-nav__tab tabs-nav__tab--active">@Messages("client-authorised-agents-table-relationships.tab1.title")</span>
+            </li>
+            <li id="tab2" data-tab-link="2" role="tab" aria-selected="true" aria-controls="tabContent2" tabindex="1">
                 <span class="tabs-nav__tab tabs-nav__tab--active">@Messages("client-authorised-agents-table-relationships.title")</span>
             </li>
         </ul>
@@ -47,7 +52,55 @@
                 <div class="tab-content__first">
                     <table>
                         <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>
-                        <p>@Messages("client-authorised-agents.p1")</p>
+                        <p>@Messages("client-authorised-agents.tab1.p1")</p>
+                        <thead>
+                            <tr>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.requestStatus")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.actions")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(agentRequests.nonEmpty){
+                                @agentRequests.map { agentReq =>
+                                    <tr>
+                                        <td>@agentReq.agencyName</td>
+                                        <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
+                                        <td>@Messages(s"client-authorised-agents-table.${agentReq.status}")<span style="display: block; font-size: 0.85em; color: #6f777b;">
+                                            @{agentReq.status match {
+                                            case "Pending" => Messages("client-authorised-agents-table.pending.date", displayDate(Some(agentReq.expiryDate)))
+                                            case "Expired" => displayDate(Some(agentReq.expiryDate))
+                                            case _ => displayDate(Some(agentReq.lastUpdated))
+                                        }
+                                        }</span></td>
+                                        <td>
+                                        @{agentReq.status match {
+                                            case "Pending" => Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
+                                            case "Accepted" => Messages("client-authorised-agents-table.actions.remove", externalUrls.confirmDeclineUrl(agentReq.invitationId))
+                                            case _ => Messages("client-authorised-agents-table.actions.no-action")
+                                        }
+                                        }
+
+                                        </td>
+                                    </tr>
+
+                                }
+
+                            }else{
+                            <tr>
+                            <td colspan="4" scope="row">@Messages("client-authorised-agents-table-content.noRequests")</td>
+                        </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </li>
+            <li id="tabContent2" data-tab-content="2" class="tab-content" role="tabpanel" aria-labelledby="tab2">
+                <div class="tab-content__first">
+                    <table>
+                        <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>
+                        <p>@Messages("client-authorised-agents.tab2.p1")</p>
                         <thead>
                             <tr>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
@@ -77,8 +130,6 @@
             </li>
         </ul>
     </div>
-
-
 
 
 

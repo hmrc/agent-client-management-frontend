@@ -59,7 +59,7 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
           message = message,
           messages = Messages.Implicits.applicationMessages,
           configuration = app.configuration,
-          externalUrls = new ExternalUrls("", "")
+          externalUrls = new ExternalUrls("", "", "")
         )
       val content = contentAsString(html)
       content should include(pageTitle)
@@ -70,7 +70,7 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         new error_template().f(pageTitle, heading, message)(
           Messages.Implicits.applicationMessages,
           app.configuration,
-          new ExternalUrls("", ""))
+          new ExternalUrls("", "", ""))
       contentAsString(html2) shouldBe (content)
     }
   }
@@ -89,7 +89,7 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         messages = Messages.Implicits.applicationMessages,
         request = FakeRequest(),
         configuration = app.configuration,
-        externalUrls = new ExternalUrls("", "")
+        externalUrls = new ExternalUrls("", "", "")
       )
 
       val content = contentAsString(html)
@@ -112,7 +112,7 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         Messages.Implicits.applicationMessages,
         FakeRequest(),
         app.configuration,
-        new ExternalUrls("", ""))
+        new ExternalUrls("", "", ""))
       contentAsString(html2) shouldBe (content)
     }
   }
@@ -133,7 +133,7 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         gaCode = Seq("My custom GA code"),
         messages = Messages.Implicits.applicationMessages,
         configuration = app.configuration,
-        externalUrls = new ExternalUrls("", "")
+        externalUrls = new ExternalUrls("", "", "")
       )
 
       val content = contentAsString(html)
@@ -158,7 +158,7 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         Html("My custom service info content"),
         Some(Html("My custom script")),
         Seq("My custom GA code")
-      )(Messages.Implicits.applicationMessages, app.configuration, new ExternalUrls("", ""))
+      )(Messages.Implicits.applicationMessages, app.configuration, new ExternalUrls("", "", ""))
       contentAsString(html2) shouldBe (content)
     }
   }
