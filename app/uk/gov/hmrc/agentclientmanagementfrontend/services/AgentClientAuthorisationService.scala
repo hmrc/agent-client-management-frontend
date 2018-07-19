@@ -34,7 +34,7 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
       storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedVatInvitations)).map(_.flatten)
       agencyNames <- if(storedInvitations.nonEmpty)
-        agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn))
+        agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
     } yield (agencyNames, storedInvitations)
 
