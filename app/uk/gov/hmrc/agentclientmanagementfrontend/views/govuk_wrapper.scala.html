@@ -29,16 +29,22 @@
         scriptElem: Option[Html] = None,
         gaCode: Seq[String] = Seq.empty)(implicit messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
 
+
+
+@headScripts = {
+    <link href="@controllers.routes.Assets.at("stylesheets/styles.css")" rel="stylesheet" media="all">
+}
 @head = {
 @uiLayouts.head(
     linkElem = None,
-    headScripts = None)
+    headScripts = Some(headScripts))
     <meta name="format-detection" content="telephone=no"/>
 }
 
 @scriptElement = {
     <script src="@controllers.routes.Assets.at("javascripts/scripts.js")" type="text/javascript"></script>
     <script src="@controllers.routes.Assets.at("javascripts/ga-events.js")" type="text/javascript"></script>
+
 }
 
 @headerNavLinks = {}

@@ -31,6 +31,8 @@
     }
 }
 
+@notificationNo = @{agentRequests.count(_.status == "Pending")}
+
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
     <h1 class="heading-large">@Messages("client-authorised-agents.title")</h1>
@@ -41,7 +43,7 @@
         <ul class="tabs-nav" role="tablist">
 
             <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
-                <span class="tabs-nav__tab tabs-nav__tab--active">@Messages("client-authorised-agents-table-relationships.tab1.title")</span>
+                <span class="tabs-nav__tab tabs-nav__tab--active">@Html(Messages("client-authorised-agents-table-relationships.tab1.title", s"$notificationNo"))</span>
             </li>
             <li id="tab2" data-tab-link="2" role="tab" aria-selected="true" aria-controls="tabContent2" tabindex="1">
                 <span class="tabs-nav__tab tabs-nav__tab--active">@Messages("client-authorised-agents-table-relationships.title")</span>
@@ -53,6 +55,7 @@
                     <table>
                         <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>
                         <p>@Messages("client-authorised-agents.tab1.p1")</p>
+
                         <colgroup>
                             <col width="">
                             <col width="">
@@ -141,7 +144,5 @@
             </li>
         </ul>
     </div>
-
-
 
 }
