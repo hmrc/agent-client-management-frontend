@@ -53,7 +53,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientNi(req, validNino.nino)
       givenNinoIsKnownFor(validNino)
       getActivePIRRelationship(validArn, serviceIrv, validNino.value, fromCesa = false)
-      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -62,7 +62,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("View their PAYE income record") shouldBe true
       result.body.contains("Pending") shouldBe true
-      result.body.contains("Expires: 07 March 2018") shouldBe true
+      result.body.contains("Expires: 01 January 9999") shouldBe true
       result.body.contains("Respond to request") shouldBe true
       result.body.contains("08 December 2017") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
@@ -73,7 +73,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired", "9999-01-01")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -82,7 +82,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("Expired") shouldBe true
-      result.body.contains("07 March 2018") shouldBe true
+      result.body.contains("01 January 9999") shouldBe true
       result.body.contains("No action needed") shouldBe true
       result.body.contains("06 June 2017") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
@@ -93,7 +93,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientVat(req, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
-      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected", "9999-01-01")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -116,9 +116,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted")
-      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Accepted")
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Accepted", "9999-01-01")
 
       val result = await(doGetRequest(""))
 
@@ -162,9 +162,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationshipsNoStartDate(serviceItsa, validArn.value)
       getAgencyNameMap200(validArn, "This Agency Name")
-      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired")
-      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired", "9999-01-01")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
 
       val result = await(doGetRequest(""))
 
@@ -180,14 +180,30 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending")
-      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Pending")
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.contains("Requests from agents <span class=\"badge\">3</span></span>") shouldBe true
+    }
+
+    "200 project authorised agents when requests are in sotre as pending but are actually expired" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getAgencyNameMap200(validArn,"abc")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "2017-01-01")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("Expired") shouldBe true
+      result.body.contains("01 January 2017") shouldBe true
+      result.body.contains("No action needed") shouldBe true
+      result.body.contains("Pending") shouldBe false
     }
 
     "500, when getAgencyNames in agent-services-account returns 400 invalid Arn" in {

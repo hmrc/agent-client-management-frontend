@@ -22,7 +22,7 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
 
   "Get itsa invitations" should {
     "return existing invitations for specified clientId" in {
-      getInvitations(arn, mtdItId.value, "MTDITID", "HMRC-MTD-IT", "Pending")
+      getInvitations(arn, mtdItId.value, "MTDITID", "HMRC-MTD-IT", "Pending", "9999-01-01")
 
       val result = await(connector.getItsaInvitation(mtdItId))
       result(0).arn shouldBe arn
@@ -40,7 +40,7 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
 
   "Get irv invitations" should {
     "return existing invitations for specified clientId" in {
-      getInvitations(arn, nino.value, "NI", "PERSONAL-INCOME-RECORD", "Pending")
+      getInvitations(arn, nino.value, "NI", "PERSONAL-INCOME-RECORD", "Pending", "9999-01-01")
 
       val result = await(connector.getIrvInvitation(nino))
       result(0).arn shouldBe arn
@@ -58,7 +58,7 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
 
   "Get vat invitations" should {
     "return existing invitations for specified clientId" in {
-      getInvitations(arn, vrn.value, "VRN", "HMRC-MTD-VAT", "Pending")
+      getInvitations(arn, vrn.value, "VRN", "HMRC-MTD-VAT", "Pending", "9999-01-01")
 
       val result = await(connector.getVatInvitation(vrn))
       result(0).arn shouldBe arn

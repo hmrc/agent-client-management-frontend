@@ -17,6 +17,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
+import org.joda.time.LocalDate
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
@@ -61,6 +62,7 @@ class ClientRelationshipManagementController @Inject()(
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
+    implicit val now: LocalDate = LocalDate.now()
     withAuthorisedAsClient { clientIds =>
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
