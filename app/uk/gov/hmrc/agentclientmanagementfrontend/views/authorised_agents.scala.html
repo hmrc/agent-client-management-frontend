@@ -83,7 +83,6 @@
                                         <td>
                                         @{agentReq.status match {
                                             case "Pending" => Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
-                                            case "Accepted" => Html(Messages("client-authorised-agents-table.actions.remove", externalUrls.confirmDeclineUrl(agentReq.invitationId)))
                                             case _ => Messages("client-authorised-agents-table.actions.no-action")
                                         }
                                         }
