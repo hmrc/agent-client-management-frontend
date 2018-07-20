@@ -24,17 +24,4 @@ $(function() {
     //Add aria-hidden to hidden inputs
     $('[type="hidden"]').attr("aria-hidden", true)
 
-
-    function tomato(ele){
-        var elementText = $(ele).text();
-        var count = elementText.match(/[0-9]+/g);
-        var addTomato = elementText.replace(/(\()[0-9]+(\))/g, "<span class=\"badge\">"+count+"</span>");
-       $(''+ele+'').html(addTomato);
-    }
-
-    tomato('.tabs-nav__tab.tabs-nav__tab--active');
-
-
-
-
 });
