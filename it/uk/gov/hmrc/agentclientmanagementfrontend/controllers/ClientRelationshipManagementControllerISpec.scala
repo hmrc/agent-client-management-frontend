@@ -122,7 +122,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       val result = await(doGetRequest(""))
 
-      result.body.contains("Remove authorisation") shouldBe true
+      result.body.contains("No action needed") shouldBe true
       result.status shouldBe 200
       result.body.contains("abc") shouldBe true
       result.body.contains("DEF") shouldBe true
