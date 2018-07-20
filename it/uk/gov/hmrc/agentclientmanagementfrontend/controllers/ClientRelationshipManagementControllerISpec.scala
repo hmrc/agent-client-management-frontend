@@ -152,6 +152,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("You have no authorised agents") shouldBe true
       result.body.contains("You have no pending requests from tax agents") shouldBe true
+      result.body.contains("Requests from agents") shouldBe true
+      result.body.contains("Requests from agents <span class=\"badge\">0</span></span>") shouldBe false
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
@@ -169,6 +171,23 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
+    "200 project authorised agents with correct count of pending invitations" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Pending")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("Requests from agents <span class=\"badge\">3</span></span>") shouldBe true
     }
 
     "500, when getAgencyNames in agent-services-account returns 400 invalid Arn" in {

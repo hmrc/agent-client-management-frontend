@@ -33,6 +33,12 @@
 
 @notificationNo = @{agentRequests.count(_.status == "Pending")}
 
+@tomato = @{
+    if(notificationNo>0){
+        """<span class="badge">""" + notificationNo + """</span>"""
+    } else ""
+}
+
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
     <h1 class="heading-large">@Messages("client-authorised-agents.title")</h1>
@@ -43,7 +49,7 @@
         <ul class="tabs-nav" role="tablist">
 
             <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
-                <a href="#tabContent1"><span class="tabs-nav__tab">@Html(Messages("client-authorised-agents-table-relationships.tab1.title", s"$notificationNo"))</span></a>
+                <a href="#tabContent1"><span class="tabs-nav__tab">@Html(Messages("client-authorised-agents-table-relationships.tab1.title", tomato))</span></a>
             </li>
             <li id="tab2" data-tab-link="2" role="tab" aria-selected="true" aria-controls="tabContent2" tabindex="1">
                 <a href="#tabContent2"><span class="tabs-nav__tab">@Messages("client-authorised-agents-table-relationships.title")</span></a>
