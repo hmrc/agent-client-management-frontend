@@ -67,12 +67,12 @@ class ClientRelationshipManagementController @Inject()(
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
       } yield {
         (agentRequests, authRequests) match {
-          case (invites, _) if invites.exists(_.status == "Pending") || invites.nonEmpty =>
+          case (invitations, _) if invitations.exists(_.status == "Pending") =>
             Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRequests")
-//          case (invites, _) if invites.nonEmpty
+          case (invitations, relationships) if invitations.nonEmpty && relationships.isEmpty =>
+            Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRequests")
           case _ =>
             Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRelationships")
-
         }
       }
     }
