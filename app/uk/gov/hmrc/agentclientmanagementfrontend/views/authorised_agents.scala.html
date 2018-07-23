@@ -48,15 +48,15 @@
     <div data-tabs-custom class="js-hash-selected-tab">
         <ul class="tabs-nav" role="tablist">
 
-            <li id="tab1" data-tab-link="1" role="tab" aria-selected="true" aria-controls="tabContent1" tabindex="0">
-                <a href="#tabContent1"><span class="tabs-nav__tab">@Html(Messages("client-authorised-agents-table-relationships.tab1.title", tomato))</span></a>
+            <li id="tabRequests" data-tab-link="tabLinkRequests" role="tab" aria-selected="true" aria-controls="tab_requests" tabindex="0">
+                <a href="#tab_requests"><span class="tabs-nav__tab">@Html(Messages("client-authorised-agents-table-relationships.tab1.title", tomato))</span></a>
             </li>
-            <li id="tab2" data-tab-link="2" role="tab" aria-selected="true" aria-controls="tabContent2" tabindex="1">
-                <a href="#tabContent2"><span class="tabs-nav__tab">@Messages("client-authorised-agents-table-relationships.title")</span></a>
+            <li id="tabRelationships" data-tab-link="tabLinkRelationships" role="tab" aria-selected="true" aria-controls="tab_relationships" tabindex="1">
+                <a href="#tab_relationships"><span class="tabs-nav__tab">@Messages("client-authorised-agents-table-relationships.title")</span></a>
             </li>
         </ul>
         <ul>
-            <li id="tabContent1" data-tab-content="1" class="tab-content" role="tabpanel" aria-labelledby="tab1">
+            <li id="tab_requests" data-tab-content="tabLinkRequests" class="tab-content" role="tabpanel" aria-labelledby="tabRequests">
                 <div class="tab-content__first">
                     <table class="font-small">
                         <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>
@@ -109,7 +109,7 @@
                     </table>
                 </div>
             </li>
-            <li id="tabContent2" data-tab-content="2" class="tab-content" role="tabpanel" aria-labelledby="tab2">
+            <li id="tab_relationships" data-tab-content="tabLinkRelationships" class="tab-content" role="tabpanel" aria-labelledby="tabRelationships">
                 <div class="tab-content__first">
                     <table class="font-small">
                         <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>

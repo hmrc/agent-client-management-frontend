@@ -23,7 +23,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.{ActionWithMdc, FrontendController}
 
 import scala.concurrent.Future
 import play.api.data.Form
@@ -61,6 +61,24 @@ class ClientRelationshipManagementController @Inject()(
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
+    withAuthorisedAsClient { clientIds =>
+      for {
+        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
+        authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
+      } yield {
+        (agentRequests, authRequests) match {
+          case (invites, _) if invites.exists(_.status == "Pending") || invites.nonEmpty =>
+            Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRequests")
+//          case (invites, _) if invites.nonEmpty
+          case _ =>
+            Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRelationships")
+
+        }
+      }
+    }
+  }
+
+  def display(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { clientIds =>
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
