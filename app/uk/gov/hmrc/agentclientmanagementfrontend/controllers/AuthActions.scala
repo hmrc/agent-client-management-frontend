@@ -47,19 +47,4 @@ trait AuthActions extends AuthorisedFunctions {
           Future.failed(InsufficientEnrolments("Identifiers not found"))
       }
   }
-
-  protected def withEnrolledFor[A](serviceName: String, identifierKey: String)(body: Option[String] => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
-    authorised(
-      Enrolment(serviceName)
-        and AuthProviders(GovernmentGateway))
-      .retrieve(authorisedEnrolments) { enrolments =>
-        val id = for {
-          enrolment <- enrolments.getEnrolment(serviceName)
-          identifier <- enrolment.getIdentifier(identifierKey)
-        } yield identifier.value
-
-        body(id)
-      }
-  }
-
 }
