@@ -22,7 +22,7 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 
-@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls)
+@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
 @displayDate(date: Option[LocalDate]) = @{
     date match {
@@ -31,7 +31,20 @@
     }
 }
 
-@notificationNo = @{agentRequests.count(_.status == "Pending")}
+@dateInfo(request: AgentRequest)(implicit messages: Messages) = {
+@if(request.effectiveStatus == "Pending") {
+    <span>@Messages("client-authorised-agents-table.pending.date", displayDate(Some(request.expiryDate)))</span>
+} else {
+    @if(request.effectiveStatus == "Expired") {
+        @displayDate(Some(request.expiryDate))
+    } else {
+        @displayDate(Some(request.lastUpdated))
+    }
+}
+
+}
+
+@notificationNo = @{agentRequests.count(_.effectiveStatus == "Pending")}
 
 @tomato = @{
     if(notificationNo>0){
@@ -82,22 +95,16 @@
                                     <tr>
                                         <td>@agentReq.agencyName</td>
                                         <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
-                                        <td>@Messages(s"client-authorised-agents-table.${agentReq.status}")<span style="display: block; font-size: 0.85em; color: #6f777b;">
-                                            @{agentReq.status match {
-                                            case "Pending" => Messages("client-authorised-agents-table.pending.date", displayDate(Some(agentReq.expiryDate)))
-                                            case "Expired" => displayDate(Some(agentReq.expiryDate))
-                                            case _ => displayDate(Some(agentReq.lastUpdated))
-                                        }
-                                        }</span></td>
+                                        <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span style="display: block; font-size: 0.85em; color: #6f777b;">
+                                            @dateInfo(agentReq)</span></td>
                                         <td class="text--right">
-                                        @{agentReq.status match {
+                                        @{agentReq.effectiveStatus match {
                                             case "Pending" => Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
                                             case _ => Messages("client-authorised-agents-table.actions.no-action")
                                         }
                                         }
                                         </td>
                                     </tr>
-
                                 }
 
                             }else{
