@@ -17,24 +17,21 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc._
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
-import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
-import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
-import uk.gov.hmrc.play.bootstrap.controller.{ActionWithMdc, FrontendController}
-
-import scala.concurrent.Future
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import play.api.libs.json.Reads
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc._
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
+import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+
+import scala.concurrent.Future
 
 case class RadioConfirm(value: Option[Boolean])
 
@@ -68,17 +65,17 @@ class ClientRelationshipManagementController @Inject()(
       } yield {
         (agentRequests, authRequests) match {
           case (invitations, _) if invitations.exists(_.status == "Pending") =>
-            Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRequests")
+            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRequests")
           case (invitations, relationships) if invitations.nonEmpty && relationships.isEmpty =>
-            Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRequests")
+            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRequests")
           case _ =>
-            Redirect(routes.ClientRelationshipManagementController.display().url + "#tabLinkRelationships")
+            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRelationships")
         }
       }
     }
   }
 
-  def display(): Action[AnyContent] = Action.async { implicit request =>
+  def home(): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { clientIds =>
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)

@@ -49,7 +49,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   "root" should {
     val req = FakeRequest()
-    "redirect to display and show invitations tab if found invitations, including Pending invitations and active relationships" in {
+    "redirect to home and show invitations tab if found invitations, including Pending invitations and active relationships" in {
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
       getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
@@ -63,7 +63,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRequests"
     }
 
-    "redirect to display and show invitations tab if found invitations, including Pending invitations and no active relationships" in {
+    "redirect to home and show invitations tab if found invitations, including Pending invitations and no active relationships" in {
       getNotFoundClientActiveAgentRelationships(serviceItsa)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
@@ -76,7 +76,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRequests"
     }
 
-    "redirect to display and show invitations tab if found invitations but no relationships" in {
+    "redirect to home and show invitations tab if found invitations but no relationships" in {
       getNotFoundClientActiveAgentRelationships(serviceItsa)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
@@ -89,7 +89,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRequests"
     }
 
-    "redirect to display and show relationships tab if found no invitations" in {
+    "redirect to home and show relationships tab if found relationships but no invitations" in {
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
       getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
@@ -102,7 +102,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRelationships"
     }
 
-    "redirect to display and show relationships tab if found no invitations or relationships" in {
+    "redirect to home and show relationships tab if found no invitations or relationships" in {
       getNotFoundClientActiveAgentRelationships(serviceItsa)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
@@ -114,7 +114,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRelationships"
     }
 
-    "redirect to display and show relationships tab if have invitations and relationships but no pending invitations" in {
+    "redirect to home and show relationships tab if found invitations and relationships but no pending invitations" in {
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
       getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
