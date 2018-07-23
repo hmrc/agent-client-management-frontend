@@ -7,7 +7,7 @@ AS A Client who has one or more active agent authorisations for MTD services
 I WANT to be able to remove an authorisation for a specific agent and service
 SO THAT the agent can no longer access my data / act on my behalf with HMRC for that service
 
-Finds the logged in client's relationships, currently for the following serices: ITSA, PIR and VAT
+Finds the logged in client's invitations and relationships, currently for the following serices: ITSA, PIR and VAT
 
 ## Running the tests
 

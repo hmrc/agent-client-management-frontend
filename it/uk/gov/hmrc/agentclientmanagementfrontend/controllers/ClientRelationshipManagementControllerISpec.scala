@@ -13,6 +13,7 @@ import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
+import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -46,6 +47,88 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
 
+  "root" should {
+    val req = FakeRequest()
+    "redirect to home and show invitations tab if found invitations, including Pending invitations and active relationships" in {
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
+      getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
+      getAgencyNameMap200(validArn, "My Boolean Agency")
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn,"DEF"),(validArn, "ghi"))
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
+      val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRequests"
+    }
+
+    "redirect to home and show invitations tab if found invitations, including Pending invitations and no active relationships" in {
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getAgencyNameMap200(validArn, "My Boolean Agency")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
+      val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRequests"
+    }
+
+    "redirect to home and show invitations tab if found invitations but no relationships" in {
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getAgencyNameMap200(validArn, "My Boolean Agency")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Accepted", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
+      val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRequests"
+    }
+
+    "redirect to home and show relationships tab if found relationships but no invitations" in {
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
+      getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn,"DEF"),(validArn, "ghi"))
+      getInvitationsNotFound(validNino.value, "NI")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validVrn.value, "VRN")
+      val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRelationships"
+    }
+
+    "redirect to home and show relationships tab if found no invitations or relationships" in {
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getInvitationsNotFound(validNino.value, "NI")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validVrn.value, "VRN")
+      val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRelationships"
+    }
+
+    "redirect to home and show relationships tab if found invitations and relationships but no pending invitations" in {
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getClientActiveAgentRelationships(serviceVat, validArn.value, startDateString)
+      getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn,"DEF"),(validArn, "ghi"))
+      getAgencyNameMap200(validArn, "My Boolean Agency")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Accepted", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
+      val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRelationships"
+    }
+  }
+
   "manageTaxAgents" should {
     val req = FakeRequest()
 
@@ -60,7 +143,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
-      result.body.contains("View their PAYE income record") shouldBe true
+      result.body.contains("View your PAYE income record") shouldBe true
       result.body.contains("Pending") shouldBe true
       result.body.contains("Expires: 01 January 9999") shouldBe true
       result.body.contains("Respond to request") shouldBe true
@@ -100,7 +183,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       result.status shouldBe 200
       result.body.contains("This Agency Name") shouldBe true
-      result.body.contains("Report VAT returns through software") shouldBe true
+      result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("Declined") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
       result.body.contains("No action needed") shouldBe true
@@ -128,9 +211,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("abc") < result.body.indexOf("DEF") && result.body.indexOf("DEF")< result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Report VAT returns through software") shouldBe true
+      result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
-      result.body.contains("View their PAYE income record") shouldBe true
+      result.body.contains("View your PAYE income record") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
       result.body.contains("07 March 2018") shouldBe false
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true

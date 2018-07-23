@@ -17,25 +17,22 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import org.joda.time.LocalDate
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
+import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
+import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.Future
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import play.api.libs.json.Reads
-import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.MtdItId
-import uk.gov.hmrc.auth.core.InsufficientEnrolments
 
 case class RadioConfirm(value: Option[Boolean])
 
@@ -62,6 +59,25 @@ class ClientRelationshipManagementController @Inject()(
   extends FrontendController with I18nSupport with AuthActions {
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
+    implicit val now: LocalDate = LocalDate.now()
+    withAuthorisedAsClient { clientIds =>
+      for {
+        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
+        authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
+      } yield {
+        (agentRequests, authRequests) match {
+          case (invitations, _) if invitations.exists(_.status == "Pending") =>
+            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRequests")
+          case (invitations, relationships) if invitations.nonEmpty && relationships.isEmpty =>
+            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRequests")
+          case _ =>
+            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRelationships")
+        }
+      }
+    }
+  }
+
+  def home(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     withAuthorisedAsClient { clientIds =>
       for {
