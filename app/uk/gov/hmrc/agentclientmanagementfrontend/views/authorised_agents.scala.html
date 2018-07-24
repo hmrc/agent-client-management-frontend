@@ -142,7 +142,7 @@
                                     <td>@authAgent.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
                                     <td>@displayDate(authAgent.dateFrom)</td>
-                                 <td class="text--right"><a@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.submitRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
+                                 <td class="text--right"><a@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
                                 </tr>
                             }
                         }else{
