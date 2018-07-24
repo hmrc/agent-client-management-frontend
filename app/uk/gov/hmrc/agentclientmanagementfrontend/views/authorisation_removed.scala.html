@@ -19,8 +19,8 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 @(agencyName: String, service: String)(implicit request: Request[_], messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages(s"clientEndsRelationshipEnded.title.$service", agencyName), bodyClasses = None) {
- <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.title.$service", agencyName)</h1>
+@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages(s"clientEndsRelationshipEnded.title.$service"), bodyClasses = None) {
+ <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.h1.$service", agencyName)</h1>
  <p>@Messages(s"clientEndsRelationshipEnded.p1.$service", agencyName)</p>
 <a href="@routes.ClientRelationshipManagementController.root()" class="button" role="button" id="goToPtaButton">@Messages("button.continue")</a>
 }
