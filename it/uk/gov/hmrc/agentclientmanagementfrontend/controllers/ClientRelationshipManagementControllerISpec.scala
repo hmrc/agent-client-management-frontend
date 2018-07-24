@@ -120,9 +120,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getActivePIRRelationship( validArn, serviceIrv,validNino.value, false)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn,"DEF"),(validArn, "ghi"))
       getAgencyNameMap200(validArn, "My Boolean Agency")
-      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Accepted", "9999-01-01")
+      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Expired", "9999-01-01")
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01")
-      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
+      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Declined", "9999-01-01")
       val result = controller.root()(authorisedAsClientAll(req, validNino.value, mtdItId.value, validVrn.value))
       status(result) shouldBe 303
       redirectLocation(result).get shouldBe "/manage-your-tax-agents/home#tabLinkRelationships"
@@ -156,7 +156,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "2017-06-16")
       getAgencyNameMap200(validArn, "This Agency Name")
 
       val result = await(doGetRequest(""))
@@ -165,7 +165,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("Expired") shouldBe true
-      result.body.contains("01 January 9999") shouldBe true
+      result.body.contains("16 June 2017") shouldBe true
       result.body.contains("No action needed") shouldBe true
       result.body.contains("06 June 2017") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
