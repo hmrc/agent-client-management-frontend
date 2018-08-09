@@ -64,25 +64,6 @@ class ClientRelationshipManagementController @Inject()(
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
-      } yield {
-        (agentRequests, authRequests) match {
-          case (invitations, _) if invitations.exists(_.effectiveStatus == "Pending") =>
-            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRequests")
-          case (invitations, relationships) if invitations.nonEmpty && relationships.isEmpty =>
-            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRequests")
-          case _ =>
-            Redirect(routes.ClientRelationshipManagementController.home().url + "#tabLinkRelationships")
-        }
-      }
-    }
-  }
-
-  def home(): Action[AnyContent] = Action.async { implicit request =>
-    implicit val now: LocalDate = LocalDate.now()
-    withAuthorisedAsClient { clientIds =>
-      for {
-        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
-        authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
       }yield Ok(authorised_agents(authRequests, agentRequests))
     }
   }

@@ -4,3 +4,14 @@
 table.font-small td {
  font-size: .85em !important;
 }
+table caption.caption-medium{
+ font-size: 24px;
+ line-height: 1.25;
+ font-weight: 800;
+}
+.margin-top-30{
+    margin-top: 60px !important;
+}
+.margin-bottom-30{
+    margin-bottom: 50px !important;
+}
