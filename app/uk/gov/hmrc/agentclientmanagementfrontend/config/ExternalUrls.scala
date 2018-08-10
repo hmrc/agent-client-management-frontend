@@ -30,9 +30,6 @@ class ExternalUrls @Inject()(
   def confirmTermsUrl(invitationId: String): String =
     s"$agentInvitationsFrontendBaseUrl/invitations/accept-tax-agent-invitation/consent/${invitationId}"
 
-  def confirmDeclineUrl(invitationId: String): String =
-    s"$agentInvitationsFrontendBaseUrl/invitations/accept-tax-agent-invitation/confirm-decline/${invitationId}"
-
   val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
 
   val contactFrontendAjaxUrl: String =
