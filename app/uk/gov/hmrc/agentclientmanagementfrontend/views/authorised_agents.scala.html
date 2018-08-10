@@ -156,7 +156,7 @@
                         </thead>
                         <tbody>
 
-                            @agentRequests.map { agentReq =>
+                            @agentRequests.filter(_.effectiveStatus != "Pending").map { agentReq =>
                                 <tr>
                                     <td>@agentReq.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
