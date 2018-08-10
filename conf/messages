@@ -26,7 +26,8 @@ button.back=Back
 
 # Client Content
 client-authorised-agents.title=Manage your tax agents
-client-authorised-agents.tab1.p1=View your authorised tax agents, respond to agents'' requests, and remove authorisations you no longer need.
+client-authorised-agents.tab1.p1.both=View your authorised tax agents, respond to agents'' requests, and remove authorisations you no longer need.
+client-authorised-agents.tab1.p1.only-auth=View your authorised tax agents and remove authorisations you no longer need.
 client-authorised-agents.tab2.p1=Check which tax agents have permission to act on your behalf, and remove authorisations that you no longer need.
 client-authorised-agents-table-relationships.tab2.title=Your authorised agents
 client-authorised-agents-table-relationships.tab1.title=Current authorisations and requests {0}
@@ -36,7 +37,6 @@ client-authorised-agents-table-row-header.agentName=Agent name
 client-authorised-agents-table-row-header.serviceName=Authorised services
 client-authorised-agents-table-row-header.authRequested=Authorisation requested
 client-authorised-agents-table-row-header.dateAuthorised=Date authorised
-client-authorised-agents-table-row-header.requestStatus=Status of request
 client-authorised-agents-table-row-header.pending=Expiry date
 client-authorised-agents-table-row-header.actions=Actions
 client-authorised-agents-table.Pending=Pending
@@ -50,7 +50,7 @@ client-authorised-agents-table.actions.remove=<a href={0}>Remove authorisation</
 
 
 
-client-authorised-agents-table-content.noAgentsFound=You have no authorised agents
+client-authorised-agents-table-content.noAgentsFound=You have no authorised agents.
 client-authorised-agents-table-content.noRequests=You have no pending requests from tax agents
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your PAYE income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Report your VAT returns through software
