@@ -17,3 +17,8 @@ table caption.caption-medium{
 .margin-bottom-30{
     margin-bottom: 50px !important;
 }
+.date-hint{
+    display: block;
+    font-size: 0.85em;
+    color: #6f777b;
+}

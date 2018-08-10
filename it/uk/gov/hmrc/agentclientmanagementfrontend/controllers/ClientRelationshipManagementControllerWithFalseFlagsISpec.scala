@@ -5,7 +5,7 @@ import play.api.libs.ws.WSClient
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
-import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AgentClientRelationshipsStub, AgentServicesAccountStub, PirRelationshipStub}
+import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AgentClientAuthorisationStub, AgentClientRelationshipsStub, AgentServicesAccountStub, PirRelationshipStub}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
@@ -18,7 +18,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpec
   with PirRelationshipStub
   with AgentServicesAccountStub
-  with AgentClientRelationshipsStub {
+  with AgentClientRelationshipsStub
+  with AgentClientAuthorisationStub{
 
   override def featureRemoveAuthorisationPir = false
 
@@ -52,8 +53,11 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
-      getClientActiveAgentRelationships(serviceVat, validVrn.value, startDateString)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "DEF"))
+      getInvitationsNotFound(validVrn.value, "VRN")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
 
       val result = await(doGetRequest(""))
       result.body.contains("Remove authorisation") shouldBe false
