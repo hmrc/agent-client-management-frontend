@@ -95,7 +95,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @if(agentRequests.nonEmpty){
                                 @agentRequests.filter(_.effectiveStatus == "Pending").map { agentReq =>
                                     <tr>
                                         <td>@agentReq.agencyName</td>
@@ -106,12 +105,6 @@
                                         </td>
                                     </tr>
                                 }
-
-                            }else{
-                                <tr>
-                                    <td colspan="4" scope="row">@Messages("client-authorised-agents-table-content.noRequests")</td>
-                                </tr>
-                            }
                             </tbody>
                         </table>
                     }
@@ -151,45 +144,35 @@
             </li>
             <li id="tab_relationships" data-tab-content="tabLinkRelationships" class="tab-content" role="tabpanel" aria-labelledby="tabRelationships">
                 <div class="tab-content__first">
+                    <p>@Messages("client-authorised-agents.tab2.p1")</p>
+                    @if(agentRequests.nonEmpty){
                     <table class="font-small">
-                        <caption class="visuallyhidden">@Messages("client-authorised-agents-table-relationships.title")</caption>
-                        <p>@Messages("client-authorised-agents.tab2.p1")</p>
                         <colgroup>
                             <col width="">
                             <col width="">
-                            <col width="20%">
-                            <col width="18%">
+                            <col width="">
                         </colgroup>
                         <thead>
                             <tr>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.serviceName")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.dateAuthorised")</th>
-                                <th scope="col" class="text--right">@Messages("client-authorised-agents-table-row-header.actions")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.status")</th>
                             </tr>
                         </thead>
                         <tbody>
-                        @if(agentRequests.nonEmpty){
+
                             @agentRequests.map { agentReq =>
                                 <tr>
                                     <td>@agentReq.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
-                                    <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span style="display: block; font-size: 0.85em; color: #6f777b;">
+                                    <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span class="date-hint">
                                     @dateInfo(agentReq)</span></td>
-                                    <td class="text--right">
-                                    @{agentReq.effectiveStatus match {
-                                        case "Pending" => Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
-                                        case _ => Messages("client-authorised-agents-table.actions.no-action")
-                                    }
-                                    }
                                     </td>
                                 </tr>
                             }
 
                         }else{
-                            <tr>
-                                <td colspan="4" scope="row">@Messages("client-authorised-agents-table-content.noRequests")</td>
-                            </tr>
+                                <p colspan="3" scope="row">@Messages("client-authorised-agents-table-content.no-history")</p>
                         }
                         </tbody>
                     </table>

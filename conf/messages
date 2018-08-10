@@ -28,8 +28,8 @@ button.back=Back
 client-authorised-agents.title=Manage your tax agents
 client-authorised-agents.tab1.p1.both=View your authorised tax agents, respond to agents'' requests, and remove authorisations you no longer need.
 client-authorised-agents.tab1.p1.only-auth=View your authorised tax agents and remove authorisations you no longer need.
-client-authorised-agents.tab2.p1=Check which tax agents have permission to act on your behalf, and remove authorisations that you no longer need.
-client-authorised-agents-table-relationships.tab2.title=Your authorised agents
+client-authorised-agents.tab2.p1=Find details of previous requests from agents.
+client-authorised-agents-table-relationships.tab2.title=Your activity history
 client-authorised-agents-table-relationships.tab1.title=Current authorisations and requests {0}
 client-authorised-agents-table-relationships.pending=Pending authorisation requests
 client-authorised-agents-table-relationships.current=Currently authorised agents
@@ -37,12 +37,13 @@ client-authorised-agents-table-row-header.agentName=Agent name
 client-authorised-agents-table-row-header.serviceName=Authorised services
 client-authorised-agents-table-row-header.authRequested=Authorisation requested
 client-authorised-agents-table-row-header.dateAuthorised=Date authorised
+client-authorised-agents-table-row-header.status=Current status
 client-authorised-agents-table-row-header.pending=Expiry date
 client-authorised-agents-table-row-header.actions=Actions
 client-authorised-agents-table.Pending=Pending
-client-authorised-agents-table.Accepted=Accepted
-client-authorised-agents-table.Rejected=Declined
-client-authorised-agents-table.Expired=Expired
+client-authorised-agents-table.Accepted=You accepted this request
+client-authorised-agents-table.Rejected=You declined this request
+client-authorised-agents-table.Expired=This request expired before you responded
 client-authorised-agents-table.pending.date=Expires: {0}
 client-authorised-agents-table.actions.no-action=No action needed
 client-authorised-agents-table.actions.respond=<a href={0}>Respond to request</a>
@@ -51,7 +52,7 @@ client-authorised-agents-table.actions.remove=<a href={0}>Remove authorisation</
 
 
 client-authorised-agents-table-content.noAgentsFound=You have no authorised agents.
-client-authorised-agents-table-content.noRequests=You have no pending requests from tax agents
+client-authorised-agents-table-content.no-history=You do not have any previous history.
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your PAYE income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Report your VAT returns through software
 client-authorised-agents-table-content.HMRC-MTD-IT=Report your income or expenses through software

@@ -67,7 +67,7 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
     }
 
     "return an empty sequence when no invitation is found for specified clientId" in {
-      getInvitationsNotFound(mtdItId.value, "VRN")
+      getInvitationsNotFound(vrn.value, "VRN")
 
       val result =  await(connector.getVatInvitation(vrn))
       result shouldBe Seq.empty

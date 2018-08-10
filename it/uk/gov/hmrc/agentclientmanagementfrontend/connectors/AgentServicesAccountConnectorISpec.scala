@@ -27,7 +27,7 @@ class AgentServicesAccountConnectorISpec extends BaseISpec with AgentServicesAcc
     "when supplied invalid Arn in sequence return BadRequest" in {
       getAgencyNamesMap400("someInvalidArn")
 
-      an[Exception] should be thrownBy await(connector.getAgencyNames(Seq(Arn("a"))))
+      an[Exception] should be thrownBy await(connector.getAgencyNames(Seq(Arn("someInvalidArn"))))
     }
   }
 }
