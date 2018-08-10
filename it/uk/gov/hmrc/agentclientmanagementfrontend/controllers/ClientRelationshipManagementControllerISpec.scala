@@ -50,30 +50,28 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   "manageTaxAgents" should {
     val req = FakeRequest()
 
-    "200, project authorised agent for a valid authenticated client with just PIR relationship and pending irv request" in {
+    "200, project authorised agent for a valid authenticated client with pending and accepted requests" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       givenNinoIsKnownFor(validNino)
-      getAgencyNameMap200(validArn, "This Agency Name")
-      getActivePIRRelationship(validArn, serviceIrv, validNino.value, fromCesa = false)
-      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01")
-      getAgencyNameMap200(validArn, "This Agency Name")
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Accepted", "9999-01-01")
 
       val result = await(doGetRequest(""))
 
+      result.body.contains("No action needed") shouldBe true
       result.status shouldBe 200
-      result.body.contains("Current authorisations and requests") shouldBe true
-      result.body.contains("This Agency Name") shouldBe true
+      println(result.body)
+      result.body.contains("Report your VAT returns through software") shouldBe true
+      result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Pending") shouldBe true
-      result.body.contains("Expires: 01 January 9999") shouldBe true
-      result.body.contains("Respond to request") shouldBe true
-      result.body.contains("08 December 2017") shouldBe true
-      result.body.contains("Remove authorisation") shouldBe true
       result.body.contains("Pending authorisation requests") shouldBe true
-      result.body.contains("View your authorised tax agents,") shouldBe true
-      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+      result.body.contains("View your authorised tax agents, respond") shouldBe true
+      sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
     "200, project authorised agent for a valid authenticated client with just Itsa relationship and expired itsa request" in {
