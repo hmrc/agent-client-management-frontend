@@ -75,7 +75,7 @@
                         <p>@Messages("client-authorised-agents.tab1.p1")</p>
                     }
                     @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
-                        <table class="font-small margin-top-30 margin-bottom-30">
+                        <table class="font-small margin-bottom-30">
                             <caption class="caption-medium">@Messages("client-authorised-agents-table-relationships.pending")</caption>
 
                             <colgroup>
@@ -100,7 +100,7 @@
                                         <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
                                         <td>@displayDate(Some(agentReq.expiryDate))</td>
                                         <td class="text--right">
-                                            Html(@Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
+                                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
                                         </td>
                                     </tr>
                                 }
