@@ -71,7 +71,7 @@
         <ul>
             <li id="tab_requests" data-tab-content="tabLinkRequests" class="tab-content" role="tabpanel" aria-labelledby="tabRequests">
                 <div class="tab-content__first">
-                    @if(agentRequests.exists(_.effectiveStatus == "Pending") && authorisedAgents.nonEmpty) {
+                    @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
                         <p>@Messages("client-authorised-agents.tab1.p1.both")</p>
                     }else{
                         <p>@Messages("client-authorised-agents.tab1.p1.only-auth")</p>
@@ -120,7 +120,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.authServices")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.dateAuthorised")</th>
                                 <th scope="col" class="text--right">@Messages("client-authorised-agents-table-row-header.actions")</th>
                             </tr>
@@ -150,7 +150,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.serviceName")</th>
+                                <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.status")</th>
                             </tr>
                         </thead>
@@ -167,7 +167,7 @@
                             }
 
                         }else{
-                                <p>@Messages("client-authorised-agents-table-content.no-history")</p>
+                                <p>@Messages("client-authorised-agents-table-content.no-activity")</p>
                         }
                         </tbody>
                     </table>

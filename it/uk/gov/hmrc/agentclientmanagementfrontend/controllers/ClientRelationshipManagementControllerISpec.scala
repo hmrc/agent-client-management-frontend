@@ -90,7 +90,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("View your authorised tax agents and remove authorisations you no longer need.") shouldBe true
+      result.body.contains("View your authorised tax agents, respond to") shouldBe true
       result.body.contains("Pending authorisation requests") shouldBe true
       result.body.contains("Currently authorised agents") shouldBe true
       result.body.contains("You have no authorised agents.") shouldBe true
@@ -249,7 +249,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("Your activity history") shouldBe true
       result.body.contains("Find details of previous requests from agents.") shouldBe true
-      result.body.contains("You do not have any previous history.") shouldBe true
+      result.body.contains("You do not have any previous activity.") shouldBe true
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
