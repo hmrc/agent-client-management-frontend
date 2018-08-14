@@ -32,11 +32,16 @@
 }
 
 @dateInfo(request: AgentRequest)(implicit messages: Messages) = {
+@if(request.effectiveStatus == "Pending") {
+    <span>@Messages("client-authorised-agents-table.pending.date", displayDate(Some(request.expiryDate)))</span>
+} else {
     @if(request.effectiveStatus == "Expired") {
         @displayDate(Some(request.expiryDate))
     } else {
         @displayDate(Some(request.lastUpdated))
     }
+}
+
 }
 
 @notificationNo = @{agentRequests.count(_.effectiveStatus == "Pending")}
