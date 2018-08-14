@@ -34,8 +34,8 @@ client-authorised-agents-table-relationships.tab1.title=Current authorisations a
 client-authorised-agents-table-relationships.pending=Pending authorisation requests
 client-authorised-agents-table-relationships.current=Currently authorised agents
 client-authorised-agents-table-row-header.agentName=Agent name
-client-authorised-agents-table-row-header.serviceName=Authorised services
 client-authorised-agents-table-row-header.authRequested=Authorisation requested
+client-authorised-agents-table-row-header.authServices=Authorised services
 client-authorised-agents-table-row-header.dateAuthorised=Date authorised
 client-authorised-agents-table-row-header.status=Current status
 client-authorised-agents-table-row-header.pending=Expiry date
@@ -52,7 +52,7 @@ client-authorised-agents-table.actions.remove=<a href={0}>Remove authorisation</
 
 
 client-authorised-agents-table-content.noAgentsFound=You have no authorised agents.
-client-authorised-agents-table-content.no-history=You do not have any previous history.
+client-authorised-agents-table-content.no-activity=You do not have any previous activity.
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your PAYE income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Report your VAT returns through software
 client-authorised-agents-table-content.HMRC-MTD-IT=Report your income or expenses through software
