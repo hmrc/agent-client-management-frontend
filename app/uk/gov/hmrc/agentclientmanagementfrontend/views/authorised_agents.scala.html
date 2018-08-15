@@ -81,17 +81,17 @@
                             <caption class="caption-medium">@Messages("client-authorised-agents-table-relationships.pending")</caption>
 
                             <colgroup>
-                                <col width="">
-                                <col width="">
+                                <col width="20%">
+                                <col width="45%">
                                 <col width="15%">
-                                <col width="18%">
+                                <col width="20%">
                             </colgroup>
                             <thead>
                                 <tr>
                                     <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
                                     <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
                                     <th scope="col">@Messages("client-authorised-agents-table-row-header.pending")</th>
-                                    <th scope="col" class="text--right">@Messages("client-authorised-agents-table-row-header.actions")</th>
+                                    <th scope="col" >@Messages("client-authorised-agents-table-row-header.actions")</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -100,7 +100,7 @@
                                         <td>@agentReq.agencyName</td>
                                         <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
                                         <td>@displayDate(Some(agentReq.expiryDate))</td>
-                                        <td class="text--right">
+                                        <td >
                                             @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
                                         </td>
                                     </tr>
@@ -111,10 +111,10 @@
                     @if(authorisedAgents.nonEmpty){
                     <table class="font-small margin-top-30">
                         <colgroup>
-                            <col width="">
-                            <col width="">
+                            <col width="20%">
+                            <col width="45%">
                             <col width="15%">
-                            <col width="18%">
+                            <col width="20%">
                         </colgroup>
                         <caption class="caption-medium">@Messages("client-authorised-agents-table-relationships.current")</caption>
                         <thead>
@@ -122,7 +122,7 @@
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.authServices")</th>
                                 <th scope="col">@Messages("client-authorised-agents-table-row-header.dateAuthorised")</th>
-                                <th scope="col" class="text--right">@Messages("client-authorised-agents-table-row-header.actions")</th>
+                                <th scope="col" >@Messages("client-authorised-agents-table-row-header.actions")</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -131,7 +131,7 @@
                                     <td>@authAgent.agencyName</td>
                                     <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
                                     <td>@displayDate(authAgent.dateFrom)</td>
-                                    <td class="text--right"><a@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
+                                    <td ><a@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){ href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</a></td>
                                 </tr>
                             }
                         }else{
