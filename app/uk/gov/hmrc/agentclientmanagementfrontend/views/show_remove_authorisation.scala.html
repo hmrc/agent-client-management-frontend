@@ -21,27 +21,32 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
+
+@formTitle = {
+    <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>
+    <p class="panel panel-border-wide margin-bottom-30" id="details-content-0" aria-hidden="true">
+        @Messages(s"clientEndsRelationship.description.$service", agencyName)
+    </p>
+}
+
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = error_prefix(confirmForm) + Messages("clientEndsRelationship.title"), bodyClasses = None) {
+
+    <a id="backLink" href="@routes.ClientRelationshipManagementController.root()" class="link-back">@Messages("button.back")</a>
+
     @if(confirmForm.hasErrors){
         @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
     }
-    <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>
-
-    <p>@Messages(s"clientEndsRelationship.description.$service", agencyName)</p>
 
     @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @inputRadioGroup(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
-            '_legend -> Messages("clientEndsRelationship.legend", agencyName),
-            '_legendClass -> "heading-medium",
+            '_legend -> formTitle,
             '_groupDivClass -> "form-group soft--ends",
-            '_groupClass -> "inline",
             '_fieldsetAttributes -> Html("""id='confirmResponse'""")
         )
         <div class="form-group">
             <button type="submit" class="button" id="buttonDeauthorise">@Messages("button.continue")</button>
         </div>
-        <a href="@routes.ClientRelationshipManagementController.root()" class="back-link" id="backlink">@Messages("button.back")</a>
     }
 }
