@@ -16,13 +16,13 @@
 
 @import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
-@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import org.joda.time.LocalDate
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 
-@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
+@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequestSorted
+@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequestSorted])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
 @displayDate(date: Option[LocalDate]) = @{
     date match {
@@ -31,7 +31,7 @@
     }
 }
 
-@dateInfo(request: AgentRequest)(implicit messages: Messages) = {
+@dateInfo(request: AgentRequestSorted)(implicit messages: Messages) = {
 @if(request.effectiveStatus == "Pending") {
     <span>@Messages("client-authorised-agents-table.pending.date", displayDate(Some(request.expiryDate)))</span>
 } else {

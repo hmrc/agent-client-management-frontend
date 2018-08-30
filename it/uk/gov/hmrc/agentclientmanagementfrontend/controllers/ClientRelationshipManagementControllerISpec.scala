@@ -206,7 +206,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   "manageTaxAgents Your activity history tab" should {
     val req = FakeRequest()
 
-    "200 project MYTA page for a client with all services and different response scenarios in alphabetical order" in {
+    "200 project MYTA page for a client with all services and different response scenarios in date order" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
@@ -220,10 +220,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
+      println(result.body)
       result.body.contains("abc") shouldBe true
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
-      result.body.indexOf("abc") < result.body.indexOf("DEF") && result.body.indexOf("DEF")< result.body.indexOf("ghi") shouldBe true
+      result.body.indexOf("DEF") < result.body.indexOf("abc") && result.body.indexOf("abc")< result.body.indexOf("ghi") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
