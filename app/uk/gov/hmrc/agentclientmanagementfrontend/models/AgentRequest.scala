@@ -17,11 +17,19 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import org.joda.time.LocalDate
-import uk.gov.hmrc.agentmtdidentifiers.model.InvitationId
 
-case class AgentRequest(serviceName: String, agencyName: String, status: String, expiryDate: LocalDate, lastUpdated: LocalDate, invitationId: String){
+case class AgentRequest(serviceName: String, agencyName:String, status: String, expiryDate: LocalDate, lastUpdated: LocalDate, invitationId: String, sortDate: LocalDate){
 
   def effectiveStatus(implicit now: LocalDate): String =
     if (status == "Pending" && (now.isAfter(expiryDate) || now.isEqual(expiryDate))) "Expired"
     else status
+}
+
+object AgentRequest {
+
+  implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
+  val orderingByAgencyName: Ordering[AgentRequest] = Ordering.by(_.agencyName.toLowerCase)
+
+  val orderingBySortDate: Ordering[AgentRequest] = Ordering.by(_.sortDate)
 }

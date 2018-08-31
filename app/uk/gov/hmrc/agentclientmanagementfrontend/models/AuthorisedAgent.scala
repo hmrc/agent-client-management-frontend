@@ -23,4 +23,10 @@ case class AuthorisedAgent(uuId: String, serviceName: String, agencyName: String
 
 object AuthorisedAgent {
   implicit val format = Json.format[AuthorisedAgent]
+
+  implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
+  val orderingByDateFrom: Ordering[AuthorisedAgent] = Ordering.by(_.dateFrom)
+
+  val orderingByAgencyName: Ordering[AuthorisedAgent] = Ordering.by(_.agencyName.toLowerCase)
 }

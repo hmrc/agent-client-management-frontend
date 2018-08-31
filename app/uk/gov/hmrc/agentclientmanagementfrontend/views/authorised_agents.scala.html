@@ -16,12 +16,12 @@
 
 @import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
-@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import org.joda.time.LocalDate
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 
+@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
 @(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
 @displayDate(date: Option[LocalDate]) = @{
