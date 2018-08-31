@@ -220,7 +220,6 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
-      println(result.body)
       result.body.contains("abc") shouldBe true
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
@@ -232,6 +231,32 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("This request expired before you responded") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
       result.body.contains("01 January 9999") shouldBe true
+    }
+
+    "200 project MYTA page for a client with all services and different response scenarios in alphabetical order when dates are the same" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"def"),(validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "2017-01-15")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("abc") shouldBe true
+      result.body.contains("def") shouldBe true
+      result.body.contains("ghi") shouldBe true
+      result.body.indexOf("abc") < result.body.indexOf("def") && result.body.indexOf("def")< result.body.indexOf("ghi") shouldBe true
+      result.body.contains("Report your income or expenses through software") shouldBe true
+      result.body.contains("View your PAYE income record") shouldBe true
+      result.body.contains("Report your VAT returns through software") shouldBe true
+      result.body.contains("You accepted this request") shouldBe true
+      result.body.contains("This request expired before you responded") shouldBe true
+      result.body.contains("15 January 2017") shouldBe true
     }
 
     "200 project MYTA page for client with no relationship history" in {

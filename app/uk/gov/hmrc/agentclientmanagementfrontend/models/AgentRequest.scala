@@ -39,7 +39,7 @@ object AgentRequestSorted {
 
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
-  val orderingByAgencyName: Ordering[AgentRequestSorted] = Ordering.by(_.agencyName)
+  val orderingByAgencyName: Ordering[AgentRequestSorted] = Ordering.by(_.agencyName.toLowerCase)
 
   val orderingBySortDate: Ordering[AgentRequestSorted] = Ordering.by(_.sortDate)
 }
