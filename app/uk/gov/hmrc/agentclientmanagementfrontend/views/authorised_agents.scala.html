@@ -21,8 +21,8 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 
-@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequestSorted
-@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequestSorted])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
+@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
+@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
 @displayDate(date: Option[LocalDate]) = @{
     date match {
@@ -31,7 +31,7 @@
     }
 }
 
-@dateInfo(request: AgentRequestSorted)(implicit messages: Messages) = {
+@dateInfo(request: AgentRequest)(implicit messages: Messages) = {
 @if(request.effectiveStatus == "Pending") {
     <span>@Messages("client-authorised-agents-table.pending.date", displayDate(Some(request.expiryDate)))</span>
 } else {
