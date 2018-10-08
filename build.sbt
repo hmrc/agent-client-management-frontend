@@ -1,6 +1,5 @@
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-import uk.gov.hmrc.SbtAutoBuildPlugin
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
@@ -40,6 +39,7 @@ lazy val root = (project in file("."))
     name := "agent-client-management-frontend",
     organization := "uk.gov.hmrc",
     scalaVersion := "2.11.11",
+    majorVersion := 0,
     PlayKeys.playDefaultPort := 9568,
     resolvers := Seq(
       Resolver.bintrayRepo("hmrc", "releases"),
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
     parallelExecution in IntegrationTest := false,
     testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value)
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>
