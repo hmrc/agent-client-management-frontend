@@ -25,14 +25,20 @@ button.continue=Continue
 button.back=Back
 
 # Client Content
-client-authorised-agents.title=Manage your tax agents
+client-authorised-agents.title=Manage who can deal with HMRC for you
 client-authorised-agents.tab1.p1.both=View your authorised tax agents, respond to agents'' requests, and remove authorisations you no longer need.
 client-authorised-agents.tab1.p1.only-auth=View your authorised tax agents and remove authorisations you no longer need.
 client-authorised-agents.tab2.p1=Find details of previous requests from agents.
-client-authorised-agents-table-relationships.tab2.title=Your activity history
-client-authorised-agents-table-relationships.tab1.title=Current authorisations and requests {0}
+client-authorised-agents-table-relationships.tab3.title=Your activity history
+client-authorised-agents-table-relationships.tab2.title=Current authorisations and requests
+client-authorised-agents-table-relationships.tab1.title=Current requests
 client-authorised-agents-table-relationships.pending=Pending authorisation requests
 client-authorised-agents-table-relationships.current=Currently authorised agents
+client-authorised-agents-table-relationships.pendingNo=You have {0} requests you need to respond to.
+client-authorised-agents-table-relationships.pendingNo.single=You have {0} request you need to respond to.
+client-authorised-agents-table.current.agentName=Who sent the request
+client-authorised-agents-table.current.expiryDate=You need to respond by
+client-authorised-agents-table.current.action=What you need to do
 client-authorised-agents-table-row-header.agentName=Agent name
 client-authorised-agents-table-row-header.authRequested=Authorisation requested
 client-authorised-agents-table-row-header.authServices=Authorised services

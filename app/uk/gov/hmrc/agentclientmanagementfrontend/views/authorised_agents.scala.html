@@ -31,6 +31,15 @@
     }
 }
 
+@pendingNo = @{
+    val count = agentRequests.count(_.effectiveStatus == "Pending")
+    if(count == 1) {
+        Messages("client-authorised-agents-table-relationships.pendingNo.single", count)
+    }else {
+        Messages("client-authorised-agents-table-relationships.pendingNo", count)
+    }
+}
+
 @dateInfo(request: AgentRequest)(implicit messages: Messages) = {
 @if(request.effectiveStatus == "Pending") {
     <span>@Messages("client-authorised-agents-table.pending.date", displayDate(Some(request.expiryDate)))</span>
@@ -46,139 +55,174 @@
 
 @notificationNo = @{agentRequests.count(_.effectiveStatus == "Pending")}
 
-@tomato = @{
-    if(notificationNo>0){
-        """<span class="badge">""" + notificationNo + """</span>"""
-    } else ""
-}
-
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
     <h1 class="heading-large">@Messages("client-authorised-agents.title")</h1>
 
+    <div class="govuk-tabs" data-module="tabs">
+        <h2 class="govuk-tabs__title">
+          @Messages("client-authorised-agents.title")
+        </h2>
 
-
-    <div data-tabs-custom class="js-hash-selected-tab">
-        <ul class="tabs-nav" role="tablist">
-
-            <li id="tabRequests" data-tab-link="tabLinkRequests" role="tab" aria-selected="true" aria-controls="tab_requests" tabindex="0">
-                <a href="#tab_requests"><span class="tabs-nav__tab">@Html(Messages("client-authorised-agents-table-relationships.tab1.title", tomato))</span></a>
+        <ul class="govuk-tabs__list">
+            @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
+                <li class="govuk-tabs__list-item">
+                    <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#currentRequests">
+                    @Messages("client-authorised-agents-table-relationships.tab1.title")
+                    </a>
+                </li>
+            }
+            <li class="govuk-tabs__list-item">
+                <a class="govuk-tabs__tab" href="#currentAuths">
+                    @Messages("client-authorised-agents-table-relationships.tab2.title")
+                </a>
             </li>
-            <li id="tabRelationships" data-tab-link="tabLinkRelationships" role="tab" aria-selected="true" aria-controls="tab_relationships" tabindex="1">
-                <a href="#tab_relationships"><span class="tabs-nav__tab">@Messages("client-authorised-agents-table-relationships.tab2.title")</span></a>
+            <li class="govuk-tabs__list-item">
+                <a class="govuk-tabs__tab" href="#history">
+                    @Messages("client-authorised-agents-table-relationships.tab3.title")
+                </a>
             </li>
         </ul>
-        <ul>
-            <li id="tab_requests" data-tab-content="tabLinkRequests" class="tab-content" role="tabpanel" aria-labelledby="tabRequests">
-                <div class="tab-content__first">
-                    @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
-                        <p>@Messages("client-authorised-agents.tab1.p1.both")</p>
+
+        @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
+        <section class="govuk-tabs__panel" id="currentRequests">
+            <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab1.title")</h2>
+            <p class="panel panel-border-wide">@pendingNo</p>
+                <table class="font-small">
+                    <colgroup>
+                        <col width="55%">
+                        <col width="25%">
+                        <col width="20%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col">@Messages("client-authorised-agents-table.current.agentName")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table.current.expiryDate")</th>
+                            <th scope="col" >@Messages("client-authorised-agents-table.current.action")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @agentRequests.filter(_.effectiveStatus == "Pending").map { agentReq =>
+                        <tr>
+                            <td>@agentReq.agencyName</td>
+                            <td>@displayDate(Some(agentReq.expiryDate))</td>
+                            <td >
+                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+
+        </section>
+        <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="currentAuths">
+            <h2 class="govuk-heading-l">@Messages("client-authorised-agents-table-relationships.pending")</h2>
+            @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
+                <p>@Messages("client-authorised-agents.tab1.p1.both")</p>
+            }else{
+                <p>@Messages("client-authorised-agents.tab1.p1.only-auth")</p>
+            }
+            @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
+                <table class="font-small margin-bottom-30">
+
+                    <colgroup>
+                        <col width="20%">
+                        <col width="45%">
+                        <col width="15%">
+                        <col width="20%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.pending")</th>
+                            <th scope="col" >@Messages("client-authorised-agents-table-row-header.actions")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @agentRequests.filter(_.effectiveStatus == "Pending").map { agentReq =>
+                        <tr>
+                            <td>@agentReq.agencyName</td>
+                            <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
+                            <td>@displayDate(Some(agentReq.expiryDate))</td>
+                            <td >
+                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+            @if(authorisedAgents.nonEmpty){
+                <table class="font-small margin-top-30">
+                    <colgroup>
+                        <col width="20%">
+                        <col width="45%">
+                        <col width="15%">
+                        <col width="20%">
+                    </colgroup>
+                    <caption class="caption-medium">@Messages("client-authorised-agents-table-relationships.current")</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.authServices")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.dateAuthorised")</th>
+                            <th scope="col" >@Messages("client-authorised-agents-table-row-header.actions")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @authorisedAgents.map{ authAgent =>
+                            <tr>
+                                <td>@authAgent.agencyName</td>
+                                <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
+                                <td>@displayDate(authAgent.dateFrom)</td>
+                                <td>@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){<a href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a>}</td>
+                            </tr>
+                        }
                     }else{
-                        <p>@Messages("client-authorised-agents.tab1.p1.only-auth")</p>
-                    }
-                    @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
-                        <table class="font-small margin-bottom-30">
-                            <caption class="caption-medium">@Messages("client-authorised-agents-table-relationships.pending")</caption>
+                <h2 class="heading-medium">@Messages("client-authorised-agents-table-relationships.current")</h2>
+                <p>@Messages("client-authorised-agents-table-content.noAgentsFound")</p>
+            }
+        </tbody>
+        </table>
 
-                            <colgroup>
-                                <col width="20%">
-                                <col width="45%">
-                                <col width="15%">
-                                <col width="20%">
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
-                                    <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
-                                    <th scope="col">@Messages("client-authorised-agents-table-row-header.pending")</th>
-                                    <th scope="col" >@Messages("client-authorised-agents-table-row-header.actions")</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @agentRequests.filter(_.effectiveStatus == "Pending").map { agentReq =>
-                                    <tr>
-                                        <td>@agentReq.agencyName</td>
-                                        <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
-                                        <td>@displayDate(Some(agentReq.expiryDate))</td>
-                                        <td >
-                                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    @if(authorisedAgents.nonEmpty){
-                    <table class="font-small margin-top-30">
-                        <colgroup>
-                            <col width="20%">
-                            <col width="45%">
-                            <col width="15%">
-                            <col width="20%">
-                        </colgroup>
-                        <caption class="caption-medium">@Messages("client-authorised-agents-table-relationships.current")</caption>
-                        <thead>
+        </section>
+        <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
+            <h2 class="govuk-heading-l">@Messages("client-authorised-agents.tab2.p1")</h2>
+            @if(agentRequests.nonEmpty){
+                <table class="font-small">
+                    <colgroup>
+                        <col width="20%">
+                        <col width="45%">
+                        <col width="35%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table-row-header.status")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @agentRequests.filter(_.effectiveStatus != "Pending").map { agentReq =>
                             <tr>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.authServices")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.dateAuthorised")</th>
-                                <th scope="col" >@Messages("client-authorised-agents-table-row-header.actions")</th>
+                                <td>@agentReq.agencyName</td>
+                                <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
+                                <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span class="date-hint">
+                                @dateInfo(agentReq)</span></td>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @authorisedAgents.map{ authAgent =>
-                                <tr>
-                                    <td>@authAgent.agencyName</td>
-                                    <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
-                                    <td>@displayDate(authAgent.dateFrom)</td>
-                                    <td>@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){<a href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a>}</td>
-                                </tr>
-                            }
-                        }else{
-                          <h2 class="heading-medium">@Messages("client-authorised-agents-table-relationships.current")</h2>
-                          <p>@Messages("client-authorised-agents-table-content.noAgentsFound")</p>
                         }
-                        </tbody>
-                    </table>
-                </div>
-            </li>
-            <li id="tab_relationships" data-tab-content="tabLinkRelationships" class="tab-content" role="tabpanel" aria-labelledby="tabRelationships">
-                <div class="tab-content__first">
-                    <p>@Messages("client-authorised-agents.tab2.p1")</p>
-                    @if(agentRequests.nonEmpty){
-                    <table class="font-small">
-                        <colgroup>
-                            <col width="20%">
-                            <col width="45%">
-                            <col width="35%">
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.agentName")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.authRequested")</th>
-                                <th scope="col">@Messages("client-authorised-agents-table-row-header.status")</th>
-                            </tr>
-                        </thead>
-                        <tbody>
 
-                            @agentRequests.filter(_.effectiveStatus != "Pending").map { agentReq =>
-                                <tr>
-                                    <td>@agentReq.agencyName</td>
-                                    <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
-                                    <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span class="date-hint">
-                                    @dateInfo(agentReq)</span></td>
-                                    </td>
-                                </tr>
-                            }
+                    }else{
+                <p>@Messages("client-authorised-agents-table-content.no-activity")</p>
+            }
+        </tbody>
+        </table>
 
-                        }else{
-                                <p>@Messages("client-authorised-agents-table-content.no-activity")</p>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-            </li>
-        </ul>
+        </section>
     </div>
 
 }
