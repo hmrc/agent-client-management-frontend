@@ -33,6 +33,7 @@
 
 @headScripts = {
     <link href="@controllers.routes.Assets.at("stylesheets/styles.css")" rel="stylesheet" media="all">
+    <link href="@controllers.routes.Assets.at("stylesheets/tabs.css")" rel="stylesheet" media="all">
 }
 @head = {
 @uiLayouts.head(
@@ -42,9 +43,9 @@
 }
 
 @scriptElement = {
+    <script src="@controllers.routes.Assets.at("javascripts/tabs.js")" type="text/javascript"></script>
     <script src="@controllers.routes.Assets.at("javascripts/scripts.js")" type="text/javascript"></script>
     <script src="@controllers.routes.Assets.at("javascripts/ga-events.js")" type="text/javascript"></script>
-    <script src="@controllers.routes.Assets.at("javascripts/tabs.js")" type="text/javascript"></script>
 
 }
 

@@ -13,7 +13,6 @@ import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
-import play.api.test.Helpers._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -47,7 +46,76 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val serviceVat = Services.HMRCMTDVAT
   val serviceIrv = Services.HMRCPIR
 
-  "manageTaxAgents Current authorisations and requests tab" should {
+  "Current requests tab" should {
+    val req = FakeRequest()
+
+    "Show tab when pending requests are present with correct number of pending invitations" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
+      getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
+      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("Manage who can deal with HMRC for you") shouldBe true
+      result.body.contains("Current requests") shouldBe true
+      result.body.contains("You have 3 requests you need to respond to.") shouldBe true
+      result.body.contains("Who sent the request") shouldBe true
+      result.body.contains("You need to respond by") shouldBe true
+      result.body.contains("What you need to do") shouldBe true
+      result.body.contains("01 January 9999") shouldBe true
+      result.body.contains("abc") shouldBe true
+      result.body.contains("Respond to request") shouldBe true
+    }
+
+    "Show tab with different message when number of pending invitations is 1" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getAgencyNameMap200(validArn.copy(value = "FARN0001133"), "ghi")
+      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("Manage who can deal with HMRC for you") shouldBe true
+      result.body.contains("Current requests") shouldBe true
+      result.body.contains("You have 1 request you need to respond to.") shouldBe true
+    }
+
+    "Don't show tab when there are no pending invitations" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getAgencyNameMap200(validArn.copy(value = "FARN0001133"), "ghi")
+      getInvitationsNotFound(validVrn.value, "VRN")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("Manage who can deal with HMRC for you") shouldBe true
+      result.body.contains("Current requests") shouldBe false
+      result.body.contains("Who sent the request") shouldBe false
+      result.body.contains("You need to respond by") shouldBe false
+      result.body.contains("What you need to do") shouldBe false
+    }
+  }
+
+  "Current authorisations and requests tab" should {
     val req = FakeRequest()
 
     "200, project MYTA page for a valid authenticated client with pending requests and authorised agents" in {
@@ -64,12 +132,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
+      result.body.contains("Manage who can deal with HMRC for you") shouldBe true
+      result.body.contains("Currently authorised agents") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("View your authorised tax agents, respond") shouldBe true
-      result.body.contains("Pending authorisation requests") shouldBe true
-      result.body.contains("Currently authorised agents") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
@@ -87,11 +154,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
-      result.body.contains("Report your VAT returns through software") shouldBe true
-      result.body.contains("Report your income or expenses through software") shouldBe true
-      result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("View your authorised tax agents, respond to") shouldBe true
-      result.body.contains("Pending authorisation requests") shouldBe true
+      println(result.body)
+      result.body.contains("Manage who can deal with HMRC for you") shouldBe true
       result.body.contains("Currently authorised agents") shouldBe true
       result.body.contains("You have no authorised agents.") shouldBe true
     }
@@ -110,12 +174,12 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
+      result.body.contains("Current requests") shouldBe false
+      result.body.contains("Currently authorised agents") shouldBe true
+      result.body.contains("Your activity history") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("Report your income or expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("View your authorised tax agents and remove authorisations you no longer need.") shouldBe true
-      result.body.contains("Pending authorisation requests") shouldBe false
-      result.body.contains("Currently authorised agents") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
@@ -133,27 +197,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
-      result.body.contains("View your authorised tax agents and remove authorisations you no longer need.") shouldBe true
-      result.body.contains("Pending authorisation requests") shouldBe false
+      result.body.contains("Current requests") shouldBe false
       result.body.contains("Currently authorised agents") shouldBe true
       result.body.contains("You have no authorised agents.") shouldBe true
-    }
-
-    "200 project authorised agents with correct count of pending invitations" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
-      givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
-      getActivePIRRelationship(validArn.copy(value="FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
-      getClientActiveAgentRelationships(serviceVat, validArn.copy(value="FARN0001133").value, startDateString)
-      getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
-      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
-
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("Current authorisations and requests <span class=\"badge\">3</span></span>") shouldBe true
     }
 
     "200 project MYTA page authorised agents when startDate is blank" in {
@@ -168,6 +214,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
+      println(result.body)
       result.body.contains("Currently authorised agents") shouldBe true
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
