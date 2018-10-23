@@ -134,7 +134,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       result.body.contains("Manage who can deal with HMRC for you") shouldBe true
       result.body.contains("Who can deal with HMRC for you") shouldBe true
-      result.body.contains("Find who you currently allow to deal with HRMC and remove your consent if you want to do so.") shouldBe true
+      result.body.contains("Find who you currently allow to deal with HMRC and remove your consent if you want to do so.") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("Report your income and expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
@@ -178,7 +178,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.status shouldBe 200
       println(result.body)
       result.body.contains("Manage who can deal with HMRC for you") shouldBe true
-      result.body.contains("Find who you currently allow to deal with HRMC and remove your consent if you want to do so.") shouldBe true
+      result.body.contains("Find who you currently allow to deal with HMRC and remove your consent if you want to do so.") shouldBe true
       result.body.contains("This Agency Name") shouldBe true
       result.body.contains("Report your income and expenses through software") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
