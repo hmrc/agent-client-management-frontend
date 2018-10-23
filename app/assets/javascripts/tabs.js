@@ -127,18 +127,14 @@
                 var args = array_slice.call(arguments, 1); // for normal call
                 // 4. Let F be a new native ECMAScript object.
                 // 11. Set the [[Prototype]] internal property of F to the standard
-                //   built-in Function prototype object as specified in 15.3.3.1.
+                //   built-in Function prototype object as specified in
                 // 12. Set the [[Call]] internal property of F as described in
-                //   15.3.4.5.1.
                 // 13. Set the [[Construct]] internal property of F as described in
-                //   15.3.4.5.2.
                 // 14. Set the [[HasInstance]] internal property of F as described in
-                //   15.3.4.5.3.
                 var bound;
                 var binder = function () {
 
                     if (this instanceof bound) {
-                        // 15.3.4.5.2 [[Construct]]
                         // When the [[Construct]] internal method of a function object,
                         // F that was created using the bind function is called with a
                         // list of arguments ExtraArgs, the following steps are taken:
@@ -164,7 +160,6 @@
                         return this;
 
                     } else {
-                        // 15.3.4.5.1 [[Call]]
                         // When the [[Call]] internal method of a function object, F,
                         // which was created using the bind function is called with a
                         // this value and a list of arguments ExtraArgs, the following
@@ -201,7 +196,6 @@
                 var boundLength = max(0, target.length - args.length);
 
                 // 17. Set the attributes of the length own property of F to the values
-                //   specified in 15.3.5.1.
                 var boundArgs = [];
                 for (var i = 0; i < boundLength; i++) {
                     array_push.call(boundArgs, '$' + i);
