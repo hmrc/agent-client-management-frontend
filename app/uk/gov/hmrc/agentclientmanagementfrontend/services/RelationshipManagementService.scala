@@ -36,7 +36,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
                                               sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(clientIdOpt: OptionalClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
-    val pirRelationships = relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(nino) }
+    val pirRelationships = relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(removeNinoSpaces(nino)) }
     val itsaRelationships = relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val vatRelationships = relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val relationshipWithAgencyNames = for {
@@ -105,5 +105,9 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
   def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]) = identifierOpt match {
     case Some(identifier) => f(identifier)
     case None => Future.successful(Seq.empty)
+  }
+
+  def removeNinoSpaces(nino: Nino): Nino = {
+    Nino(nino.value.replace(" ", ""))
   }
 }
