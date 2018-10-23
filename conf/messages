@@ -26,7 +26,6 @@ button.back=Back
 
 # Client Content
 client-authorised-agents.title=Manage who can deal with HMRC for you
-client-authorised-agents.tab2.p1=Find details of previous requests from agents.
 client-authorised-agents-table-relationships.tab3.title=Your activity history
 client-authorised-agents-table-relationships.tab2.title=Who can deal with HMRC for you
 client-authorised-agents-table-relationships.tab1.title=Current requests
@@ -36,12 +35,13 @@ client-authorised-agents-table.current.agentName=Who sent the request
 client-authorised-agents-table.current.expiryDate=You need to respond by
 client-authorised-agents-table.current.action=What you need to do
 client-authorised-agents-table-row-header.agentName=Name
-client-authorised-agents-table-row-header.authRequested=Authorisation requested
+client-authorised-agents-table-row-header.authRequested=Details
 client-authorised-agents-table-row-header.authServices=What you allowed them to do
 client-authorised-agents-table-row-header.dateAuthorised=When you gave consent
-client-authorised-agents-table-row-header.status=Current status
+client-authorised-agents-table-row-header.status=What happened
 client-authorised-agents-table-row-header.actions=Actions
 client-authorised-agents-table-relationships.tab2.p=Find who you currently allow to deal with HMRC and remove your consent if you want to do so.
+client-authorised-agents-table-relationships.tab3.p=Keep track of changes to who HMRC can deal with and find details of previous requests.
 client-authorised-agents-table.Pending=Pending
 client-authorised-agents-table.Accepted=You accepted this request
 client-authorised-agents-table.Rejected=You declined this request

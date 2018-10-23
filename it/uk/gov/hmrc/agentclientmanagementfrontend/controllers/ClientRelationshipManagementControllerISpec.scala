@@ -214,10 +214,10 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
   }
 
-  "manageTaxAgents Your activity history tab" should {
+  "Your activity history tab" should {
     val req = FakeRequest()
 
-    "200 project MYTA page for a client with all services and different response scenarios in date order" in {
+    "Show tab for a client with all services and different response scenarios in date order" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
@@ -231,6 +231,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
+      result.body.contains("Your activity history") shouldBe true
+      result.body.contains("Keep track of changes to who HMRC can deal with and find details of previous requests.") shouldBe true
       result.body.contains("abc") shouldBe true
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
@@ -244,7 +246,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("01 January 9999") shouldBe true
     }
 
-    "200 project MYTA page for a client with all services and different response scenarios in alphabetical order when dates are the same" in {
+    "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
@@ -270,7 +272,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("15 January 2017") shouldBe true
     }
 
-    "200 project MYTA page for client with no relationship history" in {
+    "Show tab for a client with no relationship history" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
@@ -285,12 +287,11 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       result.status shouldBe 200
       result.body.contains("Your activity history") shouldBe true
-      result.body.contains("Find details of previous requests from agents.") shouldBe true
       result.body.contains("You do not have any previous activity.") shouldBe true
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
-    "200 project MYTA page for client when requests are in store as pending but are actually expired" in {
+    "Show tab for client when requests are in store as pending but are actually expired" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
