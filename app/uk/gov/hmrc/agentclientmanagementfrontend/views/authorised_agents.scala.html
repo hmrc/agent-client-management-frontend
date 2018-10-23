@@ -112,13 +112,14 @@
 
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="currentAuths">
-            <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.current")</h2>
+            <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab2.title")</h2>
             @if(authorisedAgents.nonEmpty){
-                <table class="font-small margin-top-30">
+                <p>@Messages("client-authorised-agents-table-relationships.tab2.p")</p>
+                <table class="font-small">
                     <colgroup>
                         <col width="20%">
-                        <col width="45%">
-                        <col width="15%">
+                        <col width="35%">
+                        <col width="25%">
                         <col width="20%">
                     </colgroup>
                     <thead>
@@ -139,7 +140,6 @@
                             </tr>
                         }
                     }else{
-                <h2 class="heading-medium">@Messages("client-authorised-agents-table-relationships.current")</h2>
                 <p>@Messages("client-authorised-agents-table-content.noAgentsFound")</p>
             }
         </tbody>

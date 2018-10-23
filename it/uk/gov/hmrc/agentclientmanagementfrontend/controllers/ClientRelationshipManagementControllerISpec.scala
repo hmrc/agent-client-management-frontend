@@ -115,108 +115,72 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
   }
 
-  "Current authorisations and requests tab" should {
+  "Who can deal with HMRC for you tab" should {
     val req = FakeRequest()
 
-    "200, project MYTA page for a valid authenticated client with pending requests and authorised agents" in {
+    "Show tab with authorised agents" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
-      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+      getInvitationsNotFound(validVrn.value, "VRN")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.contains("Manage who can deal with HMRC for you") shouldBe true
-      result.body.contains("Currently authorised agents") shouldBe true
+      result.body.contains("Who can deal with HMRC for you") shouldBe true
+      result.body.contains("Find who you currently allow to deal with HMRC and remove your consent if you want to do so.") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
-      result.body.contains("Report your income or expenses through software") shouldBe true
+      result.body.contains("Report your income and expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
+      result.body.contains("abc") shouldBe true
+      result.body.contains("6 June 2017") shouldBe true
+      result.body.contains("Remove authorisation") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
-    "200 project MYTA page for a client with pending requests but no authorised agents" in {
+    "Show tab with no authorised agents and different content" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getNotFoundClientActiveAgentRelationships(serviceItsa)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
-      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+      getInvitationsNotFound(validVrn.value, "VRN")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       println(result.body)
       result.body.contains("Manage who can deal with HMRC for you") shouldBe true
-      result.body.contains("Currently authorised agents") shouldBe true
-      result.body.contains("You have no authorised agents.") shouldBe true
+      result.body.contains("Who can deal with HMRC for you") shouldBe true
+      result.body.contains("You have not appointed someone to deal with HMRC currently.") shouldBe true
     }
 
-    "200 project MYTA page for a client with authorised agents but no pending requests" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
-      givenNinoIsKnownFor(validNino)
-      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
-      getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
-      getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
-      getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitationsNotFound(validVrn.value, "VRN")
-      getInvitationsNotFound(mtdItId.value, "MTDITID")
-      getInvitationsNotFound(validNino.value, "NI")
-
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("Current requests") shouldBe false
-      result.body.contains("Currently authorised agents") shouldBe true
-      result.body.contains("Your activity history") shouldBe true
-      result.body.contains("Report your VAT returns through software") shouldBe true
-      result.body.contains("Report your income or expenses through software") shouldBe true
-      result.body.contains("View your PAYE income record") shouldBe true
-      sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
-    }
-
-    "200 project MYTA page for a client with no pending requests or authorised agents" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
-      givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
-      getNotFoundClientActiveAgentRelationships(serviceVat)
-      getThreeAgencyNamesMap200((validArn,"abc"),(validArn,"DEF"),(validArn, "ghi"))
-      getInvitationsNotFound(validVrn.value, "VRN")
-      getInvitationsNotFound(mtdItId.value, "MTDITID")
-      getInvitationsNotFound(validNino.value, "NI")
-
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("Current requests") shouldBe false
-      result.body.contains("Currently authorised agents") shouldBe true
-      result.body.contains("You have no authorised agents.") shouldBe true
-    }
-
-    "200 project MYTA page authorised agents when startDate is blank" in {
+    "Show tab with authorised agents when startDate is blank" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationshipsNoStartDate(serviceItsa, validArn.value)
       getAgencyNameMap200(validArn, "This Agency Name")
-      getInvitations(validArn, validVrn.value, "VRN", serviceVat, "Rejected", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Expired", "9999-01-01")
-      getInvitations(validArn, validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+      getInvitationsNotFound(validVrn.value, "VRN")
+      getInvitationsNotFound(mtdItId.value, "MTDITID")
+      getInvitationsNotFound(validNino.value, "NI")
 
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       println(result.body)
-      result.body.contains("Currently authorised agents") shouldBe true
+      result.body.contains("Manage who can deal with HMRC for you") shouldBe true
+      result.body.contains("Find who you currently allow to deal with HMRC and remove your consent if you want to do so.") shouldBe true
       result.body.contains("This Agency Name") shouldBe true
+      result.body.contains("Report your income and expenses through software") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -271,7 +235,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("DEF") < result.body.indexOf("abc") && result.body.indexOf("abc")< result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Report your income or expenses through software") shouldBe true
+      result.body.contains("Report your income and expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("You accepted this request") shouldBe true
@@ -298,7 +262,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("def") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("abc") < result.body.indexOf("def") && result.body.indexOf("def")< result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Report your income or expenses through software") shouldBe true
+      result.body.contains("Report your income and expenses through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
       result.body.contains("Report your VAT returns through software") shouldBe true
       result.body.contains("You accepted this request") shouldBe true
