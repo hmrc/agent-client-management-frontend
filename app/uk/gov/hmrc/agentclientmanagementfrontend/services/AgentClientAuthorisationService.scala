@@ -43,17 +43,9 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
     relationshipsWithAgencyNamesWithStoredInvitations.map {
       case (agencyNames, storedInvites) =>
         storedInvites.map(si =>
-         AgentRequest(si.service, agencyNames.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated.toLocalDate, si.invitationId, getSortedDate(si.status, si.expiryDate, si.lastUpdated.toLocalDate))
-        ).sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingBySortDate)
+         AgentRequest(si.service, agencyNames.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId)
+        ).sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated)
     }
-  }
-
-  def getSortedDate (status: String, expiryDate: LocalDate, lastUpdated: LocalDate): LocalDate = {
-    implicit val now: LocalDate = LocalDate.now()
-    def effectiveStatus(implicit now: LocalDate): String =
-      if (status == "Pending" && (now.isAfter(expiryDate) || now.isEqual(expiryDate))) "Expired"
-      else status
-    if(effectiveStatus == "Expired") expiryDate else lastUpdated
   }
 
   def invitations(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[StoredInvitation]]) = identifierOpt match {

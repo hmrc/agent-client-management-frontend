@@ -60,6 +60,7 @@ class ClientRelationshipManagementController @Inject()(
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
+    implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
     withAuthorisedAsClient { clientIds =>
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)

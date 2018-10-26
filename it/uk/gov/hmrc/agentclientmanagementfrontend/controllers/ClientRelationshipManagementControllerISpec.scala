@@ -39,6 +39,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
   val validVrn =  Vrn("101747641")
   val startDate = Some(LocalDate.parse("2017-06-06"))
   val startDateString = "2017-06-06"
+  val lastUpdated = "2017-01-15T13:14:00.000+08:00"
+  val lastUpdatedBefore = "2017-01-05T13:14:00.000+08:00"
+  val lastUpdatedAfter = "2017-01-20T13:14:00.000+08:00"
   val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
   val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name", startDate)
   val cacheItsa = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "HMRC-MTD-IT", startDate)
@@ -56,9 +59,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
       getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01")
-      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01")
+      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01", lastUpdated)
+      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01", lastUpdated)
 
       val result = await(doGetRequest(""))
 
@@ -69,7 +72,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Who sent the request") shouldBe true
       result.body.contains("You need to respond by") shouldBe true
       result.body.contains("What you need to do") shouldBe true
-      result.body.contains("01 January 9999") shouldBe true
+      result.body.contains("1 January 9999") shouldBe true
       result.body.contains("abc") shouldBe true
       result.body.contains("Respond to request") shouldBe true
     }
@@ -81,7 +84,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getAgencyNameMap200(validArn.copy(value = "FARN0001133"), "ghi")
-      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01")
+      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
       getInvitationsNotFound(validNino.value, "NI")
 
@@ -224,9 +227,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01")
-      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01")
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdatedBefore)
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01", lastUpdatedAfter)
 
       val result = await(doGetRequest(""))
 
@@ -243,7 +246,36 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("You accepted this request") shouldBe true
       result.body.contains("This request expired before you responded") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
-      result.body.contains("01 January 9999") shouldBe true
+      result.body.contains("5 January 2017") shouldBe true
+      result.body.contains("05 January 2017") shouldBe false
+    }
+
+    "Show tab for a client with all services and different response scenarios in time order when dates are the same" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getNotFoundClientActiveAgentRelationships(serviceItsa)
+      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+      getNotFoundClientActiveAgentRelationships(serviceVat)
+      getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"DEF"),(validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", "2017-01-15T13:16:00.000+08:00")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", "2017-01-15T13:15:00.000+08:00")
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01", "2017-01-15T13:14:00.000+08:00")
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 200
+      result.body.contains("Your activity history") shouldBe true
+      result.body.contains("Keep track of changes to who HMRC can deal with and find details of previous requests.") shouldBe true
+      result.body.contains("abc") shouldBe true
+      result.body.contains("DEF") shouldBe true
+      result.body.contains("ghi") shouldBe true
+      result.body.indexOf("ghi") < result.body.indexOf("abc") && result.body.indexOf("abc")< result.body.indexOf("DEF") shouldBe true
+      result.body.contains("Report your income and expenses through software") shouldBe true
+      result.body.contains("View your PAYE income record") shouldBe true
+      result.body.contains("Report your VAT returns through software") shouldBe true
+      result.body.contains("You accepted this request") shouldBe true
+      result.body.contains("This request expired before you responded") shouldBe true
+      result.body.contains("15 January 2017") shouldBe true
     }
 
     "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in {
@@ -253,9 +285,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getThreeAgencyNamesMap200((validArn,"abc"),(validArn.copy(value="FARN0001131"),"def"),(validArn.copy(value = "FARN0001133"), "ghi"))
-      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01")
-      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "2017-01-15")
+      getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdated)
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
+      getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "2017-01-15", lastUpdated)
 
       val result = await(doGetRequest(""))
 
@@ -298,7 +330,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getAgencyNameMap200(validArn, "This Agency Name")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "2017-01-01")
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "2017-01-01", lastUpdated)
       getInvitationsNotFound(validVrn.value, "VRN")
       getInvitationsNotFound(validNino.value, "NI")
 
@@ -306,7 +338,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       result.status shouldBe 200
       result.body.contains("This request expired before you responded") shouldBe true
-      result.body.contains("01 January 2017") shouldBe true
+      result.body.contains("15 January 2017") shouldBe true
       result.body.contains("Pending") shouldBe false
     }
 
