@@ -8,7 +8,7 @@ import uk.gov.hmrc.domain.Nino
 trait AgentClientAuthorisationStub {
   me: WireMockSupport =>
 
-  def getInvitations(arn: Arn, clientId: String, clientIdType:String, service: String, status: String, expiryDate: String) = {
+  def getInvitations(arn: Arn, clientId: String, clientIdType:String, service: String, status: String, expiryDate: String, lastUpdated: String) = {
     stubFor(get(urlEqualTo(s"/agent-client-authorisation/clients/$clientIdType/$clientId/invitations/received"))
       .willReturn(
         aResponse()
@@ -38,7 +38,7 @@ trait AgentClientAuthorisationStub {
                |   "suppliedClientIdType": "$clientIdType",
                |   "status": "$status",
                |   "created": "2018-01-15T13:14:00.000+08:00",
-               |   "lastUpdated": "2017-01-15T13:14:00.000+08:00",
+               |   "lastUpdated": "$lastUpdated",
                |   "expiryDate": "$expiryDate",
                |   "invitationId": "ATDMZYN4YDLNW"
                |   }

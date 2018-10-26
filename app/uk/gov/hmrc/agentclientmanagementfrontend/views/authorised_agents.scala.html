@@ -22,11 +22,12 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
-@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
+@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate, datOrdering: Ordering[LocalDate])
 
 @displayDate(date: Option[LocalDate]) = @{
     date match {
-        case Some(d) => d.toString("dd MMMM yyyy", messages.lang.locale)
+        case Some(d) if d.getDayOfMonth >= 10 => d.toString("dd MMMM yyyy", messages.lang.locale)
+        case Some(d) if d.getDayOfMonth < 10 => d.toString("d MMMM yyyy", messages.lang.locale)
         case None => ""
     }
 }
@@ -37,14 +38,6 @@
         Messages("client-authorised-agents-table-relationships.pendingNo.single", count)
     }else {
         Messages("client-authorised-agents-table-relationships.pendingNo", count)
-    }
-}
-
-@dateInfo(request: AgentRequest)(implicit messages: Messages) = {
-    @if(request.effectiveStatus == "Expired") {
-        @displayDate(Some(request.expiryDate))
-    } else {
-        @displayDate(Some(request.lastUpdated))
     }
 }
 
@@ -97,7 +90,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @agentRequests.filter(_.effectiveStatus == "Pending").map { agentReq =>
+                    @agentRequests.filter(_.effectiveStatus == "Pending").sortBy(_.expiryDate).reverse.map { agentReq =>
                         <tr>
                             <td>@agentReq.agencyName</td>
                             <td>@displayDate(Some(agentReq.expiryDate))</td>
@@ -170,7 +163,7 @@
                                 <td>@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
                                 <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span class="date-hint">
-                                @dateInfo(agentReq)</span></td>
+                                @displayDate(Some(agentReq.lastUpdated.toLocalDate))</span></td>
                                 </td>
                             </tr>
                         }
