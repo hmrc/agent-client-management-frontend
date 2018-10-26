@@ -27,8 +27,6 @@ case class AgentRequest(serviceName: String, agencyName:String, status: String, 
 
 object AgentRequest {
 
-  implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
-
   implicit def timeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isAfter _)
 
   val orderingByAgencyName: Ordering[AgentRequest] = Ordering.by(_.agencyName.toLowerCase)

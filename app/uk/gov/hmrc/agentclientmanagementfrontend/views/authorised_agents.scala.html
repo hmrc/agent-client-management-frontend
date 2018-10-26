@@ -41,14 +41,6 @@
     }
 }
 
-@dateInfo(request: AgentRequest)(implicit messages: Messages) = {
-    @if(request.effectiveStatus == "Expired") {
-        @displayDate(Some(request.expiryDate))
-    } else {
-        @displayDate(Some(request.lastUpdated.toLocalDate))
-    }
-}
-
 @notificationNo = @{agentRequests.count(_.effectiveStatus == "Pending")}
 
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
