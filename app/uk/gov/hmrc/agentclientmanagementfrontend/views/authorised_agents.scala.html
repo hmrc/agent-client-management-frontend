@@ -148,7 +148,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
-            @if(agentRequests.nonEmpty){
+            @if(agentRequests.exists(_.effectiveStatus != "Pending")){
                 <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>
