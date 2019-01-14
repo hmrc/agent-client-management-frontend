@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
-@import uk.gov.hmrc.play.views.html.helpers.{form, errorSummary, inputRadioGroup}
+@import uk.gov.hmrc.play.views.html.helpers.{form, errorSummary, input_radio_group}
 @import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.RadioConfirm
 
@@ -38,7 +38,7 @@
     }
 
     @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
-        @inputRadioGroup(
+        @input_radio_group(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
             '_legend -> formTitle,
