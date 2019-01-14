@@ -15,8 +15,9 @@
  */
 
 import java.net.URL
-import javax.inject.{Inject, Provider, Singleton}
 
+import akka.actor.ActorSystem
+import javax.inject.{Inject, Provider, Singleton}
 import com.google.inject.AbstractModule
 import com.google.inject.name.{Named, Names}
 import com.typesafe.config.Config
@@ -148,7 +149,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 }
 
 @Singleton
-class HttpVerbs @Inject()(val auditConnector: AuditConnector, @Named("appName") val appName: String, val config: Configuration)
+class HttpVerbs @Inject()(val auditConnector: AuditConnector, @Named("appName") val appName: String, val config: Configuration, val actorSystem: ActorSystem)
   extends HttpGet with HttpPost with HttpPut with HttpPatch with HttpDelete with WSHttp
     with HttpAuditing {
 

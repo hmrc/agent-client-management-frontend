@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Provider, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_remov
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 case class RadioConfirm(value: Option[Boolean])
 
@@ -55,8 +55,11 @@ class ClientRelationshipManagementController @Inject()(
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService,
-                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val configuration: Configuration, externalUrls: ExternalUrls)
+                                                        agentClientAuthorisationService: AgentClientAuthorisationService,
+                                                        ecp: Provider[ExecutionContextExecutor])(implicit val configuration: Configuration, externalUrls: ExternalUrls)
   extends FrontendController with I18nSupport with AuthActions {
+
+  implicit val ec: ExecutionContext = ecp.get
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
