@@ -65,7 +65,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
     Future.sequence(arns.map (arn => {
       val url = new URL(baseUrl, s"/agencies/references/arn/${arn.value}")
       http.GET[AgentReference](url.toString).map(obj => obj).recover {
-        case e => throw new Exception
+        case e => throw new Exception("Agent Reference Not Found")
       }
     }))
   }

@@ -54,7 +54,7 @@ trait AgentClientAuthorisationStub {
           .withStatus(404)))
   }
 
-  def givenUidExistsFor(arn: Arn): Unit = {
+  def givenAgentRefExistsFor(arn: Arn): Unit = {
     stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
       .willReturn(
         aResponse()
@@ -66,6 +66,14 @@ trait AgentClientAuthorisationStub {
                |}""".stripMargin
 
           )
+      ))
+  }
+
+  def givenAgentRefNotFoundFor(arn: Arn): Unit = {
+    stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
+      .willReturn(
+        aResponse()
+          .withStatus(404)
       ))
   }
 

@@ -62,9 +62,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01", lastUpdated)
       getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01", lastUpdated)
-      givenUidExistsFor(validArn)
-      givenUidExistsFor(validArn.copy(value = "FARN0001131"))
-      givenUidExistsFor(validArn.copy(value = "FARN0001133"))
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -90,8 +90,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
       getInvitationsNotFound(validNino.value, "NI")
-      givenUidExistsFor(validArn)
-      givenUidExistsFor(validArn.copy(value = "FARN0001133"))
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -120,6 +120,25 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Who sent the request") shouldBe false
       result.body.contains("You need to respond by") shouldBe false
       result.body.contains("What you need to do") shouldBe false
+    }
+
+    "Throw an Exception when there is no agent reference found for an Arn" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
+      getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01", lastUpdated)
+      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01", lastUpdated)
+      givenAgentRefNotFoundFor(validArn)
+      givenAgentRefNotFoundFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefNotFoundFor(validArn.copy(value = "FARN0001133"))
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 500
     }
   }
 
@@ -235,9 +254,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdatedBefore)
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
       getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01", lastUpdatedAfter)
-      givenUidExistsFor(validArn)
-      givenUidExistsFor(validArn.copy(value = "FARN0001131"))
-      givenUidExistsFor(validArn.copy(value = "FARN0001133"))
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -268,9 +287,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", "2017-01-15T13:16:00.000+08:00")
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", "2017-01-15T13:15:00.000+08:00")
       getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01", "2017-01-15T13:14:00.000+08:00")
-      givenUidExistsFor(validArn)
-      givenUidExistsFor(validArn.copy(value = "FARN0001131"))
-      givenUidExistsFor(validArn.copy(value = "FARN0001133"))
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -299,9 +318,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdated)
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
       getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "2017-01-15", lastUpdated)
-      givenUidExistsFor(validArn)
-      givenUidExistsFor(validArn.copy(value = "FARN0001131"))
-      givenUidExistsFor(validArn.copy(value = "FARN0001133"))
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
