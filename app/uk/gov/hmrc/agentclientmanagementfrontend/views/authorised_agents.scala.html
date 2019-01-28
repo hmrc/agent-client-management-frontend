@@ -14,34 +14,12 @@
  * limitations under the License.
  *@
 
-@import play.api.Configuration
-@import uk.gov.hmrc.agentclientmanagementfrontend.models.AuthorisedAgent
-@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import org.joda.time.LocalDate
-
+@import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-
-@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
-@(authorisedAgents: Seq[AuthorisedAgent],agentRequests:Seq[AgentRequest])(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate, datOrdering: Ordering[LocalDate])
-
-@displayDate(date: Option[LocalDate]) = @{
-    date match {
-        case Some(d) if d.getDayOfMonth >= 10 => d.toString("dd MMMM yyyy", messages.lang.locale)
-        case Some(d) if d.getDayOfMonth < 10 => d.toString("d MMMM yyyy", messages.lang.locale)
-        case None => ""
-    }
-}
-
-@pendingNo = @{
-    val count = agentRequests.count(_.effectiveStatus == "Pending")
-    if(count == 1) {
-        Messages("client-authorised-agents-table-relationships.pendingNo.single", count)
-    }else {
-        Messages("client-authorised-agents-table-relationships.pendingNo", count)
-    }
-}
-
-@notificationNo = @{agentRequests.count(_.effectiveStatus == "Pending")}
+@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
+@(config: AuthorisedAgentsPageConfig)(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
@@ -53,7 +31,7 @@
         </h2>
 
         <ul class="govuk-tabs__list">
-            @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
+            @if(config.pendingRequestsExist) {
                 <li class="govuk-tabs__list-item">
                     <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#currentRequests">
                     @Messages("client-authorised-agents-table-relationships.tab1.title")
@@ -72,10 +50,10 @@
             </li>
         </ul>
 
-        @if(agentRequests.exists(_.effectiveStatus == "Pending")) {
+        @if(config.pendingRequestsExist) {
         <section class="govuk-tabs__panel" id="currentRequests">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab1.title")</h2>
-            <p class="panel panel-border-wide">@pendingNo</p>
+            <p class="panel panel-border-wide">@config.pendingNo</p>
                 <table class="font-small">
                     <colgroup>
                         <col width="55%">
@@ -90,12 +68,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @agentRequests.filter(_.effectiveStatus == "Pending").sortBy(_.expiryDate).reverse.map { agentReq =>
+                    @config.pendingRequests.map { agentReq =>
                         <tr>
                             <td>@agentReq.agencyName</td>
-                            <td>@displayDate(Some(agentReq.expiryDate))</td>
+                            <td>@config.displayDate(Some(agentReq.expiryDate))</td>
                             <td >
-                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.confirmTermsUrl(agentReq.invitationId)))
+                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.multiConfirmTermsUrl(agentReq.clientType, agentReq.uid)))
                             </td>
                         </tr>
                     }
@@ -106,7 +84,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="currentAuths">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab2.title")</h2>
-            @if(authorisedAgents.nonEmpty){
+            @if(config.authorisedAgentsExist){
                 <p>@Messages("client-authorised-agents-table-relationships.tab2.p")</p>
                 <table class="font-small">
                     <colgroup>
@@ -124,11 +102,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @authorisedAgents.map{ authAgent =>
+                        @config.authorisedAgents.map{ authAgent =>
                             <tr>
                                 <td>@authAgent.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
-                                <td>@displayDate(authAgent.dateFrom)</td>
+                                <td>@config.displayDate(authAgent.dateFrom)</td>
                                 <td>@if(configuration.getBoolean(s"features.remove-authorisation.${authAgent.serviceName}").getOrElse(false) == true){<a href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a>}</td>
                             </tr>
                         }
@@ -141,7 +119,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
-            @if(agentRequests.exists(_.effectiveStatus != "Pending")){
+            @if(config.nonPendingRequestsExist){
                 <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>
@@ -158,12 +136,12 @@
                     </thead>
                     <tbody>
 
-                        @agentRequests.filter(_.effectiveStatus != "Pending").map { agentReq =>
+                        @config.nonPendingRequests.map { agentReq =>
                             <tr>
                                 <td>@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
-                                <td>@Messages(s"client-authorised-agents-table.${agentReq.effectiveStatus}")<span class="date-hint">
-                                @displayDate(Some(agentReq.lastUpdated.toLocalDate))</span></td>
+                                <td>@Messages(s"client-authorised-agents-table.${agentReq.status}")<span class="date-hint">
+                                @config.displayDate(Some(agentReq.lastUpdated.toLocalDate))</span></td>
                                 </td>
                             </tr>
                         }

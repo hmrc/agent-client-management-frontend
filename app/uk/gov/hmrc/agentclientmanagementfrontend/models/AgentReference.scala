@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import org.joda.time.{DateTime, LocalDate}
+import play.api.libs.json.{Json, Reads}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
-case class AgentRequest(clientType: String, serviceName: String, arn: Arn, uid: String, agencyName:String, status: String, expiryDate: LocalDate, lastUpdated: DateTime, invitationId: String)
+case class AgentReference(arn: Arn, uid: String) {
 
-object AgentRequest {
 
-  implicit def timeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isAfter _)
+}
 
-  val orderingByAgencyName: Ordering[AgentRequest] = Ordering.by(_.agencyName.toLowerCase)
+object AgentReference {
+  implicit val format = Json.format[AgentReference]
+  implicit val reads: Reads[NinoBusinessDetails] = Json.reads[NinoBusinessDetails]
 
-  val orderingByLastUpdated: Ordering[AgentRequest] = Ordering.by(_.lastUpdated)
+  val emptyAgentReference = AgentReference(Arn(""), "")
 }
