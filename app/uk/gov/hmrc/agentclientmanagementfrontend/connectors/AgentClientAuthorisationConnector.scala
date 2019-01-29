@@ -21,10 +21,11 @@ import java.net.URL
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named}
+
 import org.joda.time.{DateTime, LocalDate}
-import play.api.libs.json.{JsObject, Reads}
+import play.api.libs.json.{JsObject, Json, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, AuthorisedAgent, StoredInvitation}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId, MtdItId, Vrn}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
@@ -60,6 +61,15 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
     }
   }
 
+  def getAgentReferences(arns: Seq[Arn])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentReference]] = {
+    Future.sequence(arns.map (arn => {
+      val url = new URL(baseUrl, s"/agencies/references/arn/${arn.value}")
+      http.GET[AgentReference](url.toString).map(obj => obj).recover {
+        case e => throw new Exception("Agent Reference Not Found")
+      }
+    }))
+  }
+
   object StoredReads {
       import play.api.libs.functional.syntax._
       import play.api.libs.json.{JsPath, Reads}
@@ -71,6 +81,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
         implicit val urlReads: SimpleObjectReads[URL] = new SimpleObjectReads[URL]("href", s => new URL(baseUrl, s))
 
         ((JsPath \ "arn").read[Arn] and
+          (JsPath \ "clientType").read[String] and
           (JsPath \ "service").read[String] and
           (JsPath \ "clientId").read[String] and
           (JsPath \ "clientIdType").read[String] and
@@ -82,7 +93,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
           (JsPath \ "expiryDate").read[LocalDate] and
           (JsPath \ "invitationId").read[String] and
           (JsPath \ "_links" \ "self").read[URL]) (
-          (a, b, c, d, e, f, g, h, i, j, k, l) => StoredInvitation.apply(a, b, c, d, e, f, g, h, i, j, k, l)
+          (a, b, c, d, e, f, g, h, i, j, k, l, m) => StoredInvitation.apply(a, b, c, d, e, f, g, h, i, j, k, l, m)
         )
       }
   }

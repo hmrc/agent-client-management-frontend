@@ -62,6 +62,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01", lastUpdated)
       getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01", lastUpdated)
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -87,6 +90,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
       getInvitationsNotFound(validNino.value, "NI")
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -115,6 +120,25 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Who sent the request") shouldBe false
       result.body.contains("You need to respond by") shouldBe false
       result.body.contains("What you need to do") shouldBe false
+    }
+
+    "Throw an Exception when there is no agent reference found for an Arn" in {
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
+      givenNinoIsKnownFor(validNino)
+      getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
+      getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
+      getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
+      getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "ghi"))
+      getInvitations(validArn.copy(value = "FARN0001133"), validVrn.value, "VRN", serviceVat, "Pending", "9999-01-01", lastUpdated)
+      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "9999-01-01", lastUpdated)
+      getInvitations(validArn.copy(value = "FARN0001131"), validNino.value, "NI", serviceIrv, "Pending", "9999-01-01", lastUpdated)
+      givenAgentRefNotFoundFor(validArn)
+      givenAgentRefNotFoundFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefNotFoundFor(validArn.copy(value = "FARN0001133"))
+
+      val result = await(doGetRequest(""))
+
+      result.status shouldBe 500
     }
   }
 
@@ -230,6 +254,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdatedBefore)
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
       getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01", lastUpdatedAfter)
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -260,6 +287,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", "2017-01-15T13:16:00.000+08:00")
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", "2017-01-15T13:15:00.000+08:00")
       getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "9999-01-01", "2017-01-15T13:14:00.000+08:00")
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -288,6 +318,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       getInvitations(validArn.copy(value="FARN0001133"), validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdated)
       getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
       getInvitations(validArn.copy(value="FARN0001131"), validNino.value, "NI", serviceIrv, "Expired", "2017-01-15", lastUpdated)
+      givenAgentRefExistsFor(validArn)
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001131"))
+      givenAgentRefExistsFor(validArn.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
@@ -321,25 +354,6 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Your activity history") shouldBe true
       result.body.contains("You do not have any previous activity.") shouldBe true
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
-    }
-
-    "Show tab for client when requests are in store as pending but are actually expired" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
-      givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
-      getNotFoundClientActiveAgentRelationships(serviceVat)
-      getAgencyNameMap200(validArn, "This Agency Name")
-      getInvitations(validArn, mtdItId.value, "MTDITID", serviceItsa, "Pending", "2017-01-01", lastUpdated)
-      getInvitationsNotFound(validVrn.value, "VRN")
-      getInvitationsNotFound(validNino.value, "NI")
-
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("This request expired before you responded") shouldBe true
-      result.body.contains("15 January 2017") shouldBe true
-      result.body.contains("Pending") shouldBe false
     }
 
     "500, when Des returns 400" in {

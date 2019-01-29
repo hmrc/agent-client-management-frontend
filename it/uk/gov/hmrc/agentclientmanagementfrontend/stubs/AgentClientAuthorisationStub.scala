@@ -31,6 +31,7 @@ trait AgentClientAuthorisationStub {
                |     }
                |   },
                |   "arn": "${arn.value}",
+               |   "clientType": "personal",
                |   "service": "$service",
                |   "clientId": "$clientId",
                |   "clientIdType": "$clientIdType",
@@ -51,6 +52,29 @@ trait AgentClientAuthorisationStub {
       .willReturn(
         aResponse()
           .withStatus(404)))
+  }
+
+  def givenAgentRefExistsFor(arn: Arn): Unit = {
+    stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"""{
+               |"arn": "${arn.value}",
+               |"uid": "UID123"
+               |}""".stripMargin
+
+          )
+      ))
+  }
+
+  def givenAgentRefNotFoundFor(arn: Arn): Unit = {
+    stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
+      .willReturn(
+        aResponse()
+          .withStatus(404)
+      ))
   }
 
 }

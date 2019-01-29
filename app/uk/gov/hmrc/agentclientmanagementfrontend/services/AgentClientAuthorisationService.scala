@@ -17,7 +17,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import javax.inject.Inject
-import org.joda.time.LocalDate
+
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentServicesAccountConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
@@ -38,12 +38,13 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
       agencyNames <- if(storedInvitations.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
-    } yield (agencyNames, storedInvitations)
+      agentRefs <- agentClientAuthorisationConnector.getAgentReferences(storedInvitations.map(_.arn))
+    } yield (agencyNames, storedInvitations, agentRefs)
 
     relationshipsWithAgencyNamesWithStoredInvitations.map {
-      case (agencyNames, storedInvites) =>
+      case (agencyName, storedInvites, agentRef) =>
         storedInvites.map(si =>
-         AgentRequest(si.service, agencyNames.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId)
+         AgentRequest(si.clientType, si.service, si.arn, agentRef.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId)
         ).sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated)
     }
   }

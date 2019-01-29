@@ -17,6 +17,8 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
+
+import com.google.inject.Provider
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -28,11 +30,12 @@ import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
+import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 case class RadioConfirm(value: Option[Boolean])
 
@@ -55,8 +58,11 @@ class ClientRelationshipManagementController @Inject()(
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService,
-                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val configuration: Configuration, externalUrls: ExternalUrls)
+                                                        agentClientAuthorisationService: AgentClientAuthorisationService,
+                                                        ecp: Provider[ExecutionContext])(implicit val configuration: Configuration, externalUrls: ExternalUrls)
   extends FrontendController with I18nSupport with AuthActions {
+
+  implicit val ec: ExecutionContext = ecp.get
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
@@ -65,7 +71,7 @@ class ClientRelationshipManagementController @Inject()(
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
-      }yield Ok(authorised_agents(authRequests, agentRequests))
+      }yield Ok(authorised_agents(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
     }
   }
 
