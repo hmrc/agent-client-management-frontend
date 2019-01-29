@@ -19,8 +19,6 @@ package views
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
-import play.api.i18n.Messages
-import play.i18n.MessagesApi
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
@@ -28,8 +26,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
 
-  val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-  implicit val messages: Messages = mock[Messages]
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
 
@@ -44,7 +40,7 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
 
   val agentReqs = Seq(agentReq1, agentReq2, agentReq3, agentReq4)
 
-  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(messages, dateOrdering)
+  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(dateOrdering)
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {
@@ -65,6 +61,18 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
 
     "return true if authorisations exist" in {
       config.authorisedAgentsExist shouldBe true
+    }
+
+    "return number of pending requests" in {
+      config.pendingCount shouldBe 2
+    }
+
+    "prettify the date" in {
+      val dateBigDay = Some(LocalDate.parse("1993-09-21"))
+      val dateSmallDay = Some(LocalDate.parse("2019-04-01"))
+
+      config.displayDate(dateBigDay) shouldBe "21 September 1993"
+      config.displayDate(dateSmallDay) shouldBe "1 April 2019"
     }
   }
 
