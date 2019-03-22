@@ -20,8 +20,8 @@ class AuthActionsISpec extends BaseISpec {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     def withAuthorisedAsClient[A]: Result = {
-      await(super.withAuthorisedAsClient { clientIds =>
-        Future.successful(Ok(s"mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")}")) })
+      await(super.withAuthorisedAsClient { (clientType, clientIds) =>
+        Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")}")) })
     }
 
   }
@@ -32,6 +32,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
+           |"affinityGroup":"Individual",
            |"allEnrolments": [
            |  { "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"MTDITID", "value": "fooMtdItId" }
@@ -47,6 +48,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
+           |"affinityGroup":"Individual",
            |"allEnrolments": [
            |  { "key":"HMRC-NI", "identifiers": [
            |    { "key":"NINO", "value": "AE123456A" }
@@ -62,6 +64,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
+           |"affinityGroup":"Individual",
            |"allEnrolments": [
            |  { "key":"HMRC-MTD-VAT", "identifiers": [
            |    { "key":"VRN", "value": "fooVrn" }
@@ -77,6 +80,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
+           |"affinityGroup":"Individual",
            |"allEnrolments": [
            |{ "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"MTDITID", "value": "fooMtdItId" }
@@ -100,6 +104,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
+           |"affinityGroup":"Individual",
            |"allEnrolments": [
            |  { "key":"HMRC-AS-AGENT", "identifiers": [
            |    { "key":"AgentReferenceNumber", "value": "fooArn" }
@@ -114,6 +119,7 @@ class AuthActionsISpec extends BaseISpec {
       givenAuthorisedFor(
         "{}",
         s"""{
+           |"affinityGroup":"Individual",
            |"allEnrolments": [
            |  { "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"BAR", "value": "fooMtdItId" }

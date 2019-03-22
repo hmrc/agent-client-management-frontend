@@ -34,11 +34,12 @@ trait AuthStubs {
          |        ]
          |    }
          |  ],
-         |  "retrieve":["allEnrolments"]
+         |  "retrieve":["affinityGroup","allEnrolments"]
          |}
            """.stripMargin,
       s"""
          |{
+         |"affinityGroup": "Individual",
          |"allEnrolments": [
          |  $enrolmentJson
          |]}

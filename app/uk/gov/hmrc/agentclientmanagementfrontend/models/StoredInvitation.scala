@@ -19,12 +19,11 @@ package uk.gov.hmrc.agentclientmanagementfrontend.models
 import java.net.URL
 
 import org.joda.time.{DateTime, LocalDate}
-import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 case class StoredInvitation(
   arn: Arn,
-  clientType: String,
+  clientType: Option[String],
   service: String,
   clientId: String,
   clientIdType: String,
@@ -48,7 +47,7 @@ object StoredInvitation {
 
   def apply(
              arn: Arn,
-             clientType: String,
+             clientType: Option[String],
              service: String,
              clientId: String,
              status: String,

@@ -26,9 +26,18 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
       getInvitations(arn, mtdItId.value, "MTDITID", "HMRC-MTD-IT", "Pending", "9999-01-01", lastUpdated)
 
       val result = await(connector.getItsaInvitation(mtdItId))
+      result.head.clientType.isEmpty shouldBe true
       result(0).arn shouldBe arn
       result(0).clientId shouldBe mtdItId.value
       result(0).invitationId shouldBe "ATDMZYN4YDLNW"
+    }
+
+    "return existing invitations for specified clientId with clientType" in {
+      getInvitations(arn, mtdItId.value, "MTDITID", "HMRC-MTD-IT", "Pending", "9999-01-01", lastUpdated, "personal")
+
+      val result = await(connector.getItsaInvitation(mtdItId))
+      result.head.clientType.nonEmpty shouldBe true
+      result.head.clientType shouldBe Some("personal")
     }
 
     "return an empty sequence when no invitation is found for specified clientId" in {
@@ -44,9 +53,18 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
       getInvitations(arn, nino.value, "NI", "PERSONAL-INCOME-RECORD", "Pending", "9999-01-01", lastUpdated)
 
       val result = await(connector.getIrvInvitation(nino))
+      result.head.clientType.isEmpty shouldBe true
       result(0).arn shouldBe arn
       result(0).clientId shouldBe nino.value
       result(0).invitationId shouldBe "ATDMZYN4YDLNW"
+    }
+
+    "return existing invitations for specified clientId with clientType" in {
+      getInvitations(arn, nino.value, "NI", "PERSONAL-INCOME-RECORD", "Pending", "9999-01-01", lastUpdated, "personal")
+
+      val result = await(connector.getIrvInvitation(nino))
+      result.head.clientType.nonEmpty shouldBe true
+      result.head.clientType shouldBe Some("personal")
     }
 
     "return an empty sequence when no invitation is found for specified clientId" in {
@@ -62,9 +80,18 @@ class AgentClientAuthorisationConnectorISpec extends BaseISpec with AgentClientA
       getInvitations(arn, vrn.value, "VRN", "HMRC-MTD-VAT", "Pending", "9999-01-01", lastUpdated)
 
       val result = await(connector.getVatInvitation(vrn))
+      result.head.clientType.isEmpty shouldBe true
       result(0).arn shouldBe arn
       result(0).clientId shouldBe vrn.value
       result(0).invitationId shouldBe "ATDMZYN4YDLNW"
+    }
+
+    "return existing invitations for specified clientId with clientType" in {
+      getInvitations(arn, vrn.value, "VRN", "HMRC-MTD-VAT", "Pending", "9999-01-01", lastUpdated, "business")
+
+      val result = await(connector.getVatInvitation(vrn))
+      result.head.clientType.nonEmpty shouldBe true
+      result.head.clientType shouldBe Some("business")
     }
 
     "return an empty sequence when no invitation is found for specified clientId" in {

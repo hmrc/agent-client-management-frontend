@@ -67,16 +67,16 @@ class ClientRelationshipManagementController @Inject()(
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
-    withAuthorisedAsClient { clientIds =>
+    withAuthorisedAsClient { (clientType, clientIds) =>
       for {
-        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientIds)
+        agentRequests <- agentClientAuthorisationService.getAgentRequests(clientType, clientIds)
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
       }yield Ok(authorised_agents(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
     }
   }
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-      withAuthorisedAsClient { _ =>
+      withAuthorisedAsClient { (_, _) =>
         if (isActiveService(service, featureFlags)) {
           relationshipManagementService.getAuthorisedAgentDetails(id).map {
             case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
@@ -96,7 +96,7 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   def submitRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { clientIds =>
+    withAuthorisedAsClient { (_, clientIds) =>
       def response = {
         service match {
           case Services.HMRCMTDIT => relationshipManagementService.deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
@@ -120,7 +120,7 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { _ =>
+    withAuthorisedAsClient { (_, _)=>
       (request.session.get("agencyName"), request.session.get("service")) match {
         case (Some(agencyName), Some(service)) => Future.successful(Ok(authorisation_removed(agencyName, service)))
         case _ => throwNoSessionFoundException("agencyName", "service")

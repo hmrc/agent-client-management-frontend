@@ -81,7 +81,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
         implicit val urlReads: SimpleObjectReads[URL] = new SimpleObjectReads[URL]("href", s => new URL(baseUrl, s))
 
         ((JsPath \ "arn").read[Arn] and
-          (JsPath \ "clientType").read[String] and
+          (JsPath \ "clientType").readNullable[String] and
           (JsPath \ "service").read[String] and
           (JsPath \ "clientId").read[String] and
           (JsPath \ "clientIdType").read[String] and
