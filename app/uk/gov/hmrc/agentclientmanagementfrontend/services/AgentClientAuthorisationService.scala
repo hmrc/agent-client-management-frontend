@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnector: AgentClientAuthorisationConnector, agentServicesAccountConnector: AgentServicesAccountConnector, relationshipManagementService: RelationshipManagementService) {
 
-  def getAgentRequests(clientIdOpt: OptionalClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
+  def getAgentRequests(clientType: String, clientIdOpt: OptionalClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
     val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => agentClientAuthorisationConnector.getItsaInvitation(MtdItId(clientId.value)))
     val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => agentClientAuthorisationConnector.getIrvInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
@@ -44,7 +44,7 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
     relationshipsWithAgencyNamesWithStoredInvitations.map {
       case (agencyName, storedInvites, agentRef) =>
         storedInvites.map(si =>
-         AgentRequest(si.clientType, si.service, si.arn, agentRef.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId)
+         AgentRequest(clientType, si.service, si.arn, agentRef.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId)
         ).sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated)
     }
   }

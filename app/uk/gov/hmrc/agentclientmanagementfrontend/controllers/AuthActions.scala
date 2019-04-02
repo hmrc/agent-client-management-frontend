@@ -19,8 +19,9 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Retrievals.{allEnrolments,authorisedEnrolments}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.agentclientmanagementfrontend.models.OptionalClientIdentifiers
@@ -29,22 +30,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthActions extends AuthorisedFunctions {
 
-  protected def withAuthorisedAsClient[A](body: OptionalClientIdentifiers => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
+  protected def withAuthorisedAsClient[A](body: (String, OptionalClientIdentifiers) => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
 
     def clientId(serviceName: String, identifierKey: String)(implicit enrolments: Enrolments): Option[String] =
       enrolments.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
 
     authorised(AuthProviders(GovernmentGateway))
-      .retrieve(allEnrolments) { implicit enrolments =>
-        val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
-        val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
-        val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
-        val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
+      .retrieve(affinityGroup and allEnrolments) {
+        case affinityG ~ allEnrols =>
 
-        if (clientIds.haveAtLeastOneFieldDefined)
-          body(clientIds)
-        else
-          Future.failed(InsufficientEnrolments("Identifiers not found"))
+          val determineAffinityGroup = (affinity: AffinityGroup) => affinity match {
+            case AffinityGroup.Individual => "personal"
+            case AffinityGroup.Organisation => "business"
+            case _ => throw new IllegalStateException(s"Unsupported Affinity Group: $affinity")
+          }
+
+          implicit val enrolments: Enrolments = allEnrols
+          val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
+          val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
+          val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
+          val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
+
+          (affinityG, clientIds) match {
+          case (Some(a), ids) if AffinityGroup.Individual == a && ids.haveAtLeastOneFieldDefined => body(determineAffinityGroup(a), clientIds)
+          case (Some(a), ids) if AffinityGroup.Organisation == a && ids.haveAtLeastOneFieldDefined => body(determineAffinityGroup(a), clientIds)
+          case _ => Future.failed(InsufficientEnrolments("Identifiers not found"))
+        }
+
       }
   }
 }
