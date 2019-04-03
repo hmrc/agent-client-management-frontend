@@ -21,8 +21,8 @@ import java.net.URL
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named}
-
 import org.joda.time.{DateTime, LocalDate}
+import play.api.Logger
 import play.api.libs.json.{JsObject, Json, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, AuthorisedAgent, StoredInvitation}
@@ -42,30 +42,40 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
   def getItsaInvitation(mtdItId: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/MTDITID/${mtdItId.value}/invitations/received")
-    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover{
+    monitor("ConsumedAPI-GET-Client-ITSA-Invitations-GET") {
+      http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
       case e: NotFoundException => Seq.empty
+      }
     }
   }
 
   def getVatInvitation(vrn: Vrn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/VRN/${vrn.value}/invitations/received")
-    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover{
-      case e: NotFoundException => Seq.empty
+    monitor("ConsumedAPI-GET-Client-VAT-Invitations-GET") {
+      http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
+        case e: NotFoundException => Seq.empty
+      }
     }
   }
 
   def getIrvInvitation(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/NI/${nino.value}/invitations/received")
-    http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover{
-      case e: NotFoundException => Seq.empty
+    monitor("ConsumedAPI-GET-Client-IRV-Invitations-GET") {
+      http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
+        case e: NotFoundException => Seq.empty
+      }
     }
   }
 
   def getAgentReferences(arns: Seq[Arn])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentReference]] = {
     Future.sequence(arns.map (arn => {
       val url = new URL(baseUrl, s"/agencies/references/arn/${arn.value}")
-      http.GET[AgentReference](url.toString).map(obj => obj).recover {
-        case e => throw new Exception("Agent Reference Not Found")
+      monitor("ConsumedAPI-GET-Agent-Reference-Invitations-GET") {
+        http.GET[AgentReference](url.toString).map(obj => obj).recover {
+          case e =>
+            Logger(getClass).warn(s"AgentReference Not Found: $e")
+            AgentReference(Arn(""), "")
+        }
       }
     }))
   }

@@ -122,7 +122,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("What you need to do") shouldBe false
     }
 
-    "Throw an Exception when there is no agent reference found for an Arn" in {
+    "return 200 when there are no agent references found for particular Arns" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value)
       givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
@@ -138,7 +138,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       val result = await(doGetRequest(""))
 
-      result.status shouldBe 500
+      result.status shouldBe 200
     }
   }
 
