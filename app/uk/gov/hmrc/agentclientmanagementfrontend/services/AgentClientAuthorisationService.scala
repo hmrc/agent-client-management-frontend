@@ -38,7 +38,10 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
       agencyNames <- if(storedInvitations.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
-      agentRefs <- agentClientAuthorisationConnector.getAgentReferences(storedInvitations.map(_.arn))
+      agentRefs <- agentClientAuthorisationConnector
+        .getAgentReferences(storedInvitations
+          .filter(_.status == "Pending")
+          .map(_.arn))
     } yield (agencyNames, storedInvitations, agentRefs)
 
     relationshipsWithAgencyNamesWithStoredInvitations.map {
