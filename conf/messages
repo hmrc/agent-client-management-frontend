@@ -9,7 +9,7 @@ global.error.pageNotFound404.heading=Page not found
 global.error.pageNotFound404.message=<p>If you typed the web address, check it is correct.</p> <p>If you pasted the web address, check you copied the entire address.</p> <p>If the web address is correct or you selected a link or button, <a href="https://www.gov.uk/contact-hmrc">contact HMRC</a> if you need to speak to someone about asking a client to authorise you.</p>
 
 global.error.internalServerError500.title=Sorry, we are experiencing technical difficulties - 500
-global.error.internalServerError500.heading=Sorry, we’re experiencing technical difficulties
+global.error.internalServerError500.heading=Sorry, we''re experiencing technical difficulties
 global.error.internalServerError500.message=Please try again in a few minutes.
 
 

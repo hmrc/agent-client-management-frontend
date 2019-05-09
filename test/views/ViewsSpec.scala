@@ -163,3 +163,4 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
     }
   }
 }
+
