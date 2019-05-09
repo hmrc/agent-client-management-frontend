@@ -16,8 +16,6 @@
 
 import javax.inject.{Inject, Singleton}
 import com.google.inject.name.Named
-import play.api.http.HeaderNames.CACHE_CONTROL
-import play.api.http.HttpErrorHandler
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
