@@ -17,7 +17,7 @@
 package views
 
 import org.joda.time.{DateTime, LocalDate}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.i18n.Messages
 import play.i18n.MessagesApi
