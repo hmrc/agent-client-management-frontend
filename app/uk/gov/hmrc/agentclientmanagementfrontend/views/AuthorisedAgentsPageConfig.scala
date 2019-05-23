@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.views
 
+import java.util.Locale
+
 import org.joda.time.LocalDate
-import play.api.i18n.Messages
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 
-case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit messages: Messages, dateOrdering: Ordering[LocalDate]) {
+case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit dateOrdering: Ordering[LocalDate]) {
 
   val pendingRequests: Seq[AgentRequest] = agentRequests.filter(_.status == "Pending").sortBy(_.expiryDate).map(x => x.arn -> x).toMap.values.toSet.toSeq
 
@@ -32,21 +33,14 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val authorisedAgentsExist: Boolean = authorisedAgents.nonEmpty
 
+  val pendingCount: Int = pendingRequests.length
+
+
   def displayDate(date: Option[LocalDate]): String = {
     date match {
-      case Some(d) if d.getDayOfMonth >= 10 => d.toString("dd MMMM yyyy", messages.lang.locale)
-      case Some(d) if d.getDayOfMonth < 10 => d.toString("d MMMM yyyy", messages.lang.locale)
+      case Some(d) if d.getDayOfMonth >= 10 => d.toString("dd MMMM yyyy", Locale.UK)
+      case Some(d) if d.getDayOfMonth < 10 => d.toString("d MMMM yyyy", Locale.UK)
       case None => ""
     }
   }
-
-  val pendingNo: String = {
-    val count = pendingRequests.length
-    if(count == 1) {
-      Messages("client-authorised-agents-table-relationships.pendingNo.single", count)
-    }else {
-      Messages("client-authorised-agents-table-relationships.pendingNo", count)
-    }
-  }
-
 }

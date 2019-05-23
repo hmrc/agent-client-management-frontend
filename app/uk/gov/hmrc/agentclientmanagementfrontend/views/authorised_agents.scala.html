@@ -21,6 +21,14 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 @(config: AuthorisedAgentsPageConfig)(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
+@pendingNo = @{
+    if(config.pendingCount == 1) {
+    Messages("client-authorised-agents-table-relationships.pendingNo.single", config.pendingCount)
+    }else {
+    Messages("client-authorised-agents-table-relationships.pendingNo", config.pendingCount)
+    }
+    }
+
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
     <h1 class="heading-large">@Messages("client-authorised-agents.title")</h1>
@@ -53,7 +61,7 @@
         @if(config.pendingRequestsExist) {
         <section class="govuk-tabs__panel" id="currentRequests">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab1.title")</h2>
-            <p class="panel panel-border-wide">@config.pendingNo</p>
+            <p class="panel panel-border-wide">@pendingNo</p>
                 <table class="font-small">
                     <colgroup>
                         <col width="55%">
