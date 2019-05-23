@@ -162,8 +162,8 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Manage who can deal with HMRC for you") shouldBe true
       result.body.contains("Who can deal with HMRC for you") shouldBe true
       result.body.contains("Find who you currently allow to deal with HMRC and remove your consent if you want to do so.") shouldBe true
-      result.body.contains("Report your VAT returns through software") shouldBe true
-      result.body.contains("Report your income and expenses through software") shouldBe true
+      result.body.contains("Submit your VAT returns through software") shouldBe true
+      result.body.contains("Send your Income Tax updates through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
       result.body.contains("abc") shouldBe true
       result.body.contains("6 June 2017") shouldBe true
@@ -205,7 +205,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("Manage who can deal with HMRC for you") shouldBe true
       result.body.contains("Find who you currently allow to deal with HMRC and remove your consent if you want to do so.") shouldBe true
       result.body.contains("This Agency Name") shouldBe true
-      result.body.contains("Report your income and expenses through software") shouldBe true
+      result.body.contains("Send your Income Tax updates through software") shouldBe true
       result.body.contains("Remove authorisation") shouldBe true
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -265,9 +265,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("DEF") < result.body.indexOf("abc") && result.body.indexOf("abc")< result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Report your income and expenses through software") shouldBe true
+      result.body.contains("Send your Income Tax updates through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Report your VAT returns through software") shouldBe true
+      result.body.contains("Submit your VAT returns through software") shouldBe true
       result.body.contains("You accepted this request") shouldBe true
       result.body.contains("This request expired before you responded") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
@@ -298,9 +298,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("DEF") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("ghi") < result.body.indexOf("abc") && result.body.indexOf("abc")< result.body.indexOf("DEF") shouldBe true
-      result.body.contains("Report your income and expenses through software") shouldBe true
+      result.body.contains("Send your Income Tax updates through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Report your VAT returns through software") shouldBe true
+      result.body.contains("Submit your VAT returns through software") shouldBe true
       result.body.contains("You accepted this request") shouldBe true
       result.body.contains("This request expired before you responded") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
@@ -327,9 +327,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("def") shouldBe true
       result.body.contains("ghi") shouldBe true
       result.body.indexOf("abc") < result.body.indexOf("def") && result.body.indexOf("def")< result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Report your income and expenses through software") shouldBe true
+      result.body.contains("Send your Income Tax updates through software") shouldBe true
       result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Report your VAT returns through software") shouldBe true
+      result.body.contains("Submit your VAT returns through software") shouldBe true
       result.body.contains("You accepted this request") shouldBe true
       result.body.contains("This request expired before you responded") shouldBe true
       result.body.contains("15 January 2017") shouldBe true
@@ -586,7 +586,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "This Agency Name")
-      checkHtmlResultWithBodyText(result, "cannot report your income and expenses through software")
+      checkHtmlResultWithBodyText(result, "cannot send your Income Tax updates through software")
     }
 
     "return exception if required session data not found" in {
