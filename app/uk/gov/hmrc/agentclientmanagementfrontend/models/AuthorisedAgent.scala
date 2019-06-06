@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json.Json
 
 case class AuthorisedAgent(uuId: String, serviceName: String, agencyName: String, dateFrom: Option[LocalDate])

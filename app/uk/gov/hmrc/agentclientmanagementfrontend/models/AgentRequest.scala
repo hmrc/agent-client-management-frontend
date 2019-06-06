@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import org.joda.time.{DateTime, LocalDate}
+import java.time.{ZonedDateTime, LocalDate}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
-case class AgentRequest(clientType: String, serviceName: String, arn: Arn, uid: String, agencyName:String, status: String, expiryDate: LocalDate, lastUpdated: DateTime, invitationId: String)
+case class AgentRequest(clientType: String, serviceName: String, arn: Arn, uid: String, agencyName:String, status: String, expiryDate: LocalDate, lastUpdated: ZonedDateTime, invitationId: String)
 
 object AgentRequest {
 
-  implicit def timeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isAfter _)
+  implicit def timeOrdering: Ordering[ZonedDateTime] = Ordering.fromLessThan(_ isAfter _)
 
   val orderingByAgencyName: Ordering[AgentRequest] = Ordering.by(_.agencyName.toLowerCase)
 

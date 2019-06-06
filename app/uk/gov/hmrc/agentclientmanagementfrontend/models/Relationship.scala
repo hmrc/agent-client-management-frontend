@@ -18,7 +18,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import java.time.LocalDateTime
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn

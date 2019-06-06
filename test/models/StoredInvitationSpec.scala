@@ -18,9 +18,8 @@ package models
 
 import java.net.URL
 
-import org.joda.time.{DateTime, LocalDate}
+import java.time.{ZonedDateTime, LocalDate}
 import play.utils.UriEncoding
-import uk.gov.hmrc.agentclientmanagementfrontend
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, StoredInvitation}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
@@ -33,8 +32,8 @@ class StoredInvitationSpec extends UnitSpec {
   val validArn = Arn("FARN0001132")
   val validNino =  Nino("AE123456A")
   val validVrn =  Vrn("101747641")
-  val created = DateTime.parse("2017-01-15T13:14:00.000+08:00")
-  val lastUpdated = DateTime.parse("2018-01-15T13:14:00.000+08:00")
+  val created = ZonedDateTime.parse("2017-01-15T13:14:00.000+08:00")
+  val lastUpdated = ZonedDateTime.parse("2018-01-15T13:14:00.000+08:00")
   val expiry = LocalDate.parse("2018-01-15")
   val startDate = Some(LocalDate.parse("2017-06-06"))
   val startDateString = "2017-06-06"
