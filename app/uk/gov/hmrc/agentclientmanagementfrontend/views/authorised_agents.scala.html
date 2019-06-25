@@ -19,6 +19,8 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
+@import uk.gov.hmrc.play.views.html.helpers.form
+
 @(config: AuthorisedAgentsPageConfig)(implicit messages: Messages, request: Request[_], configuration: Configuration, externalUrls: ExternalUrls, now: LocalDate)
 
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
@@ -72,8 +74,12 @@
                         <tr>
                             <td>@agentReq.agencyName</td>
                             <td>@config.displayDate(Some(agentReq.expiryDate))</td>
-                            <td >
-                            @Html(Messages("client-authorised-agents-table.actions.respond", externalUrls.multiConfirmTermsUrl(agentReq.clientType, agentReq.uid)))
+                            <td>
+                                @form(Call("POST", externalUrls.multiConfirmTermsUrl(agentReq.clientType, agentReq.uid))){
+                                    <div>
+                                        <button class="button--link-style respond_link" type="submit" id="continueCheckDetails">@Messages("client-authorised-agents-table.actions.respond")</button>
+                                    </div>
+                                }
                             </td>
                         </tr>
                     }

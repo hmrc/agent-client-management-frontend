@@ -25,7 +25,7 @@ class ExternalUrls @Inject()(
   @Named("appName") val appName: String) {
 
   def multiConfirmTermsUrl(clientType: String, uid: String) =
-    s"$agentInvitationsFrontendBaseUrl/invitations/accept-tax-agent-invitation/consent/$clientType/$uid"
+    s"$agentInvitationsFrontendBaseUrl/invitations/consent/$clientType/$uid"
 
   val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
 

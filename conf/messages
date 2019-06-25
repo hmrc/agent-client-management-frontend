@@ -53,7 +53,7 @@ client-authorised-agents-table.Expired=This request expired before you responded
 client-authorised-agents-table.Cancelled=This request was cancelled
 client-authorised-agents-table.pending.date=Expires: {0}
 client-authorised-agents-table.actions.no-action=No action needed
-client-authorised-agents-table.actions.respond=<a href={0}>Respond to request</a>
+client-authorised-agents-table.actions.respond=Respond to request
 client-authorised-agents-table.actions.remove=<a href={0}>Remove authorisation</a>
 client-authorised-agents-table-content.noAgentsFound=You have not appointed someone to deal with HMRC currently.
 client-authorised-agents-table-content.no-activity=You do not have any previous activity.
