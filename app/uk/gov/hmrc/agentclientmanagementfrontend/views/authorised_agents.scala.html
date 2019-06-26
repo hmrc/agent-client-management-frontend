@@ -83,11 +83,9 @@
                             <td>@agentReq.agencyName</td>
                             <td>@config.displayDate(Some(agentReq.expiryDate))</td>
                             <td>
-                                @form(Call("POST", externalUrls.multiConfirmTermsUrl(agentReq.clientType, agentReq.uid))){
-                                    <div>
-                                        <button class="button--link-style respond_link" type="submit" id="continueCheckDetails">@Messages("client-authorised-agents-table.actions.respond")</button>
-                                    </div>
-                                }
+                                <a href=@externalUrls.multiConfirmTermsUrl(agentReq.clientType, agentReq.uid)>
+                                    @Messages("client-authorised-agents-table.actions.respond")
+                                </a>
                             </td>
                         </tr>
                     }
