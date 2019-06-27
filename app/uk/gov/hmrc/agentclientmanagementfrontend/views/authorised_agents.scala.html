@@ -83,7 +83,7 @@
                             <td>@agentReq.agencyName</td>
                             <td>@config.displayDate(Some(agentReq.expiryDate))</td>
                             <td>
-                                <a href=@externalUrls.multiConfirmTermsUrl(agentReq.clientType, agentReq.uid)>
+                                <a href=@externalUrls.warmUpUrl(agentReq.clientType, agentReq.uid, agentReq.agencyName)>
                                     @Messages("client-authorised-agents-table.actions.respond")
                                 </a>
                             </td>

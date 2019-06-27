@@ -24,8 +24,11 @@ class ExternalUrls @Inject()(
   @Named("agent-invitations-frontend.external-url") val agentInvitationsFrontendBaseUrl: String,
   @Named("appName") val appName: String) {
 
-  def multiConfirmTermsUrl(clientType: String, uid: String) =
-    s"$agentInvitationsFrontendBaseUrl/invitations/consent/$clientType/$uid"
+  private def normaliseAgentName(agentName: String) =
+    agentName.toLowerCase().replaceAll("\\s+", "-").replaceAll("[^A-Za-z0-9-]", "")
+
+  def warmUpUrl(clientType: String, uid: String, agencyName: String) =
+    s"$agentInvitationsFrontendBaseUrl/invitations/$clientType/$uid/${normaliseAgentName(agencyName)}"
 
   val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
 
