@@ -18,8 +18,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.views
 
 import java.util.Locale
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter._
+import org.joda.time.LocalDate
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 
 case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit dateOrdering: Ordering[LocalDate]) {
@@ -36,12 +35,12 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val pendingCount: Int = pendingRequests.length
 
+
   def displayDate(date: Option[LocalDate]): String = {
     date match {
-      case Some(d) if d.getDayOfMonth >= 10 => LocalDate.parse(d.toString).format(ofPattern("dd MMMM uuuu", Locale.UK))
-      case Some(d) if d.getDayOfMonth < 10 => LocalDate.parse(d.toString).format(ofPattern("d MMMM uuuu", Locale.UK))
+      case Some(d) if d.getDayOfMonth >= 10 => d.toString("dd MMMM yyyy", Locale.UK)
+      case Some(d) if d.getDayOfMonth < 10 => d.toString("d MMMM yyyy", Locale.UK)
       case None => ""
     }
   }
 }
-

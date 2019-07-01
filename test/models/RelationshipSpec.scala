@@ -18,7 +18,7 @@ package models
 
 import java.time.LocalDateTime
 
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import play.api.libs.json.{JsSuccess, JsValue, Json}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ItsaRelationship, PirRelationship, VatRelationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
