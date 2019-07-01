@@ -21,7 +21,7 @@ import java.net.URL
 import javax.inject.{Inject, Named}
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import java.time.LocalDate
+import org.joda.time.LocalDate
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ItsaRelationship, VatRelationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
