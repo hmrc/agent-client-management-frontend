@@ -91,6 +91,7 @@ class ClientRelationshipManagementController @Inject()(
       case Services.HMRCPIR => featureFlags.rmAuthIRV
       case Services.HMRCMTDIT => featureFlags.rmAuthITSA
       case Services.HMRCMTDVAT => featureFlags.rmAuthVAT
+      case Services.TRUST => featureFlags.rmAuthTrust
       case _ => throw new Exception("Unsupported Service")
     }
   }
@@ -102,6 +103,7 @@ class ClientRelationshipManagementController @Inject()(
           case Services.HMRCMTDIT => relationshipManagementService.deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
           case Services.HMRCPIR => relationshipManagementService.deletePIRelationship(id, clientIds.nino.getOrElse(throw new InsufficientEnrolments))
           case Services.HMRCMTDVAT => relationshipManagementService.deleteVATRelationship(id, clientIds.vrn.getOrElse(throw new InsufficientEnrolments))
+          case Services.TRUST => relationshipManagementService.deleteTrustRelationship(id, clientIds.utr.getOrElse(throw new InsufficientEnrolments))
           case _ => throw new Exception("Unsupported Service")
         }
       }

@@ -22,11 +22,10 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named}
 import org.joda.time.{DateTime, LocalDate}
-import play.api.Logger
-import play.api.libs.json.{JsObject, Json, Reads}
+import play.api.libs.json.JsObject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, AuthorisedAgent, StoredInvitation}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId, MtdItId, Vrn}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 
@@ -61,6 +60,15 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
   def getIrvInvitation(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/NI/${nino.value}/invitations/received")
     monitor("ConsumedAPI-GET-Client-IRV-Invitations-GET") {
+      http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
+        case e: NotFoundException => Seq.empty
+      }
+    }
+  }
+
+  def getTrustInvitation(utr: Utr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
+    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/UTR/${utr.value}/invitations/received")
+    monitor("ConsumedAPI-GET-Client-Trust-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
       }

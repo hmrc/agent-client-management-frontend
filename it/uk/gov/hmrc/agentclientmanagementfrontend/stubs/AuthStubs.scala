@@ -13,7 +13,7 @@ trait AuthStubs {
   def authorisedAsClientMtdItId[A](request: FakeRequest[A], mtdItId: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId)), isAgent = false )
   def authorisedAsClientNi[A](request: FakeRequest[A], nino: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino)), isAgent = false )
   def authorisedAsClientVat[A](request: FakeRequest[A], vrn: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-VAT", "VRN", vrn)), isAgent = false )
-  def authorisedAsClientAll[A](request: FakeRequest[A], nino: String, mtdItId: String, vrn:String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino), Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId), Enrolment("HMRC-MTD-VAT", "VRN", vrn)), isAgent = false)
+  def authorisedAsClientAll[A](request: FakeRequest[A], nino: String, mtdItId: String, vrn:String, utr: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino), Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId), Enrolment("HMRC-MTD-VAT", "VRN", vrn), Enrolment("HMRC-TERS-ORG", "SAUTR", utr)), isAgent = false)
 
   def authenticated[A](request: FakeRequest[A], enrolment: Set[Enrolment], isAgent: Boolean): FakeRequest[A] = {
     val enrolmentJson = enrolment.map { x =>

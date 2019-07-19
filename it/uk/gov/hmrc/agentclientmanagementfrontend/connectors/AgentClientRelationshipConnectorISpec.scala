@@ -2,7 +2,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs.AgentClientRelationshipsStub
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, Upstream5xxResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,8 +14,10 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
   val arn = Arn("TARN0000001")
   val clientId = MtdItId("AA123456A")
   val validVrn = Vrn("101747641")
+  val utr =  Utr("1977030537")
   val serviceItsa = "HMRC-MTD-IT"
   val serviceVat = "HMRC-MTD-VAT"
+  val serviceTrust = "HMRC-TERS-ORG"
   val startDate = "2007-07-07"
 
   "Delete agent client relationships" should {
@@ -33,6 +35,13 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
       result shouldBe true
     }
 
+    "return true when a relationship for trust service has been deleted successfully" in {
+      deleteActiveTrustRelationship(arn.value, utr.value)
+
+      val result = await(connector.deleteTrustRelationship(arn, utr))
+      result shouldBe true
+    }
+
     "return false when a relationship for ITSA service is not found while deleting" in {
       deleteActiveITSARelationship(arn.value, clientId.value, 404)
 
@@ -46,6 +55,14 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
       val result = await(connector.deleteVatRelationship(arn, validVrn))
       result shouldBe false
     }
+
+    "return false when a relationship for Trust service is not found while deleting" in {
+      deleteActiveTrustRelationship(arn.value, utr.value, 404)
+
+      val result = await(connector.deleteTrustRelationship(arn, utr))
+      result shouldBe false
+    }
+
 
     "return exception for ITSA service when delete relationship throws bad request" in {
       deleteActiveITSARelationship(arn.value, clientId.value, 400)
@@ -100,6 +117,22 @@ class AgentClientRelationshipConnectorISpec extends BaseISpec with AgentClientRe
       getNotFoundClientActiveAgentRelationships(serviceVat)
 
       val result =  await(connector.getActiveClientVatRelationship)
+      result shouldBe None
+    }
+  }
+
+
+  "Get active trust relationship" should {
+    "return existing active relationships for specified clientId for trust service" in {
+      getClientActiveAgentRelationships(serviceTrust, arn.value, startDate)
+
+      val result = await(connector.getActiveClientTrustRelationship)
+      result.get.arn shouldBe arn
+    }
+    "return notFound active relationships for specified clientId" in {
+      getNotFoundClientActiveAgentRelationships(serviceTrust)
+
+      val result =  await(connector.getActiveClientTrustRelationship)
       result shouldBe None
     }
   }

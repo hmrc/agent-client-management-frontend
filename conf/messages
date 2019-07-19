@@ -60,6 +60,7 @@ client-authorised-agents-table-content.no-activity=You do not have any previous 
 client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your PAYE income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Submit your VAT returns through software
 client-authorised-agents-table-content.HMRC-MTD-IT=Send your Income Tax updates through software'
+client-authorised-agents-table-content.HMRC-TERS-ORG=Maintain a trust
 client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
 client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation
 

@@ -71,3 +71,16 @@ object VatRelationship {
      (JsPath \ "dateFrom").readNullable[LocalDate])(VatRelationship.apply _)
 
 }
+
+case class TrustRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.TRUST
+}
+
+object TrustRelationship {
+  implicit val relationshipWrites = Json.writes[TrustRelationship]
+
+  implicit val reads: Reads[TrustRelationship] =
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+      (JsPath \ "dateFrom").readNullable[LocalDate])(TrustRelationship.apply _)
+
+}

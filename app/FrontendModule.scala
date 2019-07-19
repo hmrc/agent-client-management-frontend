@@ -69,6 +69,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBooleanProperty("features.remove-authorisation.PERSONAL-INCOME-RECORD")
     bindBooleanProperty("features.remove-authorisation.HMRC-MTD-IT")
     bindBooleanProperty("features.remove-authorisation.HMRC-MTD-VAT")
+    bindBooleanProperty("features.remove-authorisation.HMRC-TERS-ORG")
   }
 
   private def bindBaseUrl(serviceName: String) =

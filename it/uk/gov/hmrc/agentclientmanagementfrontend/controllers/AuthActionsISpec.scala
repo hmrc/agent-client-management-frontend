@@ -21,7 +21,7 @@ class AuthActionsISpec extends BaseISpec {
 
     def withAuthorisedAsClient[A]: Result = {
       await(super.withAuthorisedAsClient { (clientType, clientIds) =>
-        Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")}")) })
+        Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
     }
 
   }
@@ -76,7 +76,7 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("fooVrn")
     }
 
-    "call body with nino and mtdItId and vrn when valid client" in {
+    "call body with nino, mtdItId, vrn and utr when valid client" in {
       givenAuthorisedFor(
         "{}",
         s"""{
@@ -90,6 +90,9 @@ class AuthActionsISpec extends BaseISpec {
            |  ]},
            |  { "key":"HMRC-MTD-VAT", "identifiers": [
            |    { "key":"VRN", "value": "fooVrn" }
+           |  ]},
+           |  { "key":"HMRC-TERS-ORG", "identifiers": [
+           |    { "key":"SAUTR", "value": "fooUtr" }
            |  ]}
            |]}""".stripMargin)
 
@@ -98,6 +101,7 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("fooMtdItId")
       bodyOf(result) should include("AE123456A")
       bodyOf(result) should include("fooVrn")
+      bodyOf(result) should include("fooUtr")
     }
 
     "throw InsufficientEnrolments when client not enrolled for service" in {
