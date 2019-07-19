@@ -21,4 +21,5 @@ import javax.inject.{Inject, Named, Singleton}
 @Singleton
 class FeatureFlags @Inject() (@Named("features.remove-authorisation.PERSONAL-INCOME-RECORD") val rmAuthIRV: Boolean,
                               @Named("features.remove-authorisation.HMRC-MTD-IT") val rmAuthITSA: Boolean,
-                              @Named("features.remove-authorisation.HMRC-MTD-VAT") val rmAuthVAT: Boolean)
+                              @Named("features.remove-authorisation.HMRC-MTD-VAT") val rmAuthVAT: Boolean,
+                              @Named("features.remove-authorisation.HMRC-TERS-ORG") val rmAuthTrust: Boolean)

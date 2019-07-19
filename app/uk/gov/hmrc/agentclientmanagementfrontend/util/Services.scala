@@ -33,4 +33,7 @@ object Services {
   val MTDVATID = "MTDVATID"
   val VAT = "VAT"
   val messageKeyForVAT = "vat"
+
+  val TRUST = "HMRC-TERS-ORG"
+
 }

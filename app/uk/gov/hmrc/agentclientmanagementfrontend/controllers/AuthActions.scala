@@ -17,7 +17,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.mvc.{Request, Result}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
@@ -49,7 +49,8 @@ trait AuthActions extends AuthorisedFunctions {
           val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
           val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
           val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
-          val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn)
+          val utr = clientId("HMRC-TERS-ORG", "SAUTR").map(Utr(_))
+          val clientIds = OptionalClientIdentifiers(mtdItId, nino, vrn, utr)
 
           (affinityG, clientIds) match {
           case (Some(a), ids) if AffinityGroup.Individual == a && ids.haveAtLeastOneFieldDefined => body(determineAffinityGroup(a), clientIds)

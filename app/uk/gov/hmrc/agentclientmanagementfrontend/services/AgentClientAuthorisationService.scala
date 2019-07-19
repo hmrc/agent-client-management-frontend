@@ -17,10 +17,9 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import javax.inject.Inject
-
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentServicesAccountConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -33,10 +32,12 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
     val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => agentClientAuthorisationConnector.getItsaInvitation(MtdItId(clientId.value)))
     val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => agentClientAuthorisationConnector.getIrvInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
     val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => agentClientAuthorisationConnector.getVatInvitation(Vrn(clientId.value)))
+    val storedTrustInvitations = invitations(clientIdOpt.utr)(clientId => agentClientAuthorisationConnector.getTrustInvitation(Utr(clientId.value)))
+
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
-      storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedVatInvitations)).map(_.flatten)
+      storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedVatInvitations, storedTrustInvitations)).map(_.flatten)
       agencyNames <- if(storedInvitations.nonEmpty)
-        agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
+          agentServicesAccountConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
       agentRefs <- agentClientAuthorisationConnector
         .getAgentReferences(storedInvitations

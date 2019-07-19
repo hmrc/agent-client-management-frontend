@@ -21,6 +21,13 @@ trait AgentClientRelationshipsStub {
           .withStatus(httpStatus)))
   }
 
+  def deleteActiveTrustRelationship(arn: String, clientId: String, httpStatus: Int = 204): Unit = {
+    stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$arn/service/HMRC-TERS-ORG/client/SAUTR/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(httpStatus)))
+  }
+
   def getClientActiveAgentRelationships(service: String, agentArn: String, startDate: String): Unit = {
     stubFor(get(urlEqualTo(s"/agent-client-relationships/service/$service/client/relationship"))
       .willReturn(

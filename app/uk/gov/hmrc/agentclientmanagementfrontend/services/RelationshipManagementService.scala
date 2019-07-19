@@ -21,7 +21,7 @@ import java.util.UUID
 import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId, MtdItId, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -39,8 +39,10 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
     val pirRelationships = relationships(clientIdOpt.nino) { case nino: Nino => pirRelationshipConnector.getClientRelationships(removeNinoSpaces(nino)) }
     val itsaRelationships = relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val vatRelationships = relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
+    val trustRelationships = relationships(clientIdOpt.utr)(_ => relationshipsConnector.getActiveClientTrustRelationship.map(_.toSeq))
+
     val relationshipWithAgencyNames = for {
-      relationships <- Future.sequence(Seq(itsaRelationships, pirRelationships, vatRelationships)).map(_.flatten)
+      relationships <- Future.sequence(Seq(itsaRelationships, pirRelationships, vatRelationships, trustRelationships)).map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
         agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
       else Future.successful(Map.empty[Arn, String])
@@ -70,6 +72,10 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
 
   def deleteVATRelationship(id: String, vrn: Vrn)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
     deleteRelationship(id, vrn)(arn => relationshipsConnector.deleteVatRelationship(arn, vrn))
+  }
+
+  def deleteTrustRelationship(id: String, utr: Utr)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
+    deleteRelationship(id, utr)(arn => relationshipsConnector.deleteTrustRelationship(arn, utr))
   }
 
   private def deleteRelationship(id: String, clientId: TaxIdentifier)(f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
