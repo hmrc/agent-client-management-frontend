@@ -57,7 +57,7 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
   }
 
   def getActiveClientItsaRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[ItsaRelationship]] = {
-    val url = new URL(baseUrl, s"/agent-client-relationships/service/HMRC-MTD-IT/client/relationship")
+    val url = new URL(baseUrl, s"/agent-client-relationships/relationships/service/HMRC-MTD-IT")
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-MTD-IT-GET") {
       http.GET[HttpResponse](url.toString).map { response =>
         val arnOpt =  response.status match {
@@ -74,7 +74,7 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
   }
 
   def getActiveClientVatRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[VatRelationship]] = {
-    val url = new URL(baseUrl, s"/agent-client-relationships/service/HMRC-MTD-VAT/client/relationship")
+    val url = new URL(baseUrl, s"/agent-client-relationships/relationships/service/HMRC-MTD-VAT")
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-MTD-VAT-GET") {
       http.GET[HttpResponse](url.toString).map { response =>
         val arnOpt =  response.status match {
@@ -91,7 +91,7 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
   }
 
   def getActiveClientTrustRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[TrustRelationship]] = {
-    val url = new URL(baseUrl, s"/agent-client-relationships/service/HMRC-TERS-ORG/client/relationship")
+    val url = new URL(baseUrl, s"/agent-client-relationships/relationships/service/HMRC-TERS-ORG")
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-TERS-ORG-GET") {
       http.GET[HttpResponse](url.toString).map { response =>
         val arnOpt =  response.status match {
