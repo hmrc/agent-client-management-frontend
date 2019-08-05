@@ -19,7 +19,7 @@ Finds the logged in client's invitations and relationships, currently for the fo
 
 ## Running the app locally
 
-    sm --start AGENT_MTD -f
+    sm --start AGENT_AUTHORISATION -r
     sm --stop AGENT_CLIENT_MANAGEMENT_FRONTEND
     sbt run
 
