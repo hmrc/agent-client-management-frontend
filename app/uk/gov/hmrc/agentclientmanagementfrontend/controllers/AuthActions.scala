@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import play.api.Logger
+import play.api.{Logger, Mode}
 import play.api.mvc.Results.Forbidden
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
@@ -28,10 +28,11 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AuthActions extends AuthorisedFunctions {
+trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
   protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers) => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
 
@@ -61,6 +62,16 @@ trait AuthActions extends AuthorisedFunctions {
             Logger.warn("Logged in client does not have required enrolments")
             Future.successful(Forbidden)
           }
-      }
+      }.recover {
+      case _: NoActiveSession =>
+        val isDevEnv =
+          if (env.mode.equals(Mode.Test)) false
+          else config.getString("run.mode").forall(Mode.Dev.toString.equals)
+        toGGLogin(
+          if (isDevEnv)
+            s"http://${request.host}${request.path}"
+          else
+            s"${request.path}")
+    }
   }
 }

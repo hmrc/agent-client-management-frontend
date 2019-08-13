@@ -1,12 +1,16 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
+import play.api.http.Status.SEE_OTHER
+import play.api.{Configuration, Environment}
 import play.api.mvc.Result
+import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
-import uk.gov.hmrc.auth.core.{ AuthConnector, AuthorisationException, InsufficientEnrolments }
-import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
-import play.api.mvc.Results._
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AuthActionsISpec extends BaseISpec {
@@ -15,9 +19,13 @@ class AuthActionsISpec extends BaseISpec {
 
     override def authConnector: AuthConnector = app.injector.instanceOf[AuthConnector]
 
+    override def env: Environment = app.injector.instanceOf[Environment]
+
+    override def config: Configuration = app.configuration
+
     implicit val hc = HeaderCarrier()
     implicit val request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
-    import scala.concurrent.ExecutionContext.Implicits.global
+
 
     def withAuthorisedAsClient[A]: Result = {
       await(super.withAuthorisedAsClient { (clientType, clientIds) =>
@@ -129,6 +137,11 @@ class AuthActionsISpec extends BaseISpec {
            |  ]}
            |]}""".stripMargin)
       TestController.withAuthorisedAsClient shouldBe Forbidden
+    }
+
+    "redirect to GG login page if user is not logged in" in {
+      givenUnauthorisedWith("BearerTokenExpired")
+      TestController.withAuthorisedAsClient shouldBe Redirect("/gg/sign-in?continue=%2F&origin=agent-client-management-frontend", SEE_OTHER)
     }
   }
 
