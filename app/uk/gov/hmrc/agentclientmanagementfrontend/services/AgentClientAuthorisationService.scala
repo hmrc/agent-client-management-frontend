@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnector: AgentClientAuthorisationConnector, agentServicesAccountConnector: AgentServicesAccountConnector, relationshipManagementService: RelationshipManagementService) {
 
-  def getAgentRequests(clientType: String, clientIdOpt: OptionalClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
+  def getAgentRequests(clientType: String, clientIdOpt: ClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
     val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => agentClientAuthorisationConnector.getItsaInvitation(MtdItId(clientId.value)))
     val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => agentClientAuthorisationConnector.getIrvInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
