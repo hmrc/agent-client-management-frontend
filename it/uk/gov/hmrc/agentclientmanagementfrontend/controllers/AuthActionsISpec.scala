@@ -104,7 +104,7 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("fooUtr")
     }
 
-    "throw InsufficientEnrolments when client not enrolled for service" in {
+    "throw Forbidden when client not enrolled for service" in {
       givenAuthorisedFor(
         "{}",
         s"""{
@@ -114,12 +114,11 @@ class AuthActionsISpec extends BaseISpec {
            |    { "key":"AgentReferenceNumber", "value": "fooArn" }
            |  ]}
            |]}""".stripMargin)
-      an[InsufficientEnrolments] shouldBe thrownBy {
-        TestController.withAuthorisedAsClient
-      }
+        TestController.withAuthorisedAsClient shouldBe Forbidden
+
     }
 
-    "throw InsufficientEnrolments when expected client's identifier missing" in {
+    "throw Forbidden when expected client's identifier missing" in {
       givenAuthorisedFor(
         "{}",
         s"""{
@@ -129,9 +128,7 @@ class AuthActionsISpec extends BaseISpec {
            |    { "key":"BAR", "value": "fooMtdItId" }
            |  ]}
            |]}""".stripMargin)
-      an[InsufficientEnrolments] shouldBe thrownBy {
-        TestController.withAuthorisedAsClient
-      }
+      TestController.withAuthorisedAsClient shouldBe Forbidden
     }
   }
 
