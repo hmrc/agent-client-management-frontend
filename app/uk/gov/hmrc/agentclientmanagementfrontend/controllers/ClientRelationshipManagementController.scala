@@ -59,7 +59,7 @@ class ClientRelationshipManagementController @Inject()(
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService,
                                                         agentClientAuthorisationService: AgentClientAuthorisationService,
-                                                        ecp: Provider[ExecutionContext])(implicit val configuration: Configuration, externalUrls: ExternalUrls)
+                                                        ecp: Provider[ExecutionContext])(implicit val config: Configuration, externalUrls: ExternalUrls)
   extends FrontendController with I18nSupport with AuthActions {
 
   implicit val ec: ExecutionContext = ecp.get
