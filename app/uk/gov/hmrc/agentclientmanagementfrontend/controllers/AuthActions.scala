@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import play.api.{Logger, Mode}
 import play.api.mvc.Results.Forbidden
 import play.api.mvc.{Request, Result}
+import play.api.{Logger, Mode}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
 import uk.gov.hmrc.agentmtdidentifiers.model.{MtdItId, Utr, Vrn}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
@@ -34,12 +34,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
-  protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers) => Future[Result])(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
+  private val isDevEnv =
+    if (env.mode.equals(Mode.Test)) false
+    else config.getString("run.mode").forall(Mode.Dev.toString.equals)
 
+  protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers) => Future[Result])(
+    implicit request: Request[A],
+    hc: HeaderCarrier,
+    ec: ExecutionContext): Future[Result] =
     authorised(AuthProviders(GovernmentGateway))
       .retrieve(affinityGroup and allEnrolments) {
         case affinityG ~ allEnrols =>
-
           def clientId(serviceName: String, identifierKey: String): Option[String] =
             allEnrols.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
 
@@ -50,28 +55,27 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
           val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr)
 
-          if(clientIds.haveAtLeastOneFieldDefined) {
-             affinityG match {
-               case Some(Individual) => body("personal", clientIds)
-               case Some(Organisation) => body("business", clientIds)
-               case _ =>
-                 Logger.warn("Client logged in with wrong affinity group")
-                 Future.successful(Forbidden)
-             }
-          }else {
+          if (clientIds.haveAtLeastOneFieldDefined) {
+            affinityG match {
+              case Some(Individual)   => body("personal", clientIds)
+              case Some(Organisation) => body("business", clientIds)
+              case _ =>
+                Logger.warn("Client logged in with wrong affinity group")
+                Future.successful(Forbidden)
+            }
+          } else {
             Logger.warn("Logged in client does not have required enrolments")
             Future.successful(Forbidden)
           }
-      }.recover {
-      case _: NoActiveSession =>
-        val isDevEnv =
-          if (env.mode.equals(Mode.Test)) false
-          else config.getString("run.mode").forall(Mode.Dev.toString.equals)
-        toGGLogin(
-          if (isDevEnv)
-            s"http://${request.host}${request.path}"
-          else
-            s"${request.path}")
-    }
+      }
+      .recover(handleFailure)
+
+  def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {
+    case _: NoActiveSession ⇒
+      toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.path}")
+
+    case _: UnsupportedAuthProvider ⇒
+      Logger.warn(s"user logged in with unsupported auth provider")
+      Forbidden
   }
 }
