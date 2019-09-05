@@ -80,7 +80,7 @@ class ClientRelationshipManagementController @Inject()(
         if (isActiveService(service, featureFlags)) {
           relationshipManagementService.getAuthorisedAgentDetails(id).map {
             case Some((agencyName, _)) => Ok(show_remove_authorisation(RadioConfirm.confirmRadioForm, agencyName, service, id))
-            case _ => throwNoSessionFoundException(s"id $id")
+            case _ => redirectToRoot
           }
         } else Future.successful(BadRequest)
       }
@@ -125,7 +125,7 @@ class ClientRelationshipManagementController @Inject()(
     withAuthorisedAsClient { (_, _)=>
       (request.session.get("agencyName"), request.session.get("service")) match {
         case (Some(agencyName), Some(service)) => Future.successful(Ok(authorisation_removed(agencyName, service)))
-        case _ => throwNoSessionFoundException("agencyName", "service")
+        case _ => Future.successful(redirectToRoot)
       }
     }
   }
@@ -135,16 +135,17 @@ class ClientRelationshipManagementController @Inject()(
       formWithErrors =>
         relationshipManagementService.getAuthorisedAgentDetails(id).map {
           case Some((agencyName, service)) => Ok(show_remove_authorisation(formWithErrors, agencyName, service, id))
-          case _ => throwNoSessionFoundException(s"id $id")
+          case _ => redirectToRoot
         },
       form =>
         if (form.value.getOrElse(false))
           serviceCall
         else
-          Future.successful(Redirect(routes.ClientRelationshipManagementController.root()))
+          Future.successful(redirectToRoot)
     )
   }
 
-  private def throwNoSessionFoundException(any: String*) = throw new Exception(s"No session data found for $any")
+  private def redirectToRoot =
+    Redirect(routes.ClientRelationshipManagementController.root())
 }
 
