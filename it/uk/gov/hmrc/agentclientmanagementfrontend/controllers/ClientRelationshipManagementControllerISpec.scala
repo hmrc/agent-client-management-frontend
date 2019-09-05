@@ -654,8 +654,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
 
       status(result) shouldBe 200
-      checkHtmlResultWithBodyText(result, "This Agency Name")
-      checkHtmlResultWithBodyText(result, "cannot send your Income Tax updates through software")
+      checkHtmlResultWithBodyText(result, "You removed your authorisation from This Agency Name to send your Income Tax updates through software")
     }
 
     "return exception if required session data not found" in {
