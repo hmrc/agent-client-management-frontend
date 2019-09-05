@@ -3,6 +3,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 import org.joda.time.LocalDate
 import play.api.libs.ws._
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import play.utils.UriEncoding
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
@@ -32,7 +33,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
   private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
   val urlJustWithPrefix = s"http://localhost:$port/manage-your-tax-agents"
-  val doGetRequest = (endOfUrl: String) => wsClient.url(s"$urlJustWithPrefix$endOfUrl").get()
+  val doGetRequest = (endOfUrl: String) => wsClient.url(s"$urlJustWithPrefix$endOfUrl").withFollowRedirects(false).get()
 
   val mtdItId = MtdItId("ABCDEF123456789")
   val validArn = Arn("FARN0001132")
@@ -462,23 +463,20 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
-    "return 500 exception when an invalid id is passed" in {
+    "redirect to /root when an invalid id is passed" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)
       sessionStoreService.storeClientCache(Seq(cache))
 
       val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/INVALID_ID"))
-
-      result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.status shouldBe 303
     }
 
-    "return 500 exception when session cache not found" in {
+    "redirect to /root when session cache not found" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)
 
       val result = await(doGetRequest("/remove-authorisation/service/PERSONAL-INCOME-RECORD/id/dc89f36b64c94060baa3ae87d6b7ac08"))
 
-      result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.status shouldBe 303
     }
   }
 
@@ -586,7 +584,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "return exception if session data not found" in {
       val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
-      an[Exception] should be thrownBy await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
+      val result = await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root().url)
     }
   }
 
@@ -625,7 +625,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "return exception if session data not found" in {
       val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
-      an[Exception] should be thrownBy await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
+      val result = await(controller.submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root().url)
     }
   }
 
@@ -658,7 +660,9 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
 
     "return exception if required session data not found" in {
       val req = FakeRequest().withSession("agencyName" -> cache.agencyName)
-      an[Exception] should be thrownBy await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
+      val result = await(controller.authorisationRemoved(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root().url)
     }
   }
 
@@ -713,7 +717,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       sessionStoreService.currentSession.clientCache shouldBe empty
     }
 
-    "return an exception if an invalid id is submitted" in {
+    "redirect to /root if an invalid id is submitted" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
