@@ -40,6 +40,6 @@ class TestSessionStoreService extends SessionStoreService(null) {
 
   override def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future {
-      sessions.remove(sessionKey)
+      sessions.remove(sessionKey).foreach(_ => ())
     }
 }

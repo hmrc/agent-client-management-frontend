@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.domain.Nino
@@ -46,14 +47,14 @@ trait AgentClientAuthorisationStub {
                |}}""".stripMargin)))
   }
 
-  def getInvitationsNotFound(clientId: String, clientIdType: String): Unit = {
+  def getInvitationsNotFound(clientId: String, clientIdType: String): StubMapping = {
     stubFor(get(urlEqualTo(s"/agent-client-authorisation/clients/$clientIdType/$clientId/invitations/received"))
       .willReturn(
         aResponse()
           .withStatus(404)))
   }
 
-  def givenAgentRefExistsFor(arn: Arn): Unit = {
+  def givenAgentRefExistsFor(arn: Arn): StubMapping = {
     stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
       .willReturn(
         aResponse()
@@ -68,7 +69,7 @@ trait AgentClientAuthorisationStub {
       ))
   }
 
-  def givenAgentRefNotFoundFor(arn: Arn): Unit = {
+  def givenAgentRefNotFoundFor(arn: Arn): StubMapping = {
     stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
       .willReturn(
         aResponse()

@@ -93,6 +93,7 @@ trait ErrorAuditing extends HttpAuditEvent {
       case _ => unexpectedError
     }
     auditConnector.sendEvent(dataEvent(eventType, transactionName, request, Map(TransactionFailureReason -> ex.getMessage))(HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))))
+    ()
   }
 
   def auditClientError(request: RequestHeader, statusCode: Int, message: String)(implicit ec: ExecutionContext): Unit = {
@@ -102,5 +103,6 @@ trait ErrorAuditing extends HttpAuditEvent {
       case BAD_REQUEST => auditConnector.sendEvent(dataEvent(ServerValidationError, badRequestError, request, Map(TransactionFailureReason -> message))(HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))))
       case _ =>
     }
+    ()
   }
 }
