@@ -1,5 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.joda.time.LocalDate
 import play.api.libs.ws._
 import play.api.test.FakeRequest
@@ -665,7 +666,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
     }
   }
 
-  def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => Unit) = {
+  def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => StubMapping) = {
     implicit val req = FakeRequest()
 
     "return 200, remove the relationship if the client confirms deletion" in {

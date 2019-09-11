@@ -1,7 +1,10 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.support
 
+import akka.stream.Materializer
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import com.google.inject.AbstractModule
+import org.scalatest.Assertion
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
@@ -15,6 +18,8 @@ import uk.gov.hmrc.agentclientmanagementfrontend.stubs.AuthStubs
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.test.UnitSpec
+
+import scala.collection.immutable
 
 class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with MetricsTestSupport {
 
@@ -64,23 +69,23 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
     sessionStoreService.clear()
   }
 
-  override def commonStubs(): Unit = {
+  override def commonStubs(): immutable.Seq[StubMapping] = {
     givenCleanMetricRegistry()
-    stubFor(
+    List(stubFor(
       post(urlEqualTo(s"/write/audit/merged"))
         .willReturn(aResponse().withStatus(204))
-    )
+    ),
     stubFor(
       post(urlEqualTo(s"/write/audit"))
         .willReturn(aResponse().withStatus(204))
-    )
+    ))
   }
 
-  protected implicit val materializer = app.materializer
+  protected implicit val materializer: Materializer = app.materializer
 
   protected lazy val sessionStoreService = new TestSessionStoreService
 
-  protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Unit = {
+  protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Assertion = {
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")
     bodyOf(result) should include(expectedSubstring)
