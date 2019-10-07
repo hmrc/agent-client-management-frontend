@@ -41,7 +41,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
   def getItsaInvitation(mtdItId: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/MTDITID/${mtdItId.value}/invitations/received")
-    monitor("ConsumedAPI-GET-Client-ITSA-Invitations-GET") {
+    monitor("ConsumedAPI-Client-ITSA-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
       case e: NotFoundException => Seq.empty
       }
@@ -50,7 +50,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
   def getVatInvitation(vrn: Vrn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/VRN/${vrn.value}/invitations/received")
-    monitor("ConsumedAPI-GET-Client-VAT-Invitations-GET") {
+    monitor("ConsumedAPI-Client-VAT-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
       }
@@ -59,7 +59,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
   def getIrvInvitation(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/NI/${nino.value}/invitations/received")
-    monitor("ConsumedAPI-GET-Client-IRV-Invitations-GET") {
+    monitor("ConsumedAPI-Client-IRV-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
       }
@@ -68,7 +68,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
   def getTrustInvitation(utr: Utr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = new URL(baseUrl, s"/agent-client-authorisation/clients/UTR/${utr.value}/invitations/received")
-    monitor("ConsumedAPI-GET-Client-Trust-Invitations-GET") {
+    monitor("ConsumedAPI-Client-Trust-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
       }
@@ -78,7 +78,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
   def getAgentReferences(arns: Seq[Arn])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentReference]] = {
     Future.sequence(arns.map (arn => {
       val url = new URL(baseUrl, s"/agencies/references/arn/${arn.value}")
-      monitor("ConsumedAPI-GET-Agent-Reference-Invitations-GET") {
+      monitor("ConsumedAPI-Agent-Reference-Invitations-GET") {
         http.GET[AgentReference](url.toString).map(obj => obj).recover {
           case e => throw new Exception(s"Agent Reference Not Found: $e")
         }
