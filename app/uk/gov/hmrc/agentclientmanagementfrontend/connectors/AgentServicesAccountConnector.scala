@@ -44,7 +44,7 @@ class AgentServicesAccountConnector @Inject()(
   }
 
   def getAgencyNames(arns: Seq[Arn])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Map[Arn, String]] = {
-    monitor(s"ConsumedAPI-Get-AgencyNames-GET") {
+    monitor(s"ConsumedAPI-AgencyNames-GET") {
       http.POST[Seq[String], JsValue](craftUrl(getAgentServicesAccountAgencyNamesUrl()).toString, arns.map(_.value))
         .map { json => json.as[Map[Arn, String]] }
     }
