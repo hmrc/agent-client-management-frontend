@@ -39,7 +39,7 @@ class PirRelationshipConnector @Inject()(
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
   def getClientRelationships(nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirRelationship]] = {
-    monitor(s"ConsumedAPI-Get-AfiRelationships-GET") {
+    monitor(s"ConsumedAPI-AfiRelationships-GET") {
       val url = craftUrl(s"/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${nino.value}")
       http.GET[Seq[PirRelationship]](url.toString).recover {
         case e: NotFoundException => Seq.empty
@@ -48,7 +48,7 @@ class PirRelationshipConnector @Inject()(
   }
 
   def deleteClientRelationship(arn: Arn, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    monitor(s"ConsumedAPI-Delete-AfiRelationship-DELETE") {
+    monitor(s"ConsumedAPI-AfiRelationship-DELETE") {
       val url = craftUrl(s"/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${nino.value}")
       http.DELETE[HttpResponse](url.toString).map(_.status == 200) recover { case _: NotFoundException => false }
     }

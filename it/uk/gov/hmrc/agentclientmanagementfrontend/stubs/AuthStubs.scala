@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.SessionKeys
@@ -47,14 +48,14 @@ trait AuthStubs {
     request.withSession(request.session + SessionKeys.authToken -> "Bearer XYZ")
   }
 
-  def givenUnauthorisedWith(mdtpDetail: String): Unit = {
+  def givenUnauthorisedWith(mdtpDetail: String): StubMapping = {
     stubFor(post(urlEqualTo("/auth/authorise"))
       .willReturn(aResponse()
         .withStatus(401)
         .withHeader("WWW-Authenticate", s"""MDTP detail="$mdtpDetail"""")))
   }
 
-  def givenAuthorisedFor(payload: String, responseBody: String): Unit = {
+  def givenAuthorisedFor(payload: String, responseBody: String): StubMapping = {
     stubFor(post(urlEqualTo("/auth/authorise"))
       .atPriority(1)
       .withRequestBody(equalToJson(payload, true, true))
