@@ -30,7 +30,7 @@ trait AgentClientRelationshipsStub {
   }
 
   def getClientActiveAgentRelationships(service: String, agentArn: String, startDate: String): StubMapping = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/relationships/service/$service"))
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(
         aResponse()
           .withStatus(200)
@@ -43,7 +43,7 @@ trait AgentClientRelationshipsStub {
   }
 
   def getClientActiveAgentRelationshipsNoStartDate(service: String, agentArn: String): StubMapping = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/relationships/service/$service"))
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(
         aResponse()
           .withStatus(200)
@@ -55,28 +55,28 @@ trait AgentClientRelationshipsStub {
   }
 
   def get400ClientActiveAgentRelationships(service: String): StubMapping = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/relationships/service/$service"))
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(
         aResponse()
           .withStatus(400)))
   }
 
   def getNotFoundClientActiveAgentRelationships(service: String): StubMapping = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/relationships/service/$service"))
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(
         aResponse()
           .withStatus(404)))
   }
 
   def get500ClientActiveAgentRelationships(service: String): StubMapping = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/relationships/service/$service"))
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(
         aResponse()
           .withStatus(500)))
   }
 
   def get503ClientActiveAgentRelationships(service: String): StubMapping = {
-    stubFor(get(urlEqualTo(s"/agent-client-relationships/relationships/service/$service"))
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(
         aResponse()
           .withStatus(503)))
