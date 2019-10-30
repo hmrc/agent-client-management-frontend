@@ -231,7 +231,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
@@ -245,7 +245,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
   }
@@ -382,7 +382,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
@@ -395,7 +395,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
@@ -408,7 +408,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
@@ -421,7 +421,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
@@ -434,7 +434,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       val result = await(doGetRequest(""))
 
       result.status shouldBe 500
-      result.body.contains("Sorry, we’re experiencing technical difficulties") shouldBe true
+      result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
   }

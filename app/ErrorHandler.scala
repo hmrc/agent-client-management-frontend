@@ -20,10 +20,11 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Mode}
+import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
-import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_template
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{error_template, error_template_5xx}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
@@ -61,6 +62,8 @@ class ErrorHandler @Inject() (
       Messages(heading),
       Messages(message))
   }
+
+  override def internalServerErrorTemplate(implicit request: Request[_]): Html = error_template_5xx()
 }
 
 object EventTypes {
