@@ -16,9 +16,9 @@
 
 package views
 
-import java.time.{LocalDate, ZonedDateTime}
+import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
@@ -34,10 +34,10 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
 
   val authAgents = Seq(authAgent1)
 
-  val agentReq1 = AgentRequest("personal", "HMRC-MTD-IT", Arn("TARN0000001"), "uid123", "Parmesan Party Partnership", "Pending", LocalDate.now().plusDays(5), ZonedDateTime.now(), "invitationId")
-  val agentReq2 = AgentRequest("personal", "HMRC-MTD-VAT", Arn("YARN3381592"), "uid123", "Cockeral Commander Co-op", "Pending", LocalDate.now().plusDays(5), ZonedDateTime.now(), "invitationId")
-  val agentReq3 = AgentRequest("personal", "PERSONAL-INCOME-RECORD", Arn("TARN0000001"), "uid123", "Lightening Lifeboats Ltd", "Pending", LocalDate.now().plusDays(3), ZonedDateTime.now(), "invitationId")
-  val agentReq4 = AgentRequest("personal", "PERSONAL-INCOME-RECORD", Arn("TARN0000001"), "uid123", "Coronation Cornet Corp", "Cancelled", LocalDate.now().plusDays(3), ZonedDateTime.now(), "invitationId")
+  val agentReq1 = AgentRequest("personal", "HMRC-MTD-IT", Arn("TARN0000001"), "uid123", "Parmesan Party Partnership", "Pending", LocalDate.now().plusDays(5), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
+  val agentReq2 = AgentRequest("personal", "HMRC-MTD-VAT", Arn("YARN3381592"), "uid123", "Cockeral Commander Co-op", "Pending", LocalDate.now().plusDays(5), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
+  val agentReq3 = AgentRequest("personal", "PERSONAL-INCOME-RECORD", Arn("TARN0000001"), "uid123", "Lightening Lifeboats Ltd", "Pending", LocalDate.now().plusDays(3), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
+  val agentReq4 = AgentRequest("personal", "PERSONAL-INCOME-RECORD", Arn("TARN0000001"), "uid123", "Coronation Cornet Corp", "Cancelled", LocalDate.now().plusDays(3), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
 
   val agentReqs = Seq(agentReq1, agentReq2, agentReq3, agentReq4)
 
