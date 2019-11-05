@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.views
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter._
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 
 case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit dateOrdering: Ordering[LocalDate]) {
+
+  import AuthorisedAgentsPageConfig._
 
   val pendingRequests: Seq[AgentRequest] = agentRequests.filter(_.status == "Pending").sortBy(_.expiryDate).map(x => x.arn -> x).toMap.values.toSet.toSeq
 
@@ -36,12 +38,14 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val pendingCount: Int = pendingRequests.length
 
-  def displayDate(date: Option[LocalDate]): String = {
-    date match {
-      case Some(d) if d.getDayOfMonth >= 10 => LocalDate.parse(d.toString).format(ofPattern("dd MMMM uuuu", Locale.UK))
-      case Some(d) if d.getDayOfMonth < 10 => LocalDate.parse(d.toString).format(ofPattern("d MMMM uuuu", Locale.UK))
-      case None => ""
-    }
-  }
+  def displayDate(date: Option[LocalDate]): String = date.fold("")(_.format(dateFormatter))
+
+}
+
+object AuthorisedAgentsPageConfig {
+
+  private val dateFormatter: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.UK)
+
 }
 
