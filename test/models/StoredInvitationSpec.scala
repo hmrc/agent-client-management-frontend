@@ -17,10 +17,10 @@
 package models
 
 import java.net.URL
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
 
-import org.joda.time.{DateTime, LocalDate}
 import play.utils.UriEncoding
-import uk.gov.hmrc.agentclientmanagementfrontend
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, StoredInvitation}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
@@ -29,22 +29,12 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class StoredInvitationSpec extends UnitSpec {
 
-  val mtdItId = MtdItId("ABCDEF123456789")
-  val validArn = Arn("FARN0001132")
-  val validNino =  Nino("AE123456A")
-  val validVrn =  Vrn("101747641")
-  val created = DateTime.parse("2017-01-15T13:14:00.000+08:00")
-  val lastUpdated = DateTime.parse("2018-01-15T13:14:00.000+08:00")
-  val expiry = LocalDate.parse("2018-01-15")
-  val startDate = Some(LocalDate.parse("2017-06-06"))
-  val startDateString = "2017-06-06"
-  val encodedClientId = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
-  val cache = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "Some service name", startDate)
-  val cacheItsa = ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", validArn, "This Agency Name", "HMRC-MTD-IT", startDate)
-  val serviceItsa = Services.HMRCMTDIT
-  val serviceVat = Services.HMRCMTDVAT
-  val serviceIrv = Services.HMRCPIR
-
+  private val mtdItId = MtdItId("ABCDEF123456789")
+  private val validArn = Arn("FARN0001132")
+  private val created = LocalDateTime.parse("2017-01-15T13:14:00.000+08:00", DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+  private val lastUpdated = LocalDateTime.parse("2018-01-15T13:14:00.000+08:00", DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+  private val expiry = LocalDate.parse("2018-01-15")
+  private val serviceItsa = Services.HMRCMTDIT
 
   "clientIdTypeByService" should {
     "return the correct clientId type for the service" in {

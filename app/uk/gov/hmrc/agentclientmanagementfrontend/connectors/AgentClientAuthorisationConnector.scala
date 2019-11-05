@@ -21,7 +21,7 @@ import java.net.URL
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named}
-import org.joda.time.{DateTime, LocalDate}
+import java.time.{LocalDateTime, LocalDate}
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation}
@@ -104,8 +104,8 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
           (JsPath \ "suppliedClientId").read[String] and
           (JsPath \ "suppliedClientIdType").read[String] and
           (JsPath \ "status").read[String] and
-          (JsPath \ "created").read[DateTime] and
-          (JsPath \ "lastUpdated").read[DateTime] and
+          (JsPath \ "created").read[LocalDateTime] and
+          (JsPath \ "lastUpdated").read[LocalDateTime] and
           (JsPath \ "expiryDate").read[LocalDate] and
           (JsPath \ "invitationId").read[String] and
           (JsPath \ "_links" \ "self").read[URL]) (
