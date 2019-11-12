@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import javax.inject.{Inject, Singleton}
+import java.time.LocalDate
 
 import com.google.inject.Provider
+import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import java.time.LocalDate
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
@@ -58,11 +58,10 @@ class ClientRelationshipManagementController @Inject()(
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService,
-                                                        agentClientAuthorisationService: AgentClientAuthorisationService,
-                                                        ecp: Provider[ExecutionContext])(implicit val config: Configuration, externalUrls: ExternalUrls)
+                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController with I18nSupport with AuthActions {
 
-  implicit val ec: ExecutionContext = ecp.get
+  implicit lazy val config:Configuration = appConfig.configuration
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
@@ -129,6 +128,17 @@ class ClientRelationshipManagementController @Inject()(
       }
     }
   }
+
+  def keepAlive: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok("OK"))
+  }
+
+  def signOut: Action[AnyContent] = Action.async { implicit request =>
+    startNewSession
+  }
+
+  private def startNewSession: Future[Result] =
+    Future.successful(Redirect(routes.ClientRelationshipManagementController.root()).withNewSession)
 
   private def validateRemoveAuthorisationForm(id: String)(serviceCall: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     RadioConfirm.confirmRadioForm.bindFromRequest().fold(

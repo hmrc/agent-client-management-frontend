@@ -16,8 +16,8 @@
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{helpers => uiHelpers, layouts => uiLayouts}
-@import play.api.Configuration
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @(title: String,
         mainClass: Option[String] = None,
         mainDataAttributes: Option[Html] = None,
@@ -27,7 +27,7 @@
         mainContent: Html = HtmlFormat.empty,
         serviceInfoContent: Html = HtmlFormat.empty,
         scriptElem: Option[Html] = None,
-        gaCode: Seq[String] = Seq.empty)(implicit messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
+        gaCode: Seq[String] = Seq.empty)(implicit messages: Messages, appConfig: AppConfig)
 
 
 
@@ -43,10 +43,10 @@
 }
 
 @scriptElement = {
+    @scriptElem.getOrElse("")
     <script src="@controllers.routes.Assets.at("javascripts/tabs.js")" type="text/javascript"></script>
     <script src="@controllers.routes.Assets.at("javascripts/scripts.js")" type="text/javascript"></script>
     <script src="@controllers.routes.Assets.at("javascripts/ga-events.js")" type="text/javascript"></script>
-
 }
 
 @headerNavLinks = {}
@@ -66,8 +66,8 @@
 }
 
 @bodyEnd = {
-@uiLayouts.footer(analyticsToken = configuration.getString("google-analytics.token"),
-    analyticsHost = configuration.getString("google-analytics.host").get,
+@uiLayouts.footer(analyticsToken = Some(appConfig.googleAnalyticsToken),
+    analyticsHost = appConfig.googleAnalyticsHost,
     ssoUrl = None,
     scriptElem = Some(scriptElement),
     gaCalls = None,
@@ -91,7 +91,7 @@
 }
 
 @getHelpForm = @{
-    uiHelpers.reportAProblemLink(externalUrls.contactFrontendAjaxUrl, externalUrls.contactFrontendNonJsUrl)
+    uiHelpers.reportAProblemLink(appConfig.contactFrontendAjaxUrl, appConfig.contactFrontendNonJsUrl)
 }
 
 @titleSuffix = @{ Messages("servicename.titleSuffix") }

@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 
 @Singleton
-class FeatureFlags @Inject() (@Named("features.remove-authorisation.PERSONAL-INCOME-RECORD") val rmAuthIRV: Boolean,
-                              @Named("features.remove-authorisation.HMRC-MTD-IT") val rmAuthITSA: Boolean,
-                              @Named("features.remove-authorisation.HMRC-MTD-VAT") val rmAuthVAT: Boolean,
-                              @Named("features.remove-authorisation.HMRC-TERS-ORG") val rmAuthTrust: Boolean)
+class FeatureFlags @Inject() (appConfig: AppConfig) {
+  val rmAuthIRV: Boolean = appConfig.featuresRemoveAuthorisation("PERSONAL-INCOME-RECORD")
+  val rmAuthITSA: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-MTD-IT")
+  val rmAuthVAT: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-MTD-VAT")
+  val rmAuthTrust: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-TERS-ORG")
+}

@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
-import java.net.URL
-import javax.inject.{Inject, Named, Singleton}
-
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json._
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
 
@@ -30,10 +29,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AgentServicesAccountConnector @Inject()(
-                                               @Named("agent-services-account-baseUrl") baseUrl: URL,
+                                               appConfig: AppConfig,
                                                http: HttpPost with HttpGet, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
+
+  val baseUrl = appConfig.agentServicesAccountBaseUrl
 
   implicit val mapReads: Reads[Map[Arn, String]] = new Reads[Map[Arn, String]] {
     override def reads(json: JsValue): JsResult[Map[Arn, String]] = JsSuccess {
@@ -45,14 +46,11 @@ class AgentServicesAccountConnector @Inject()(
 
   def getAgencyNames(arns: Seq[Arn])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Map[Arn, String]] = {
     monitor(s"ConsumedAPI-AgencyNames-GET") {
-      http.POST[Seq[String], JsValue](craftUrl(getAgentServicesAccountAgencyNamesUrl()).toString, arns.map(_.value))
+      val url: String = s"$baseUrl/agent-services-account/client/agency-names"
+      http.POST[Seq[String], JsValue](url, arns.map(_.value))
         .map { json => json.as[Map[Arn, String]] }
     }
   }
-
-  private def craftUrl(location: String) = new URL(baseUrl, location)
-
-  private def getAgentServicesAccountAgencyNamesUrl(): String =  s"/agent-services-account/client/agency-names"
 }
 
 

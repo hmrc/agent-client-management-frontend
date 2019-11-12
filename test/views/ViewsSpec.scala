@@ -32,93 +32,114 @@
 
 package views
 
-import java.net.URL
-
-import org.scalatestplus.play.OneAppPerSuite
+import org.jsoup.Jsoup
+import org.scalatestplus.play.MixedPlaySpec
 import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+import support.MockedMetrics
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_template_Scope0.error_template_Scope1.error_template
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.govuk_wrapper_Scope0.govuk_wrapper_Scope1.govuk_wrapper
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template_Scope0.main_template_Scope1.main_template
-import uk.gov.hmrc.play.test.UnitSpec
 
-class ViewsSpec extends UnitSpec with OneAppPerSuite {
+class ViewsSpec extends MixedPlaySpec with MockedMetrics {
+
+  val pageTitle = "My custom page title"
+  val heading = "My custom heading"
+  val message = "My custom message"
 
   "error_template view" should {
+
     "render title, heading and message" in new App {
-      val pageTitle = "My custom page title"
-      val heading = "My custom heading"
-      val message = "My custom message"
-      val html =
-        new error_template().render(
-          pageTitle = pageTitle,
-          heading = heading,
-          message = message,
-          messages = Messages.Implicits.applicationMessages,
-          configuration = app.configuration,
-          externalUrls = new ExternalUrls("", "", "")
+
+      val appConf: AppConfig = app.injector.instanceOf[AppConfig]
+
+      val errorTemplate = new error_template
+
+      val html = errorTemplate.render(
+        pageTitle = pageTitle,
+        heading = heading,
+        message = message,
+        messages = applicationMessages,
+        appConf
         )
+
       val content = contentAsString(html)
-      content should include(pageTitle)
-      content should include(heading)
-      content should include(message)
+
+      content must {
+        include("My custom page title") and
+        include("My custom heading") and
+        include("My custom message")
+      }
 
       val html2 =
-        new error_template().f(pageTitle, heading, message)(
-          Messages.Implicits.applicationMessages,
-          app.configuration,
-          new ExternalUrls("", "", ""))
-      contentAsString(html2) shouldBe (content)
+        new error_template().f("My custom page title", "My custom heading", "My custom message")(
+          applicationMessages,
+          appConf)
+      contentAsString(html2) mustBe (content)
     }
   }
 
   "main_template view" should {
     "render all supplied arguments" in new App {
-      val view = new main_template()
+
+      val view = new main_template
+
+      val appConf: AppConfig = app.injector.instanceOf[AppConfig]
+
       val html = view.render(
-        title = "My custom page title",
+        title = pageTitle,
         sidebarLinks = Some(Html("My custom sidebar links")),
         contentHeader = Some(Html("My custom content header")),
         bodyClasses = Some("my-custom-body-class"),
         mainClass = Some("my-custom-main-class"),
         scriptElem = Some(Html("My custom script")),
         mainContent = Html("My custom main content HTML"),
-        messages = Messages.Implicits.applicationMessages,
+        messages = applicationMessages,
         request = FakeRequest(),
-        configuration = app.configuration,
-        externalUrls = new ExternalUrls("", "", "")
-      )
+        appConfig = appConf,
+        hasTimeout = true)
 
       val content = contentAsString(html)
-      content should include("My custom page title")
-      content should include("My custom sidebar links")
-      content should include("My custom content header")
-      content should include("my-custom-body-class")
-      content should include("my-custom-main-class")
-      content should include("My custom script")
-      content should include("My custom main content HTML")
+
+      content must {
+        include("My custom page title")
+          include("My custom sidebar links") and
+          include("My custom content header") and
+          include("my-custom-body-class") and
+          include("my-custom-main-class") and
+          include("My custom script") and
+          include("My custom main content HTML")
+      }
+
+      val doc = Jsoup.parse(contentAsString(html))
+
+      println(doc)
+
+      doc.getElementById("timeoutDialog").isBlock mustBe true
+
 
       val html2 = view.f(
-        "My custom page title",
+        pageTitle,
         Some(Html("My custom sidebar links")),
         Some(Html("My custom content header")),
         Some("my-custom-body-class"),
         Some("my-custom-main-class"),
-        Some(Html("My custom script"))
-      )(Html("My custom main content HTML"))(
-        Messages.Implicits.applicationMessages,
+        Some(Html("My custom script")),true)(Html("My custom main content HTML"))(
+        applicationMessages,
         FakeRequest(),
-        app.configuration,
-        new ExternalUrls("", "", ""))
-      contentAsString(html2) shouldBe (content)
+        appConf)
+      contentAsString(html2) mustBe (content)
     }
   }
 
   "govuk wrapper view" should {
     "render all of the supplied arguments" in new App {
+
+      val appConf: AppConfig = app.injector.instanceOf[AppConfig]
 
       val html = new govuk_wrapper().render(
         title = "My custom page title",
@@ -132,20 +153,22 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         scriptElem = Some(Html("My custom script")),
         gaCode = Seq("My custom GA code"),
         messages = Messages.Implicits.applicationMessages,
-        configuration = app.configuration,
-        externalUrls = new ExternalUrls("", "", "")
+        appConfig = appConf
       )
 
       val content = contentAsString(html)
-      content should include("My custom page title")
-      content should include("my-custom-main-class")
-      content should include("myCustom=\"attributes\"")
-      content should include("my-custom-body-class")
-      content should include("My custom sidebar")
-      content should include("My custom content header")
-      content should include("My custom main content")
-      content should include("My custom service info content")
-      content should include("My custom script")
+
+      content must {
+        include("My custom page title") and
+          include("my-custom-main-class") and
+          include("myCustom=\"attributes\"") and
+          include("my-custom-body-class") and
+          include("My custom sidebar") and
+          include("My custom content header") and
+          include("My custom main content") and
+          include("My custom service info content") and
+          include("My custom script")
+      }
 
       val html2 = new govuk_wrapper().f(
         "My custom page title",
@@ -158,8 +181,8 @@ class ViewsSpec extends UnitSpec with OneAppPerSuite {
         Html("My custom service info content"),
         Some(Html("My custom script")),
         Seq("My custom GA code")
-      )(Messages.Implicits.applicationMessages, app.configuration, new ExternalUrls("", "", ""))
-      contentAsString(html2) shouldBe (content)
+      )(Messages.Implicits.applicationMessages, appConf)
+      contentAsString(html2) mustBe (content)
     }
   }
 }

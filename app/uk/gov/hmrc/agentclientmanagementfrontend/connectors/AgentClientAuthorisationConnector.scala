@@ -17,13 +17,14 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
 import java.net.URL
+import java.time.{LocalDate, LocalDateTime}
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Named}
-import java.time.{LocalDateTime, LocalDate}
+import javax.inject.Inject
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.domain.Nino
@@ -31,7 +32,7 @@ import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisation-baseUrl") baseUrl: URL,
+class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
                                                   http: HttpDelete with HttpGet, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
@@ -40,7 +41,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
 
   def getItsaInvitation(mtdItId: MtdItId)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
-    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/MTDITID/${mtdItId.value}/invitations/received")
+    val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/MTDITID/${mtdItId.value}/invitations/received"
     monitor("ConsumedAPI-Client-ITSA-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
       case e: NotFoundException => Seq.empty
@@ -49,7 +50,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
   }
 
   def getVatInvitation(vrn: Vrn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
-    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/VRN/${vrn.value}/invitations/received")
+    val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/VRN/${vrn.value}/invitations/received"
     monitor("ConsumedAPI-Client-VAT-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
@@ -58,7 +59,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
   }
 
   def getIrvInvitation(nino: Nino)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
-    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/NI/${nino.value}/invitations/received")
+    val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/NI/${nino.value}/invitations/received"
     monitor("ConsumedAPI-Client-IRV-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
@@ -67,7 +68,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
   }
 
   def getTrustInvitation(utr: Utr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
-    val url = new URL(baseUrl, s"/agent-client-authorisation/clients/UTR/${utr.value}/invitations/received")
+    val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/UTR/${utr.value}/invitations/received"
     monitor("ConsumedAPI-Client-Trust-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
@@ -77,7 +78,7 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
 
   def getAgentReferences(arns: Seq[Arn])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentReference]] = {
     Future.sequence(arns.map (arn => {
-      val url = new URL(baseUrl, s"/agencies/references/arn/${arn.value}")
+      val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agencies/references/arn/${arn.value}"
       monitor("ConsumedAPI-Agent-Reference-Invitations-GET") {
         http.GET[AgentReference](url.toString).map(obj => obj).recover {
           case e => throw new Exception(s"Agent Reference Not Found: $e")
@@ -90,11 +91,10 @@ class AgentClientAuthorisationConnector @Inject()(@Named("agent-client-authorisa
       import play.api.libs.functional.syntax._
       import play.api.libs.json.{JsPath, Reads}
       import uk.gov.hmrc.domain.SimpleObjectReads
-      import uk.gov.hmrc.http.controllers.RestFormats.dateTimeFormats
 
       implicit val reads: Reads[StoredInvitation] = {
 
-        implicit val urlReads: SimpleObjectReads[URL] = new SimpleObjectReads[URL]("href", s => new URL(baseUrl, s))
+        implicit val urlReads: SimpleObjectReads[URL] = new SimpleObjectReads[URL]("href", s => new URL(new URL(appConfig.agentClientAuthorisationBaseUrl), s))
 
         ((JsPath \ "arn").read[Arn] and
           (JsPath \ "clientType").readNullable[String] and

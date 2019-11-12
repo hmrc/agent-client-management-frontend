@@ -15,14 +15,15 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.layouts
-@import play.api.Configuration
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @(title: String,
   sidebarLinks: Option[Html] = None,
   contentHeader: Option[Html] = None,
   bodyClasses: Option[String] = None,
   mainClass: Option[String] = None,
-  scriptElem: Option[Html] = None)(mainContent: Html)(implicit messages: Messages, request : Request[_], configuration: Configuration, externalUrls: ExternalUrls)
+  scriptElem: Option[Html] = None,
+        hasTimeout: Boolean = true)(mainContent: Html)(implicit messages: Messages, request : Request[_], appConfig: AppConfig)
 
 @serviceInfoContent = {}
 
@@ -32,6 +33,27 @@
     }
 }
 
+    @scriptElement = {
+        @scriptElem
+        @if(hasTimeout){
+            <script id="timeoutDialog">
+                $.timeoutDialog({
+                    timeout: @appConfig.timeout,
+                    countdown: @appConfig.countdown,
+                    keep_alive_url: '@routes.ClientRelationshipManagementController.keepAlive()',
+                    title: "@Messages("timeout-dialog.title")",
+                    messageSeconds: "@Messages("timeout-dialog.seconds")",
+                    messageMinutes: "@Messages("timeout-dialog.minutes")",
+                    messageMinute: "@Messages("timeout-dialog.minute")",
+                    logout_url: '@routes.ClientRelationshipManagementController.signOut()',
+                    message: "@Messages("timeout-dialog.p1")",
+                    keep_alive_button_text: "@Messages("timeout-dialog.button")"
+                });
+        </script>
+        }
+
+    }
+
 @govuk_wrapper(title,
                mainClass,
                bodyClasses = bodyClasses,
@@ -39,4 +61,4 @@
                contentHeader = contentHeader,
                mainContent = layouts.article(mainContent),
                serviceInfoContent = serviceInfoContent,
-               scriptElem = scriptElem)
+               scriptElem = Some(scriptElement))
