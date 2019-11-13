@@ -40,7 +40,7 @@ timeout-dialog.seconds=seconds
 timeout-dialog.minutes=minutes
 timeout-dialog.minute=minute
 timeout-dialog.button=Stay signed in
-timeout-dialog.p1=For security reasons, you’ll be signed out of your Agent services account in
+timeout-dialog.p1=For security reasons, you’ll be signed out in
 
 # Client Content
 client-authorised-agents.title=Manage who can deal with HMRC for you
