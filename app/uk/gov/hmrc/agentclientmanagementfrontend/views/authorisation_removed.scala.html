@@ -14,11 +14,10 @@
  * limitations under the License.
  *@
 
-@import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-@(agencyName: String, service: String)(implicit request: Request[_], messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@(agencyName: String, service: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages(s"clientEndsRelationshipEnded.title.$service"), bodyClasses = None) {
  <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.h1.$service", agencyName)</h1>
  <p>@Messages(s"clientEndsRelationshipEnded.p1.$service", agencyName)</p>

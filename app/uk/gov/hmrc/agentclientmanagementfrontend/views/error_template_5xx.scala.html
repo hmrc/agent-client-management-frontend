@@ -14,10 +14,8 @@
  * limitations under the License.
  *@
 
-@import play.api.Configuration
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-
-@()(implicit request: Request[_], messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("global.error.500.title")) {
     <h1 class="heading-xlarge">@Messages("global.error.500.heading")</h1>

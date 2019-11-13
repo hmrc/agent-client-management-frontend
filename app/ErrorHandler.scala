@@ -15,13 +15,12 @@
  */
 
 import javax.inject.{Inject, Singleton}
-import com.google.inject.name.Named
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Mode}
 import play.twirl.api.Html
-import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{error_template, error_template_5xx}
@@ -34,11 +33,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ErrorHandler @Inject() (
-  val env: Environment,
   val messagesApi: MessagesApi,
-  val auditConnector: AuditConnector,
-  @Named("appName") val appName: String)(implicit val config: Configuration, ec: ExecutionContext, externalUrls: ExternalUrls)
+  val auditConnector: AuditConnector)(implicit val config: Configuration,  appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
+
+  val appName: String = appConfig.appName
+
+  val env: Environment = appConfig.environment
 
   private val isDevEnv = if (env.mode.equals(Mode.Test)) false else config.getString("run.mode").forall(Mode.Dev.toString.equals)
 

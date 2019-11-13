@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
-import java.net.URL
+import java.time.LocalDate
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Named}
-import java.time.LocalDate
+import javax.inject.Inject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ItsaRelationship, TrustRelationship, VatRelationship}
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, Utr, Vrn}
 import uk.gov.hmrc.domain.TaxIdentifier
@@ -30,34 +30,36 @@ import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relationships-baseUrl") baseUrl: URL,
+class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
                                                   http: HttpDelete with HttpGet, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
+  val baseUrl = appConfig.agentClientRelationshipsBaseUrl
+
   def deleteItsaRelationship(arn: Arn, clientId: TaxIdentifier)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = new URL(baseUrl, s"/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-IT/client/MTDITID/${clientId.value}")
+    val deleteEndpoint =  s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-IT/client/MTDITID/${clientId.value}"
     monitor(s"ConsumedAPI-AgentClientRelationship-MTD-IT-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
     }
   }
 
   def deleteVatRelationship(arn: Arn, clientId: Vrn)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = new URL(baseUrl, s"/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-VAT/client/VRN/${clientId.value}")
+    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-VAT/client/VRN/${clientId.value}"
     monitor(s"ConsumedAPI-AgentClientRelationship-MTD-VAT-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
     }
   }
 
   def deleteTrustRelationship(arn: Arn, clientId: Utr)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = new URL(baseUrl, s"/agent-client-relationships/agent/${arn.value}/service/HMRC-TERS-ORG/client/SAUTR/${clientId.value}")
+    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-TERS-ORG/client/SAUTR/${clientId.value}"
     monitor(s"ConsumedAPI-AgentClientRelationship-HMRC-TERS-ORG-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
     }
   }
 
   def getActiveClientItsaRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[ItsaRelationship]] = {
-    val url = new URL(baseUrl, s"/agent-client-relationships/client/relationships/service/HMRC-MTD-IT")
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-MTD-IT"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-MTD-IT-GET") {
       http.GET[HttpResponse](url.toString).map { response =>
         val arnOpt =  response.status match {
@@ -74,7 +76,7 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
   }
 
   def getActiveClientVatRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[VatRelationship]] = {
-    val url = new URL(baseUrl, s"/agent-client-relationships/client/relationships/service/HMRC-MTD-VAT")
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-MTD-VAT"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-MTD-VAT-GET") {
       http.GET[HttpResponse](url.toString).map { response =>
         val arnOpt =  response.status match {
@@ -91,7 +93,7 @@ class AgentClientRelationshipsConnector @Inject()(@Named("agent-client-relations
   }
 
   def getActiveClientTrustRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[TrustRelationship]] = {
-    val url = new URL(baseUrl, s"/agent-client-relationships/client/relationships/service/HMRC-TERS-ORG")
+    val url =  s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-TERS-ORG"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-TERS-ORG-GET") {
       http.GET[HttpResponse](url.toString).map { response =>
         val arnOpt =  response.status match {

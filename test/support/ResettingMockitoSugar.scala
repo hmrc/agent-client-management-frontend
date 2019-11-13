@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +12,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-@(form: Form[_])(implicit messages: Messages, appConfig: AppConfig)
-@if(form.hasErrors){
-    @Messages("error.prefix")
+package support
+
+import org.mockito.Mockito
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, Suite}
+
+import scala.reflect.Manifest
+
+trait ResettingMockitoSugar extends MockitoSugar with BeforeAndAfterEach {
+  this: Suite =>
+
+  var mocksToReset = Seq.empty[Any]
+
+  def resettingMock[T <: AnyRef](implicit manifest: Manifest[T]): T = {
+    val m = mock[T](manifest)
+    mocksToReset = mocksToReset :+ m
+    m
+  }
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    Mockito.reset(mocksToReset: _*)
+  }
 }

@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
-import java.net.URL
-
-import com.typesafe.config.Config
-import javax.inject.{Inject, Named, Singleton}
-
 import akka.actor.ActorSystem
+import com.typesafe.config.Config
+import javax.inject.{Inject, Singleton}
 import play.api.Configuration
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HttpPost
 import uk.gov.hmrc.play.http.ws.WSPost
 
 @Singleton
-class FrontendAuthConnector @Inject() (@Named("auth-baseUrl") baseUrl: URL, config: Configuration, val _actorSystem: ActorSystem)
+class FrontendAuthConnector @Inject() (appConfig: AppConfig, val _actorSystem: ActorSystem)
   extends PlayAuthConnector {
 
-  override val serviceUrl = baseUrl.toString
+  override val serviceUrl = appConfig.authBaseUrl
+
+  val config: Configuration = appConfig.configuration
 
   override def http = new HttpPost with WSPost {
     override val hooks = NoneRequired

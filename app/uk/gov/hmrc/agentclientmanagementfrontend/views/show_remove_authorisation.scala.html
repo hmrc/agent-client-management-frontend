@@ -16,11 +16,10 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import uk.gov.hmrc.play.views.html.helpers.{form, errorSummary, input_radio_group}
-@import play.api.Configuration
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.RadioConfirm
 
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.ExternalUrls
-@(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, configuration: Configuration, externalUrls: ExternalUrls)
+@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @formTitle = {
     <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>

@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
-import java.net.URL
-import javax.inject.{Inject, Named, Singleton}
-
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.PirRelationship
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
@@ -32,15 +31,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PirRelationshipConnector @Inject()(
-                                          @Named("agent-fi-relationship-baseUrl") baseUrl: URL,
+                                          appConfig: AppConfig,
                                           http: HttpGet with HttpDelete,
                                           metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
+  val baseUrl: String = appConfig.agentFiRelationshipBaseUrl
+
   def getClientRelationships(nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirRelationship]] = {
     monitor(s"ConsumedAPI-AfiRelationships-GET") {
-      val url = craftUrl(s"/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${nino.value}")
+      val url = s"$baseUrl/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${nino.value}"
       http.GET[Seq[PirRelationship]](url.toString).recover {
         case e: NotFoundException => Seq.empty
       }
@@ -49,10 +50,8 @@ class PirRelationshipConnector @Inject()(
 
   def deleteClientRelationship(arn: Arn, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     monitor(s"ConsumedAPI-AfiRelationship-DELETE") {
-      val url = craftUrl(s"/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${nino.value}")
+      val url = s"$baseUrl/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${nino.value}"
       http.DELETE[HttpResponse](url.toString).map(_.status == 200) recover { case _: NotFoundException => false }
     }
   }
-
-  private def craftUrl(location: String) = new URL(baseUrl, location)
 }
