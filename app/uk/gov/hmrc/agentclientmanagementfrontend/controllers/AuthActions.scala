@@ -20,7 +20,7 @@ import play.api.mvc.Results.Forbidden
 import play.api.mvc.{Request, Result}
 import play.api.{Logger, Mode}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
-import uk.gov.hmrc.agentmtdidentifiers.model.{MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
@@ -52,8 +52,9 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
           val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
           val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
           val utr = clientId("HMRC-TERS-ORG", "SAUTR").map(Utr(_))
+          val cgtRef = clientId("HMRC-CGT-PD", "CGTPDRef").map(CgtRef(_))
 
-          val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr)
+          val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr, cgtRef)
 
           if (clientIds.haveAtLeastOneFieldDefined) {
             affinityG match {

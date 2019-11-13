@@ -84,3 +84,17 @@ object TrustRelationship {
       (JsPath \ "dateFrom").readNullable[LocalDate])(TrustRelationship.apply _)
 
 }
+
+
+case class CgtRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.CGT
+}
+
+object CgtRelationship {
+  implicit val relationshipWrites = Json.writes[CgtRelationship]
+
+  implicit val reads: Reads[CgtRelationship] =
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+      (JsPath \ "dateFrom").readNullable[LocalDate])(CgtRelationship.apply _)
+
+}

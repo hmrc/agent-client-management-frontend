@@ -26,7 +26,7 @@ import play.api.libs.json.JsObject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 
@@ -70,6 +70,16 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
   def getTrustInvitation(utr: Utr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/UTR/${utr.value}/invitations/received"
     monitor("ConsumedAPI-Client-Trust-Invitations-GET") {
+      http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
+        case e: NotFoundException => Seq.empty
+      }
+    }
+  }
+
+
+  def getCgtInvitation(cgtRef: CgtRef)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
+    val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/CGTPDRef/${cgtRef.value}/invitations/received"
+    monitor("ConsumedAPI-Client-CGT-Invitations-GET") {
       http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
       }
