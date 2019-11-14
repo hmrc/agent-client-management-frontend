@@ -29,11 +29,11 @@ class AgentClientAuthorisationService @Inject()(agentClientAuthorisationConnecto
 
   def getAgentRequests(clientType: String, clientIdOpt: ClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
-    val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => agentClientAuthorisationConnector.getItsaInvitation(MtdItId(clientId.value)))
-    val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => agentClientAuthorisationConnector.getIrvInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
-    val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => agentClientAuthorisationConnector.getVatInvitation(Vrn(clientId.value)))
-    val storedTrustInvitations = invitations(clientIdOpt.utr)(clientId => agentClientAuthorisationConnector.getTrustInvitation(Utr(clientId.value)))
-    val storedCgtInvitations = invitations(clientIdOpt.cgtRef)(clientId => agentClientAuthorisationConnector.getCgtInvitation(CgtRef(clientId.value)))
+    val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => agentClientAuthorisationConnector.getInvitation(MtdItId(clientId.value)))
+    val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => agentClientAuthorisationConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
+    val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => agentClientAuthorisationConnector.getInvitation(Vrn(clientId.value)))
+    val storedTrustInvitations = invitations(clientIdOpt.utr)(clientId => agentClientAuthorisationConnector.getInvitation(Utr(clientId.value)))
+    val storedCgtInvitations = invitations(clientIdOpt.cgtRef)(clientId => agentClientAuthorisationConnector.getInvitation(CgtRef(clientId.value)))
 
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
       storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedVatInvitations, storedTrustInvitations, storedCgtInvitations)).map(_.flatten)

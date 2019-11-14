@@ -24,10 +24,10 @@ import javax.inject.Inject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{CgtRelationship, ItsaRelationship, TrustRelationship, VatRelationship}
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.http._
-
+import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
@@ -37,30 +37,9 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
 
   val baseUrl = appConfig.agentClientRelationshipsBaseUrl
 
-  def deleteItsaRelationship(arn: Arn, clientId: TaxIdentifier)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint =  s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-IT/client/MTDITID/${clientId.value}"
-    monitor(s"ConsumedAPI-AgentClientRelationship-MTD-IT-DELETE") {
-      http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
-    }
-  }
-
-  def deleteVatRelationship(arn: Arn, clientId: Vrn)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-MTD-VAT/client/VRN/${clientId.value}"
-    monitor(s"ConsumedAPI-AgentClientRelationship-MTD-VAT-DELETE") {
-      http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
-    }
-  }
-
-  def deleteTrustRelationship(arn: Arn, clientId: Utr)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-TERS-ORG/client/SAUTR/${clientId.value}"
-    monitor(s"ConsumedAPI-AgentClientRelationship-HMRC-TERS-ORG-DELETE") {
-      http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
-    }
-  }
-
-  def deleteCgtRelationship(arn: Arn, clientId: CgtRef)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/HMRC-CGT-PD/client/CGTPDRef/${clientId.value}"
-    monitor(s"ConsumedAPI-AgentClientRelationship-HMRC-CGT-PD-DELETE") {
+  def deleteRelationship(arn: Arn, clientId: TaxIdentifier)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/${clientId.getServiceKey}/client/${clientId.getIdTypeForAcr}/${clientId.value}"
+    monitor(s"ConsumedAPI-AgentClientRelationship-${clientId.getGrafanaId}-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
     }
   }

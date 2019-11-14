@@ -21,7 +21,7 @@ import java.util.UUID
 import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, InvitationId, MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -64,7 +64,7 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
   }
 
   def deleteITSARelationship(id: String, clientId: MtdItId)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
-    deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteItsaRelationship(arn, clientId))
+    deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
   }
 
   def deletePIRelationship(id: String, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
@@ -72,15 +72,15 @@ class RelationshipManagementService @Inject()(pirRelationshipConnector: PirRelat
   }
 
   def deleteVATRelationship(id: String, vrn: Vrn)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
-    deleteRelationship(id, vrn)(arn => relationshipsConnector.deleteVatRelationship(arn, vrn))
+    deleteRelationship(id, vrn)(arn => relationshipsConnector.deleteRelationship(arn, vrn))
   }
 
   def deleteTrustRelationship(id: String, utr: Utr)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
-    deleteRelationship(id, utr)(arn => relationshipsConnector.deleteTrustRelationship(arn, utr))
+    deleteRelationship(id, utr)(arn => relationshipsConnector.deleteRelationship(arn, utr))
   }
 
   def deleteCgtRelationship(id: String, cgtRef: CgtRef)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
-    deleteRelationship(id, cgtRef)(arn => relationshipsConnector.deleteCgtRelationship(arn, cgtRef))
+    deleteRelationship(id, cgtRef)(arn => relationshipsConnector.deleteRelationship(arn, cgtRef))
   }
 
   private def deleteRelationship(id: String, clientId: TaxIdentifier)(f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] = {
