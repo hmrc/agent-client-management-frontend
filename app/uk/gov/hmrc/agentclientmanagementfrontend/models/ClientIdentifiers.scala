@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import uk.gov.hmrc.agentmtdidentifiers.model.{MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.domain.Nino
 
-case class ClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn], utr: Option[Utr]) {
+case class ClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn], utr: Option[Utr], cgtRef: Option[CgtRef]) {
 
-  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined || utr.isDefined
+  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined || utr.isDefined || cgtRef.isDefined
 }
