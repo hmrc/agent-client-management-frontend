@@ -62,10 +62,10 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
   override lazy val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
   override lazy val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
   override lazy val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
-  override lazy val sessionCacheDomain: String = getConfString("microservice.services.cachable.session-cache.domain", "keystore")
+  override lazy val sessionCacheDomain: String = getString("microservice.services.cachable.session-cache.domain")
 
-  override lazy val contactFrontendBaseUrl: String = getConfString("microservice.services.contact-frontend.external-url", "http://localhost:9250")
-  override lazy val agentInvitationsFrontendBaseUrl: String = getConfString("microservice.services.agent-invitations-frontend.external-url", "http://localhost:9448")
+  override lazy val contactFrontendBaseUrl: String = getString("microservice.services.contact-frontend.external-url")
+  override lazy val agentInvitationsFrontendBaseUrl: String = getString("microservice.services.agent-invitations-frontend.external-url")
   override lazy val appName: String = getString("appName")
 
   private def normaliseAgentName(agentName: String) =
