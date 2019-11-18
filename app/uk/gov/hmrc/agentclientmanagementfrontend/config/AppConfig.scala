@@ -53,20 +53,20 @@ trait AppConfig {
 @Singleton
 class FrontendAppConfig @Inject()(val configuration: Configuration, val environment: Environment) extends AppConfig with ServicesConfig {
 
-  override lazy val runModeConfiguration: Configuration = configuration
-  override lazy val mode: Mode = environment.mode
+  override val runModeConfiguration: Configuration = configuration
+  override val mode: Mode = environment.mode
 
-  override lazy val authBaseUrl: String = baseUrl("auth")
-  override lazy val agentServicesAccountBaseUrl: String = baseUrl("agent-services-account")
-  override lazy val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
-  override lazy val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
-  override lazy val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
-  override lazy val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
-  override lazy val sessionCacheDomain: String = getString("microservice.services.cachable.session-cache.domain")
+  override val authBaseUrl: String = baseUrl("auth")
+  override val agentServicesAccountBaseUrl: String = baseUrl("agent-services-account")
+  override val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
+  override val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
+  override val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
+  override val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
+  override val sessionCacheDomain: String = getString("microservice.services.cachable.session-cache.domain")
 
-  override lazy val contactFrontendBaseUrl: String = getString("microservice.services.contact-frontend.external-url")
-  override lazy val agentInvitationsFrontendBaseUrl: String = getString("microservice.services.agent-invitations-frontend.external-url")
-  override lazy val appName: String = getString("appName")
+  override val contactFrontendBaseUrl: String = getString("microservice.services.contact-frontend.external-url")
+  override val agentInvitationsFrontendBaseUrl: String = getString("microservice.services.agent-invitations-frontend.external-url")
+  override val appName: String = getString("appName")
 
   private def normaliseAgentName(agentName: String) =
     agentName.toLowerCase().replaceAll("\\s+", "-").replaceAll("[^A-Za-z0-9-]", "")
@@ -74,25 +74,25 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
   def warmUpUrl(clientType: String, uid: String, agencyName: String): String =
     s"$agentInvitationsFrontendBaseUrl/invitations/$clientType/$uid/${normaliseAgentName(agencyName)}"
 
-  override lazy val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
+  override val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
 
-  override lazy val contactFrontendAjaxUrl: String =
+  override val contactFrontendAjaxUrl: String =
     s"${contactFrontendUrl}ajax?service=$appName"
 
-  override lazy val contactFrontendNonJsUrl: String =
+  override val contactFrontendNonJsUrl: String =
     s"${contactFrontendUrl}nonjs?service=$appName"
 
   override def featuresRemoveAuthorisation(service: String): Boolean = getConfBooleanOrFail(s"features.remove-authorisation.$service")
 
-  override lazy val googleAnalyticsToken: String = getString("google-analytics.token")
+  override val googleAnalyticsToken: String = getString("google-analytics.token")
 
-  override lazy val googleAnalyticsHost: String = getString("google-analytics.host")
+  override val googleAnalyticsHost: String = getString("google-analytics.host")
 
   lazy val loggerDateFormat: String = getString("logger.json.dateformat")
 
-  override lazy val timeout: Int = getConfIntOrFail("timeoutDialog.timeout-seconds")
+  override val timeout: Int = getConfIntOrFail("timeoutDialog.timeout-seconds")
 
-  override lazy val countdown: Int = getConfIntOrFail("timeoutDialog.timeout-countdown-seconds")
+  override val countdown: Int = getConfIntOrFail("timeoutDialog.timeout-countdown-seconds")
 
   private def getConfIntOrFail(key: String): Int =
     configuration.getInt(key).getOrElse(throw new Exception(s"Property not found $key"))
