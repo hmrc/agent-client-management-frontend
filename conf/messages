@@ -97,6 +97,7 @@ clientEndsRelationshipEnded.title.HMRC-MTD-VAT=You removed your authorisation fr
 clientEndsRelationshipEnded.h1.HMRC-TERS-ORG=You removed your authorisation from {0} to maintain a trust or an estate
 clientEndsRelationshipEnded.h1.HMRC-CGT-PD=You removed your authorisation from {0} to manage your Capital Gains Tax on UK property disposals
 clientEndsRelationshipEnded.title.HMRC-TERS-ORG=You removed your authorisation from your agent to maintain a trust or an estate
+clientEndsRelationshipEnded.title.HMRC-CGT-PD=You removed your authorisation from your agent to maintain your Capital Gains Tax on UK property disposals
 clientEndsRelationshipEnded.p1.HMRC-MTD-IT=If you want to allow {0} to send your Income Tax updates through software, ask them to send you a new authorisation request.
 clientEndsRelationshipEnded.p1.PERSONAL-INCOME-RECORD=If you want to allow {0} to view your record, ask them to send you a new authorisation request.
 clientEndsRelationshipEnded.p1.HMRC-MTD-VAT=If you want to allow {0} to submit your VAT returns through software, ask them to send you a new authorisation request.
