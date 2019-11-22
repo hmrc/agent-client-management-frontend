@@ -31,6 +31,7 @@ trait AppConfig {
   val sessionCacheBaseUrl: String
   val agentClientRelationshipsBaseUrl: String
   val agentClientAuthorisationBaseUrl: String
+  val agentSuspensionBaseUrl: String
   val sessionCacheDomain: String
   val configuration: Configuration
   val environment: Environment
@@ -62,6 +63,7 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
   override lazy val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
   override lazy val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
   override lazy val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
+  override lazy val agentSuspensionBaseUrl: String = baseUrl("agent-suspension")
   override lazy val sessionCacheDomain: String = getString("microservice.services.cachable.session-cache.domain")
 
   override lazy val contactFrontendBaseUrl: String = getString("microservice.services.contact-frontend.external-url")
