@@ -91,7 +91,7 @@ class ClientRelationshipManagementControllerISpec extends BaseISpec
       result.body.contains("1 January 9999") shouldBe true
       result.body.contains("abc") shouldBe true
       result.body.contains("Respond to request") shouldBe true
-      result.body.contains("Submit your Capital Gains Tax on UK property disposals") shouldBe true
+      result.body.contains("Maintain your Capital Gains Tax on UK property disposals") shouldBe true
 
       result.body.contains("You have 5 requests you need to respond to.") shouldBe true
 
