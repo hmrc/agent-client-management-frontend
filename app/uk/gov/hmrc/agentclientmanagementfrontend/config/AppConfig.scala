@@ -48,6 +48,7 @@ trait AppConfig {
   val loggerDateFormat: String
   val timeout: Int
   val countdown: Int
+  val enableAgentSuspension: Boolean
 }
 
 
@@ -93,6 +94,8 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
   override val timeout: Int = getConfIntOrFail("timeoutDialog.timeout-seconds")
 
   override val countdown: Int = getConfIntOrFail("timeoutDialog.timeout-countdown-seconds")
+
+  override val enableAgentSuspension: Boolean = getConfBooleanOrFail("features.enable-agent-suspension")
 
   private def getConfIntOrFail(key: String): Int =
     configuration.getInt(key).getOrElse(throw new Exception(s"Property not found $key"))

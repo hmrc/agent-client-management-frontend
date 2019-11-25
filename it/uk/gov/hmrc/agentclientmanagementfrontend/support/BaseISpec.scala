@@ -55,6 +55,7 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "features.remove-authorisation.HMRC-MTD-IT" -> featureRemoveAuthorisationITSA,
         "features.remove-authorisation.HMRC-MTD-VAT" -> featureRemoveAuthorisationVat,
         "features.remove-authorisation.HMRC-TERS-ORG" -> featureRemoveAuthorisationTrust,
+        "features.enable-agent-suspension" -> true,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,
@@ -97,6 +98,12 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
   protected def checkResponseBodyWithText(response: WSResponse, expectedText: String*): Unit = {
     for(text <- expectedText) {
       response.body.contains(text) shouldBe true
+    }
+  }
+
+  protected def checkResponseBodyNotWithText(response: WSResponse, expectedText: String*): Unit = {
+    for(text <- expectedText) {
+      response.body.contains(text) shouldBe false
     }
   }
 

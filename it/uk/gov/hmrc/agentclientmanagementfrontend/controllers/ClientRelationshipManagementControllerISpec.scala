@@ -1,11 +1,15 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import org.jsoup.Jsoup
+import org.jsoup.select.Elements
 import play.api.libs.ws._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.SuspensionResponse
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup}
+import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.http.HeaderCarrier
@@ -71,7 +75,10 @@ class ClientRelationshipManagementControllerISpec
       response.status shouldBe 200
       checkResponseBodyWithText(
         response,
-        "Manage who can deal with HMRC for you",
+        "Manage who can deal with HMRC for you"
+      )
+      checkResponseBodyNotWithText(
+        response,
         "Current requests",
         "Who sent the request",
         "You need to respond by",
@@ -91,8 +98,6 @@ class ClientRelationshipManagementControllerISpec
   }
 
   "Who can deal with HMRC for you tab" should {
-    val req = FakeRequest()
-
     "Show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound {
       val response: WSResponse = await(doGetRequest(""))
 
@@ -142,6 +147,31 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
+    "if suspension is enabled don't show suspended agents on this tab" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound {
+      givenSuspensionStatus(arn1, SuspensionResponse(Set(Services.HMRCMTDIT)))
+      givenSuspensionStatus(arn2, SuspensionResponse(Set()))
+      givenSuspensionStatus(arn3, SuspensionResponse(Set()))
+
+      val response: WSResponse = await(doGetRequest(""))
+
+      response.status shouldBe 200
+      checkResponseBodyWithText(
+        response,
+        "Manage who can deal with HMRC for you",
+        "Who can deal with HMRC for you",
+        "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
+        "Submit your VAT returns through software",
+        "View your PAYE income record",
+        "6 June 2017",
+        "Remove authorisation"
+      )
+      val doc = Jsoup.parse(response.body)
+      val currentAuthsTab: Elements = doc.select("section[id=\"currentAuths\"]")
+      currentAuthsTab.contains("abc") shouldBe false
+      currentAuthsTab.contains("Send your Income Tax updates through software") shouldBe false
+      sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
+    }
+
     "500 when getAgencyNames in agent-services-account returns 400 invalid Arn" in new BaseTestSetUp {
       getClientActiveAgentRelationships(serviceItsa, Arn("someInvalidArn").value, startDateString)
       getAgencyNamesMap400("someInvalidArn")
@@ -169,145 +199,65 @@ class ClientRelationshipManagementControllerISpec
     val req = FakeRequest()
 
     "Show tab for a client with all services and different response scenarios in date order" in new BaseTestSetUp
-    with NoRelationshipsFound with InvitationHistoryExists {
+    with NoRelationshipsFound with InvitationHistoryExistsDifferentDates {
+      val response = await(doGetRequest(""))
 
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("Your activity history") shouldBe true
-      result.body.contains("Keep track of changes to who HMRC can deal with and find details of previous requests.") shouldBe true
-      result.body.contains("abc") shouldBe true
-      result.body.contains("DEF") shouldBe true
-      result.body.contains("ghi") shouldBe true
-      result.body.indexOf("DEF") < result.body.indexOf("abc") && result.body.indexOf("abc") < result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Send your Income Tax updates through software") shouldBe true
-      result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Submit your VAT returns through software") shouldBe true
-      result.body.contains("Maintain a trust") shouldBe true
-      result.body.contains("You accepted this request") shouldBe true
-      result.body.contains("This request expired before you responded") shouldBe true
-      result.body.contains("15 January 2017") shouldBe true
-      result.body.contains("5 January 2017") shouldBe true
-      result.body.contains("05 January 2017") shouldBe false
-    }
-
-    "Show tab for a client with all services and different response scenarios in time order when dates are the same" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
-      givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
-      getNotFoundClientActiveAgentRelationships(serviceVat)
-      getNotFoundClientActiveAgentRelationships(serviceTrust)
-      getThreeAgencyNamesMap200(
-        (arn1, "abc"),
-        (arn2, "DEF"),
-        (arn3, "ghi")
+      response.status shouldBe 200
+      checkResponseBodyWithText(
+        response,
+        "Your activity history",
+        "Keep track of changes to who HMRC can deal with and find details of previous requests.",
+        "abc",
+        "DEF",
+        "ghi",
+        "Send your Income Tax updates through software",
+        "View your PAYE income record",
+        "Submit your VAT returns through software",
+        "You accepted this request",
+        "You declined this request",
+        "This request expired before you responded",
+        "15 January 2017",
+        "5 January 2017"
       )
-      getInvitations(
-        arn1.copy(value = "FARN0001133"),
-        validVrn.value,
-        "VRN",
-        serviceVat,
-        "Accepted",
-        "9999-01-01",
-        "2017-01-15T13:16:00.000+08:00")
-      getInvitations(
-        arn1,
-        mtdItId.value,
-        "MTDITID",
-        serviceItsa,
-        "Rejected",
-        "9999-01-01",
-        "2017-01-15T13:15:00.000+08:00")
-      getInvitations(
-        arn1.copy(value = "FARN0001131"),
-        validNino.value,
-        "NI",
-        serviceIrv,
-        "Expired",
-        "9999-01-01",
-        "2017-01-15T13:14:00.000+08:00")
-      getInvitations(Arn("FARN0001134"), validUtr.value, "UTR", serviceTrust, "Expired", "9999-01-01", lastUpdatedAfter)
-      getInvitations(
-        Arn("FARN0001135"),
-        validCgtRef.value,
-        "CGTPDRef",
-        serviceCgt,
-        "Expired",
-        "9999-01-01",
-        lastUpdatedAfter)
-      givenAgentRefExistsFor(arn1)
-      givenAgentRefExistsFor(arn1.copy(value = "FARN0001131"))
-      givenAgentRefExistsFor(arn1.copy(value = "FARN0001133"))
-
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("Your activity history") shouldBe true
-      result.body.contains("Keep track of changes to who HMRC can deal with and find details of previous requests.") shouldBe true
-      result.body.contains("abc") shouldBe true
-      result.body.contains("DEF") shouldBe true
-      result.body.contains("ghi") shouldBe true
-      result.body.indexOf("ghi") < result.body.indexOf("abc") && result.body.indexOf("abc") < result.body.indexOf("DEF") shouldBe true
-      result.body.contains("Send your Income Tax updates through software") shouldBe true
-      result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Submit your VAT returns through software") shouldBe true
-      result.body.contains("Maintain a trust") shouldBe true
-      result.body.contains("You accepted this request") shouldBe true
-      result.body.contains("This request expired before you responded") shouldBe true
-      result.body.contains("15 January 2017") shouldBe true
+      checkResponseBodyNotWithText(response, "05 January 2017")
+      response.body.indexOf("DEF") < response.body.indexOf("abc") && response.body.indexOf("abc") < response.body
+        .indexOf("ghi") shouldBe true
     }
 
-    "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
-      givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
-      getNotFoundClientActiveAgentRelationships(serviceVat)
-      getThreeAgencyNamesMap200((arn1,"abc"),(arn2,"def"),(arn3, "ghi"))
-      getInvitations(arn2, validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdated)
-      getInvitations(arn1, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
-      getInvitations(arn3, validNino.value, "NI", serviceIrv, "Expired", "2017-01-15", lastUpdated)
-      getInvitationsNotFound(validUtr.value, "UTR")
-      getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
+    "Show tab for a client with all services and different response scenarios in time order when dates are the same" in
+      new BaseTestSetUp with NoRelationshipsFound with InvitationHistoryExistsDifferentTimes {
+        val result = await(doGetRequest(""))
 
-      givenAgentRefExistsFor(arn1)
-      givenAgentRefExistsFor(arn2)
-      givenAgentRefExistsFor(arn3)
+        result.status shouldBe 200
 
+        result.body.indexOf("abc") < result.body.indexOf("DEF") && result.body.indexOf("DEF") < result.body.indexOf(
+          "ghi") shouldBe true
+      }
+
+    "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in new BaseTestSetUp
+    with NoRelationshipsFound with InvitationHistoryExistsDifferentNames {
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
-      result.body.contains("abc") shouldBe true
-      result.body.contains("def") shouldBe true
-      result.body.contains("ghi") shouldBe true
       result.body.indexOf("abc") < result.body.indexOf("def") && result.body.indexOf("def") < result.body.indexOf("ghi") shouldBe true
-      result.body.contains("Send your Income Tax updates through software") shouldBe true
-      result.body.contains("View your PAYE income record") shouldBe true
-      result.body.contains("Submit your VAT returns through software") shouldBe true
-      result.body.contains("Maintain a trust") shouldBe true
-      result.body.contains("You accepted this request") shouldBe true
-      result.body.contains("This request expired before you responded") shouldBe true
-      result.body.contains("15 January 2017") shouldBe true
     }
 
-    "Show tab for a client with no relationship history" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
-      givenNinoIsKnownFor(validNino)
-      getNotFoundClientActiveAgentRelationships(serviceItsa)
-      getNotFoundForPIRRelationship(serviceIrv, validNino.value)
-      getNotFoundClientActiveAgentRelationships(serviceVat)
-      getThreeAgencyNamesMap200((arn1, "abc"), (arn1, "DEF"), (arn1, "ghi"))
-      getInvitationsNotFound(validVrn.value, "VRN")
-      getInvitationsNotFound(mtdItId.value, "MTDITID")
-      getInvitationsNotFound(validNino.value, "NI")
+    "Show tab for a client with no relationship history" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound {
+      val response = await(doGetRequest(""))
 
-      val result = await(doGetRequest(""))
-
-      result.status shouldBe 200
-      result.body.contains("Your activity history") shouldBe true
-      result.body.contains("You do not have any previous activity.") shouldBe true
+      response.status shouldBe 200
+      checkResponseBodyWithText(response, "Your activity history", "You do not have any previous activity.")
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
+    }
+
+    "if suspension is enabled show tab with suspended agent relationships" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound {
+      getClientActiveAgentRelationships(serviceItsa, arn1.value, startDateString)
+      givenSuspensionStatus(arn1, SuspensionResponse(Set(Services.HMRCMTDIT)))
+      getAgencyNameMap200(arn1, "abc")
+
+      val response = await(doGetRequest(""))
+      response.status shouldBe 200
+      checkResponseBodyWithText(response, "Your activity history", "HMRC cancelled your authorisation")
     }
 
     "500, when Des returns 400" in {

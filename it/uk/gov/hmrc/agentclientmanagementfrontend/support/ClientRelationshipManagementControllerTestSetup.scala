@@ -14,8 +14,8 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   with AgentClientAuthorisationStub with AgentSuspensionStubs {
 
   val mtdItId = MtdItId("ABCDEF123456789")
-  val arn1 = Arn("FARN0001132")
-  val arn2 = Arn("FARN0001131")
+  val arn1 = Arn("FARN0001131")
+  val arn2 = Arn("FARN0001132")
   val arn3 = Arn("FARN0001133")
   val validNino = Nino("AE123456A")
   val validVrn = Vrn("101747641")
@@ -26,7 +26,6 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   val lastUpdated = "2017-01-15T13:14:00.000+08:00"
   val lastUpdatedBefore = "2017-01-05T13:14:00.000+08:00"
   val lastUpdatedAfter = "2017-01-20T13:14:00.000+08:00"
-  val encodedClientId: String = UriEncoding.encodePathSegment(mtdItId.value, "UTF-8")
   val cache =
     ClientCache("dc89f36b64c94060baa3ae87d6b7ac08", arn1, "This Agency Name", "Some service name", startDate)
   val cacheItsa =
@@ -60,6 +59,10 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getClientActiveAgentRelationships(serviceVat, arn3.value, startDateString)
     getNotFoundClientActiveAgentRelationships(serviceTrust)
     getNotFoundClientActiveAgentRelationships(serviceCgt)
+    getThreeAgencyNamesMap200(
+      (arn1, "abc"),
+      (arn2, "DEF"),
+      (arn3, "ghi"))
   }
 
   //stubs for number of pending invitations found 0 1 or 3
@@ -82,6 +85,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
           lastUpdated)
         getInvitationsNotFound(mtdItId.value, "MTDITID")
         getInvitationsNotFound(validNino.value, "NI")
+        getAgencyNameMap200(arn2, "abc")
 
       case 3 =>
         getInvitations(
@@ -101,11 +105,12 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
           "Pending",
           "9999-01-01",
           lastUpdated)
+        getThreeAgencyNamesMap200(
+          (arn1, "abc"),
+          (arn2, "DEF"),
+          (arn3, "ghi"))
     }
-    getThreeAgencyNamesMap200(
-      (arn1, "abc"),
-      (arn2, "DEF"),
-      (arn3, "ghi"))
+
     getInvitationsNotFound(validUtr.value, "UTR")
     getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
     givenAgentRefExistsFor(arn1)
@@ -113,9 +118,10 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     givenAgentRefExistsFor(arn3)
   }
 
-  trait InvitationHistoryExists {
+  //stub for when there is invitation history and each record has a different updated date
+  trait InvitationHistoryExistsDifferentDates {
     getInvitations(
-      arn2,
+      arn3,
       validVrn.value,
       "VRN",
       serviceVat,
@@ -124,7 +130,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
       lastUpdatedBefore)
     getInvitations(arn1, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
     getInvitations(
-      arn3,
+      arn2,
       validNino.value,
       "NI",
       serviceIrv,
@@ -141,5 +147,59 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
       (arn2, "DEF"),
       (arn3, "ghi")
     )
+  }
+
+  //stub for when there is invitation history and each record has the same updated date but different time
+  trait InvitationHistoryExistsDifferentTimes {
+    getInvitations(
+      arn1,
+      validVrn.value,
+      "VRN",
+      serviceVat,
+      "Accepted",
+      "9999-01-01",
+      "2017-01-15T13:16:00.000+08:00")
+    getInvitations(
+      arn2,
+      mtdItId.value,
+      "MTDITID",
+      serviceItsa,
+      "Rejected",
+      "9999-01-01",
+      "2017-01-15T13:15:00.000+08:00")
+    getInvitations(
+      arn3,
+      validNino.value,
+      "NI",
+      serviceIrv,
+      "Expired",
+      "9999-01-01",
+      "2017-01-15T13:14:00.000+08:00")
+
+    getInvitationsNotFound(validUtr.value, "UTR")
+    getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
+    givenAgentRefExistsFor(arn1)
+    givenAgentRefExistsFor(arn2)
+    givenAgentRefExistsFor(arn3)
+
+    getThreeAgencyNamesMap200(
+      (arn1, "abc"),
+      (arn2, "DEF"),
+      (arn3, "ghi")
+    )
+  }
+
+  //stub for when there is invitation history and each record has the same updated date and time but different names
+  trait InvitationHistoryExistsDifferentNames {
+    getThreeAgencyNamesMap200((arn1, "abc"), (arn2, "def"), (arn3, "ghi"))
+
+    getInvitations(arn2, validVrn.value, "VRN", serviceVat, "Accepted", "9999-01-01", lastUpdated)
+    getInvitations(arn1, mtdItId.value, "MTDITID", serviceItsa, "Rejected", "9999-01-01", lastUpdated)
+    getInvitations(arn3, validNino.value, "NI", serviceIrv, "Expired", "2017-01-15", lastUpdated)
+    getInvitationsNotFound(validUtr.value, "UTR")
+    getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
+    givenAgentRefExistsFor(arn1)
+    givenAgentRefExistsFor(arn2)
+    givenAgentRefExistsFor(arn3)
   }
 }

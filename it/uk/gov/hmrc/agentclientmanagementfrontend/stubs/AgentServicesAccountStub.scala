@@ -29,7 +29,7 @@ trait AgentServicesAccountStub {
   def getThreeAgencyNamesMap200(arnWithName1: (Arn, String), arnWithName2: (Arn, String), arnWithName3: (Arn, String)): StubMapping = {
     stubFor(post(urlEqualTo(s"/agent-services-account/client/agency-names"))
       .withHeader("Content-Type", containing("application/json"))
-      .withRequestBody(equalTo(s"""["${arnWithName1._1.value}","${arnWithName2._1.value}","${arnWithName3._1.value}"]"""))
+      .withRequestBody(equalToJson(s"""["${arnWithName1._1.value}","${arnWithName2._1.value}","${arnWithName3._1.value}"]""", true, true))
       .willReturn(
         aResponse()
           .withStatus(200)

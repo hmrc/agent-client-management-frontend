@@ -74,7 +74,7 @@ class RelationshipManagementService @Inject()(
           Future.sequence(relationships.map { r =>
             for {
               suspendedServices <- suspensionConnector.getSuspendedServices(r.arn)
-              isSuspended = suspendedServices.services.contains(r.serviceName)
+              isSuspended = suspendedServices.isSuspended(r.serviceName)
             } yield {
               ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, isSuspended)
             }

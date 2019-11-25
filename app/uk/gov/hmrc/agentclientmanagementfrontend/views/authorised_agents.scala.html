@@ -130,7 +130,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
-            @if(config.nonPendingRequestsExist){
+            @if(config.nonPendingRequestsExist || config.suspendedAuthAgentsExist){
                 <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>

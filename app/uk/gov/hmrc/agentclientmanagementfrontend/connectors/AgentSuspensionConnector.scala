@@ -28,7 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentSuspensionConnector @Inject()(appConfig: AppConfig, http: HttpGet) {
 
-  def getSuspendedServices(arn: Arn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SuspensionResponse] = {
+  def getSuspendedServices(arn: Arn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SuspensionResponse] =
+    if(appConfig.enableAgentSuspension) {
     http
       .GET[SuspensionResponse](
         s"${appConfig.agentSuspensionBaseUrl}/agent-suspension/status/arn/${arn.value}"
@@ -36,15 +37,10 @@ class AgentSuspensionConnector @Inject()(appConfig: AppConfig, http: HttpGet) {
   } recoverWith {
     case _: NotFoundException => Future successful SuspensionResponse(Set.empty)
   }
+  else Future successful SuspensionResponse(Set())
 }
 
 case class SuspensionResponse(services: Set[String]) {
-
-  def getSuspendedServices(s: Set[String]): Set[String] =
-    s.intersect(services)
-
-  def isAllSuspended(s: Set[String]): Boolean =
-    s.diff(services) == Set.empty
 
   def isSuspended(s: String): Boolean = services.contains(s)
 
