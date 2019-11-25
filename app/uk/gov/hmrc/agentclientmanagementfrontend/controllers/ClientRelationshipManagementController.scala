@@ -69,9 +69,7 @@ class ClientRelationshipManagementController @Inject()(
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientType, clientIds)
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
-      }yield {
-        Ok(authorised_agents(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
-      }
+      } yield Ok(authorised_agents(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
     }
   }
 
