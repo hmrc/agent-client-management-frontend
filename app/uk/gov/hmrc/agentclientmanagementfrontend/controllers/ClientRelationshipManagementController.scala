@@ -26,7 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentSuspensionConnector, FrontendAuthConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
@@ -57,8 +57,7 @@ class ClientRelationshipManagementController @Inject()(
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService,
-                                                        agentClientAuthorisationService: AgentClientAuthorisationService,
-                                                        agentSuspensionConnector: AgentSuspensionConnector)(implicit val appConfig: AppConfig, ec: ExecutionContext)
+                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController with I18nSupport with AuthActions {
 
   implicit lazy val config:Configuration = appConfig.configuration

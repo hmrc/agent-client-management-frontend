@@ -71,20 +71,18 @@ class RelationshipManagementService @Inject()(
         def uuId: String = UUID.randomUUID().toString.replace("-", "")
 
         val futureRelationshipWithArnCache: Future[Seq[ClientCache]] =
-          Future.sequence(relationships.map { r =>
-            for {
-              suspendedServices <- suspensionConnector.getSuspendedServices(r.arn)
-              isSuspended = suspendedServices.isSuspended(r.serviceName)
-            } yield {
-              ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, isSuspended)
-            }
+          Future.traverse(relationships)(r => for {
+            suspendedServices <- suspensionConnector.getSuspendedServices(r.arn)
+            isSuspended = suspendedServices.isSuspended(r.serviceName)
+          } yield {
+            ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, isSuspended)
           })
 
         futureRelationshipWithArnCache.flatMap { relationshipWithArnCache =>
           sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
             relationshipWithArnCache
-              .map {
-                cache => AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised, cache.isSuspended)
+              .map { cache =>
+                AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised, cache.isSuspended)
               }
               .sortWith(_.agencyName.toLowerCase < _.agencyName.toLowerCase)
               .sorted(AuthorisedAgent.orderingByDateFrom)
