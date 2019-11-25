@@ -76,8 +76,6 @@ class RelationshipManagementService @Inject()(
               suspendedServices <- suspensionConnector.getSuspendedServices(r.arn)
               isSuspended = suspendedServices.services.contains(r.serviceName)
             } yield {
-              println(s"************${r.arn}**********$suspendedServices")
-              println(s"()()()()()()()()()()()$isSuspended")
               ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, isSuspended)
             }
           })

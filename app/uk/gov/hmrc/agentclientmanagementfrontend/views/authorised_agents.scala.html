@@ -146,24 +146,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+
                         @config.suspendedAuthAgents.map { suspendedAgent =>
+                            <tr>
                             <td>@suspendedAgent.agencyName</td>
                             <td>@Messages(s"client-authorised-agents-table-content.${suspendedAgent.serviceName}")</td>
                             <td>@Messages(s"client-authorised-agents-table.suspended")<span class="date-hint">
                             </span></td>
-                        </td>
+                            </td></tr>
+                        }
 
 
                         @config.nonPendingRequests.map { agentReq =>
-
+                            <tr>
                                 <td>@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
                                 <td>@Messages(s"client-authorised-agents-table.${agentReq.status}")<span class="date-hint">
                                 @config.displayDate(Some(agentReq.lastUpdated.toLocalDate))</span></td>
                                 </td>
                             </tr>
-                        }
                         }
 
                     }else{
