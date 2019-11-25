@@ -9,6 +9,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.ws.WSResponse
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -44,6 +45,8 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "microservice.services.agent-client-relationships.port" -> wireMockPort,
         "microservice.services.agent-client-authorisation.host" -> wireMockHost,
         "microservice.services.agent-client-authorisation.port" -> wireMockPort,
+        "microservice.services.agent-suspension.host" -> wireMockHost,
+        "microservice.services.agent-suspension.port" -> wireMockPort,
         "microservice.services.agent-services-account.port" -> wireMockPort,
         "microservice.services.cachable.session-cache.host" -> wireMockHost,
         "microservice.services.cachable.session-cache.port" -> wireMockPort,
@@ -89,6 +92,12 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")
     bodyOf(result) should include(expectedSubstring)
+  }
+
+  protected def checkResponseBodyWithText(response: WSResponse, expectedText: String*): Unit = {
+    for(text <- expectedText) {
+      response.body.contains(text) shouldBe true
+    }
   }
 
   private val messagesApi = app.injector.instanceOf[MessagesApi]
