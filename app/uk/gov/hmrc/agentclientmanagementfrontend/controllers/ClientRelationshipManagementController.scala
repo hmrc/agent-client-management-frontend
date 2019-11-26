@@ -111,9 +111,10 @@ class ClientRelationshipManagementController @Inject()(
       if (isActiveService(service, featureFlags)) {
         validateRemoveAuthorisationForm(id) {
           response.map {
-            case DeleteResponse(true, agencyName, `service`) =>
+            case DeleteResponse(true, agencyName, service) =>
               Redirect(routes.ClientRelationshipManagementController.authorisationRemoved())
                 .addingToSession(("agencyName", agencyName), ("service", service))
+            case _ => throw new RuntimeException("relationship deletion failed")
           }
         }
       } else
