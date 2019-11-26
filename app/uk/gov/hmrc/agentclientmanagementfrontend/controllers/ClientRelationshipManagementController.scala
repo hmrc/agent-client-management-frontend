@@ -18,7 +18,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import java.time.LocalDate
 
-import com.google.inject.Provider
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -70,7 +69,7 @@ class ClientRelationshipManagementController @Inject()(
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientType, clientIds)
         authRequests <- relationshipManagementService.getAuthorisedAgents(clientIds)
-      }yield Ok(authorised_agents(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
+      } yield Ok(authorised_agents(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
     }
   }
 

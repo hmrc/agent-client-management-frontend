@@ -31,6 +31,7 @@ trait AppConfig {
   val sessionCacheBaseUrl: String
   val agentClientRelationshipsBaseUrl: String
   val agentClientAuthorisationBaseUrl: String
+  val agentSuspensionBaseUrl: String
   val sessionCacheDomain: String
   val configuration: Configuration
   val environment: Environment
@@ -47,6 +48,7 @@ trait AppConfig {
   val loggerDateFormat: String
   val timeout: Int
   val countdown: Int
+  val enableAgentSuspension: Boolean
 }
 
 
@@ -55,15 +57,14 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
 
   override val runModeConfiguration: Configuration = configuration
   override val mode: Mode = environment.mode
-
-  override val authBaseUrl: String = baseUrl("auth")
-  override val agentServicesAccountBaseUrl: String = baseUrl("agent-services-account")
-  override val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
-  override val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
-  override val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
-  override val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
-  override val sessionCacheDomain: String = getString("microservice.services.cachable.session-cache.domain")
-
+  override lazy val authBaseUrl: String = baseUrl("auth")
+  override lazy val agentServicesAccountBaseUrl: String = baseUrl("agent-services-account")
+  override lazy val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
+  override lazy val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
+  override lazy val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
+  override lazy val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
+  override lazy val agentSuspensionBaseUrl: String = baseUrl("agent-suspension")
+  override lazy val sessionCacheDomain: String = getString("microservice.services.cachable.session-cache.domain")
   override val contactFrontendBaseUrl: String = getString("microservice.services.contact-frontend.external-url")
   override val agentInvitationsFrontendBaseUrl: String = getString("microservice.services.agent-invitations-frontend.external-url")
   override val appName: String = getString("appName")
@@ -93,6 +94,8 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
   override val timeout: Int = getConfIntOrFail("timeoutDialog.timeout-seconds")
 
   override val countdown: Int = getConfIntOrFail("timeoutDialog.timeout-countdown-seconds")
+
+  override val enableAgentSuspension: Boolean = getConfBooleanOrFail("features.enable-agent-suspension")
 
   private def getConfIntOrFail(key: String): Int =
     configuration.getInt(key).getOrElse(throw new Exception(s"Property not found $key"))

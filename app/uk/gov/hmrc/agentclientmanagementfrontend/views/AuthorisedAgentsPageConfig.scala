@@ -36,6 +36,12 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val authorisedAgentsExist: Boolean = authorisedAgents.nonEmpty
 
+  val nonSuspendedAuthAgents: Seq[AuthorisedAgent] = authorisedAgents.filter(!_.isSuspended)
+
+  val suspendedAuthAgents: Seq[AuthorisedAgent] = authorisedAgents.filter(_.isSuspended)
+
+  val suspendedAuthAgentsExist: Boolean = suspendedAuthAgents.nonEmpty
+
   val pendingCount: Int = pendingRequests.length
 
   def displayDate(date: Option[LocalDate]): String = date.fold("")(_.format(dateFormatter))

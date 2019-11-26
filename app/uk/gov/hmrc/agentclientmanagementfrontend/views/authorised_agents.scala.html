@@ -113,12 +113,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @config.authorisedAgents.map{ authAgent =>
+                        @config.nonSuspendedAuthAgents.map{ authAgent =>
                             <tr>
                                 <td>@authAgent.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
                                 <td>@config.displayDate(authAgent.dateFrom)</td>
-                                <td>@if(appConfig.featuresRemoveAuthorisation(authAgent.serviceName) == true){<a href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a>}</td>
+                                <td>@if(appConfig.featuresRemoveAuthorisation(authAgent.serviceName)){<a href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">@Messages("client-authorised-agents-table-row-header.unauthoriseLink")</a>}</td>
                             </tr>
                         }
                     }else{
@@ -130,7 +130,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
-            @if(config.nonPendingRequestsExist){
+            @if(config.nonPendingRequestsExist || config.suspendedAuthAgentsExist){
                 <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>
@@ -146,6 +146,16 @@
                         </tr>
                     </thead>
                     <tbody>
+
+                        @config.suspendedAuthAgents.map { suspendedAgent =>
+                            <tr>
+                            <td>@suspendedAgent.agencyName</td>
+                            <td>@Messages(s"client-authorised-agents-table-content.${suspendedAgent.serviceName}")</td>
+                            <td>@Messages(s"client-authorised-agents-table.suspended")<span class="date-hint">
+                            </span></td>
+                            </td></tr>
+                        }
+
 
                         @config.nonPendingRequests.map { agentReq =>
                             <tr>
