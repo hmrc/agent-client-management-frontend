@@ -426,17 +426,18 @@ class ClientRelationshipManagementControllerISpec
       deleteActiveITSARelationship(arn1.value, mtdItId.value, 204))
     val req = FakeRequest()
 
-    "return 500 an exception if the relationship is not found" in {
+    "return 500 a runtime exception if the relationship is not found" in {
 
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceItsa)))
       deleteActiveITSARelationship(arn1.value, mtdItId.value, 404)
 
-      an[Exception] should be thrownBy await(
-        controller
-          .submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+      intercept[RuntimeException] {
+          await(controller
+            .submitRemoveAuthorisation(serviceItsa, "dc89f36b64c94060baa3ae87d6b7ac08")(
+              authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
+                .withFormUrlEncodedBody("confirmResponse" -> "true")))
+      }.getMessage shouldBe "relationship deletion failed"
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
