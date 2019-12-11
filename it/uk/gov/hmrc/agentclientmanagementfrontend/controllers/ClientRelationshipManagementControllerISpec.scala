@@ -38,7 +38,8 @@ class ClientRelationshipManagementControllerISpec
 
   "Current requests tab" should {
     "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(
-      3) with BaseTestSetUp with NoRelationshipsFound {
+      3) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions {
+
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -57,7 +58,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Show tab with different message when number of pending invitations is 1" in
-      new PendingInvitationsExist(1) with BaseTestSetUp with NoRelationshipsFound {
+      new PendingInvitationsExist(1) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions {
         val response: WSResponse = await(doGetRequest(""))
 
         response.status shouldBe 200
@@ -69,7 +70,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0) with BaseTestSetUp
-    with NoRelationshipsFound {
+    with NoRelationshipsFound with NoSuspensions {
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -86,7 +87,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Throw an Exception when there is no agent reference found for an Arn" in new PendingInvitationsExist(3)
-    with BaseTestSetUp {
+    with BaseTestSetUp with NoSuspensions {
       givenAgentRefNotFoundFor(arn1)
       givenAgentRefNotFoundFor(arn1.copy(value = "FARN0001131"))
       givenAgentRefNotFoundFor(arn1.copy(value = "FARN0001133"))
@@ -95,6 +96,31 @@ class ClientRelationshipManagementControllerISpec
 
       result.status shouldBe 500
     }
+
+    "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(
+      3) with BaseTestSetUp with NoRelationshipsFound {
+
+      givenSuspensionStatus(arn1, SuspensionResponse(Set(serviceVat)))
+      givenSuspensionStatus(arn2, SuspensionResponse(Set()))
+      givenSuspensionStatus(arn3, SuspensionResponse(Set()))
+
+      val response: WSResponse = await(doGetRequest(""))
+
+      response.status shouldBe 200
+      checkResponseBodyWithText(
+        response,
+        "Manage who can deal with HMRC for you",
+        "Current requests",
+        "Who sent the request",
+        "You need to respond by",
+        "What you need to do",
+        "1 January 9999",
+        "DEF",
+        "Respond to request",
+        "You have 2 requests you need to respond to."
+      )
+    }
+
   }
 
   "Who can deal with HMRC for you tab" should {

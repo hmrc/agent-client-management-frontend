@@ -23,10 +23,10 @@
 @(config: AuthorisedAgentsPageConfig)(implicit messages: Messages, request: Request[_], appConfig: AppConfig, now: LocalDate)
 
 @pendingNo = @{
-    if(config.pendingCount == 1) {
-    Messages("client-authorised-agents-table-relationships.pendingNo.single", config.pendingCount)
+    if(config.pendingNonSuspendedCount == 1) {
+    Messages("client-authorised-agents-table-relationships.pendingNo.single", config.pendingNonSuspendedCount)
     }else {
-    Messages("client-authorised-agents-table-relationships.pendingNo", config.pendingCount)
+    Messages("client-authorised-agents-table-relationships.pendingNo", config.pendingNonSuspendedCount)
     }
     }
 
@@ -40,7 +40,7 @@
         </h2>
 
         <ul class="govuk-tabs__list">
-            @if(config.pendingRequestsExist) {
+            @if(config.pendingNonSuspendedRequestsExist) {
                 <li class="govuk-tabs__list-item">
                     <a class="govuk-tabs__tab govuk-tabs__tab--selected" href="#currentRequests">
                     @Messages("client-authorised-agents-table-relationships.tab1.title")
@@ -59,7 +59,7 @@
             </li>
         </ul>
 
-        @if(config.pendingRequestsExist) {
+        @if(config.pendingNonSuspendedRequestsExist) {
         <section class="govuk-tabs__panel" id="currentRequests">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab1.title")</h2>
             <p class="panel panel-border-wide">@pendingNo</p>
@@ -77,7 +77,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @config.pendingRequests.map { agentReq =>
+                    @config.pendingNonSuspendedRequests.map { agentReq =>
                         <tr>
                             <td>@agentReq.agencyName</td>
                             <td>@config.displayDate(Some(agentReq.expiryDate))</td>
@@ -130,7 +130,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
-            @if(config.nonPendingRequestsExist || config.suspendedAuthAgentsExist){
+            @if(config.nonPendingNonSuspendedRequestsExist || config.suspendedAuthAgentsExist){
                 <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>
@@ -157,7 +157,7 @@
                         }
 
 
-                        @config.nonPendingRequests.map { agentReq =>
+                        @config.nonPendingNonSuspendedRequests.map { agentReq =>
                             <tr>
                                 <td>@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>

@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.SuspensionResponse
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
@@ -201,5 +202,11 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
+  }
+
+  trait NoSuspensions {
+    givenSuspensionStatus(arn1,SuspensionResponse(Set()))
+    givenSuspensionStatus(arn2,SuspensionResponse(Set()))
+    givenSuspensionStatus(arn3,SuspensionResponse(Set()))
   }
 }
