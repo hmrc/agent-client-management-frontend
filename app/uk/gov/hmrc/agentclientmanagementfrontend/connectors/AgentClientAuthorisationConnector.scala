@@ -43,7 +43,7 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
   def getInvitation(clientId: TaxIdentifier)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
     val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/${clientId.getIdTypeForAca}/${clientId.value}/invitations/received"
     monitor(s"ConsumedAPI-Client-${clientId.getGrafanaId}-Invitations-GET") {
-      http.GET[JsObject](url.toString).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
+      http.GET[JsObject](url).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
       }
     }

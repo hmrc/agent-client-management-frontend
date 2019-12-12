@@ -26,13 +26,16 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   import AuthorisedAgentsPageConfig._
 
-  val pendingRequests: Seq[AgentRequest] = agentRequests.filter(_.status == "Pending").sortBy(_.expiryDate).map(x => x.arn -> x).toMap.values.toSet.toSeq
+  val pendingNonSuspendedRequests: Seq[AgentRequest] = agentRequests
+    .filter(x => x.status == "Pending" && !x.isSuspended)
+    .sortBy(_.expiryDate).map(x => x.arn -> x)
+    .toMap.values.toSet.toSeq
 
-  val nonPendingRequests: Seq[AgentRequest] = agentRequests.filter(_.status != "Pending")
+  val nonPendingNonSuspendedRequests: Seq[AgentRequest] = agentRequests.filter(x => x.status != "Pending" && !x.isSuspended)
 
-  val pendingRequestsExist: Boolean = pendingRequests.nonEmpty
+  val pendingNonSuspendedRequestsExist: Boolean = pendingNonSuspendedRequests.nonEmpty
 
-  val nonPendingRequestsExist: Boolean = nonPendingRequests.nonEmpty
+  val nonPendingNonSuspendedRequestsExist: Boolean = nonPendingNonSuspendedRequests.nonEmpty
 
   val authorisedAgentsExist: Boolean = authorisedAgents.nonEmpty
 
@@ -42,7 +45,7 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val suspendedAuthAgentsExist: Boolean = suspendedAuthAgents.nonEmpty
 
-  val pendingCount: Int = pendingRequests.length
+  val pendingNonSuspendedCount: Int = pendingNonSuspendedRequests.length
 
   def displayDate(date: Option[LocalDate]): String = date.fold("")(_.format(dateFormatter))
 
