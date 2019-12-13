@@ -19,7 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ClientRelationshipManagementControllerISpec
-    extends BaseISpec with PirRelationshipStub with AgentServicesAccountStub with AgentClientRelationshipsStub
+    extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
     with AgentClientAuthorisationStub with AgentSuspensionStubs with ClientRelationshipManagementControllerTestSetup {
 
   override def featureRemoveAuthorisationPir = true
@@ -198,7 +198,7 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
-    "500 when getAgencyNames in agent-services-account returns 400 invalid Arn" in new BaseTestSetUp {
+    "500 when getAgencyNames in agent-client-authorisation returns 400 invalid Arn" in new BaseTestSetUp {
       getClientActiveAgentRelationships(serviceItsa, Arn("someInvalidArn").value, startDateString)
       getAgencyNamesMap400("someInvalidArn")
 
@@ -209,7 +209,7 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
-    "500, when getAgencyNames in agent-services-account returns 400 empty Arn" in new BaseTestSetUp {
+    "500, when getAgencyNames in agent-client-authorisation returns 400 empty Arn" in new BaseTestSetUp {
       getClientActiveAgentRelationships(serviceItsa, Arn("").value, startDateString)
       getAgencyNamesMap400("")
 
@@ -288,7 +288,6 @@ class ClientRelationshipManagementControllerISpec
 
     "500, when Des returns 400" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
-      givenNinoIsKnownFor(validNino)
       get400ClientActiveAgentRelationships(serviceItsa)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
 
@@ -301,7 +300,6 @@ class ClientRelationshipManagementControllerISpec
 
     "500, when Des returns 500" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
-      givenNinoIsKnownFor(validNino)
       get500ClientActiveAgentRelationships(serviceItsa)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
 
@@ -314,7 +312,6 @@ class ClientRelationshipManagementControllerISpec
 
     "500, when Des returns 503" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
-      givenNinoIsKnownFor(validNino)
       get503ClientActiveAgentRelationships(serviceItsa)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
 
@@ -327,7 +324,6 @@ class ClientRelationshipManagementControllerISpec
 
     "500, when agent-fi-relationship returns 500" in {
       authorisedAsClientNi(req, validNino.nino)
-      givenNinoIsKnownFor(validNino)
       get500ForPIRRelationship(serviceIrv, validNino.value)
       getInvitationsNotFound(validNino.value, "NI")
 
@@ -340,7 +336,6 @@ class ClientRelationshipManagementControllerISpec
 
     "500, when agent-fi-relationship returns 503" in {
       authorisedAsClientNi(req, validNino.nino)
-      givenNinoIsKnownFor(validNino)
       get503ForPIRRelationship(serviceIrv, validNino.value)
       getInvitationsNotFound(validNino.value, "NI")
 

@@ -11,7 +11,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.Nino
 
-trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with PirRelationshipStub with AgentServicesAccountStub with AgentClientRelationshipsStub
+trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
   with AgentClientAuthorisationStub with AgentSuspensionStubs {
 
   val mtdItId = MtdItId("ABCDEF123456789")
@@ -41,7 +41,6 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   trait BaseTestSetUp {
     val req = FakeRequest()
     authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
-    givenNinoIsKnownFor(validNino)
   }
 
   //stubs for no relationships for any service

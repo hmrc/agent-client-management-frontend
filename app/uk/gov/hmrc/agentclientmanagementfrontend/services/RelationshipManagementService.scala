@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import java.util.UUID
 
 import javax.inject.Inject
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientRelationshipsConnector, AgentServicesAccountConnector, AgentSuspensionConnector, PirRelationshipConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, AgentSuspensionConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
@@ -31,11 +31,11 @@ import scala.util.Success
 case class DeleteResponse(response: Boolean, agencyName: String, service: String)
 
 class RelationshipManagementService @Inject()(
-  pirRelationshipConnector: PirRelationshipConnector,
-  agentServicesAccountConnector: AgentServicesAccountConnector,
-  relationshipsConnector: AgentClientRelationshipsConnector,
-  suspensionConnector: AgentSuspensionConnector,
-  sessionStoreService: SessionStoreService) {
+                                               pirRelationshipConnector: PirRelationshipConnector,
+                                               acaConnector: AgentClientAuthorisationConnector,
+                                               relationshipsConnector: AgentClientRelationshipsConnector,
+                                               suspensionConnector: AgentSuspensionConnector,
+                                               sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(
     clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
@@ -62,7 +62,7 @@ class RelationshipManagementService @Inject()(
                             cgtRelationships))
                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
-                      agentServicesAccountConnector.getAgencyNames(relationships.map(_.arn))
+        acaConnector.getAgencyNames(relationships.map(_.arn))
                     else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 

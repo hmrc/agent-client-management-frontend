@@ -6,7 +6,7 @@ import play.api.libs.ws.WSClient
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
-import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AgentClientAuthorisationStub, AgentClientRelationshipsStub, AgentServicesAccountStub, PirRelationshipStub}
+import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AgentClientAuthorisationStub, AgentClientRelationshipsStub, PirRelationshipStub}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, MtdItId, Utr, Vrn}
@@ -16,7 +16,6 @@ import uk.gov.hmrc.http.logging.SessionId
 
 class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpec
   with PirRelationshipStub
-  with AgentServicesAccountStub
   with AgentClientRelationshipsStub
   with AgentClientAuthorisationStub{
 
@@ -56,7 +55,6 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   "manageTaxAgents, works as normal except projections of remove authorisation links for false service flag" should {
     "200, do not show remove authorisation links, other than that works normal" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
-      givenNinoIsKnownFor(validNino)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
