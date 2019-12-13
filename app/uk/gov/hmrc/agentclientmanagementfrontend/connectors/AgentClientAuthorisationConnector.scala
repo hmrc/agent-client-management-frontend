@@ -23,7 +23,7 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsObject, JsPath, Reads}
+import play.api.libs.json.{JsArray, JsObject, JsPath, JsResult, JsSuccess, JsValue, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
@@ -35,7 +35,7 @@ import uk.gov.hmrc.http._
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
-                                                  http: HttpDelete with HttpGet, metrics: Metrics) extends HttpAPIMonitor {
+                                                  http: HttpDelete with HttpGet with HttpPost, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
   import StoredReads._
@@ -58,6 +58,22 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
         }
       }
     }))
+  }
+
+  implicit val mapReads: Reads[Map[Arn, String]] = new Reads[Map[Arn, String]] {
+    override def reads(json: JsValue): JsResult[Map[Arn, String]] = JsSuccess {
+      json.as[JsArray].value.map { details =>
+        ((details \ "arn").as[Arn], (details \ "agencyName").as[String])
+      }.toMap
+    }
+  }
+
+  def getAgencyNames(arns: Seq[Arn])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Map[Arn, String]] = {
+    monitor(s"ConsumedAPI-AgencyNames-GET") {
+      val url: String = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/client/agency-names"
+      http.POST[Seq[String], JsValue](url, arns.map(_.value))
+        .map { json => json.as[Map[Arn, String]] }
+    }
   }
 
   object StoredReads {

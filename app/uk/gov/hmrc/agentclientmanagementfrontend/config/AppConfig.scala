@@ -26,7 +26,6 @@ import uk.gov.hmrc.play.config.ServicesConfig
 trait AppConfig {
 
   val authBaseUrl: String
-  val agentServicesAccountBaseUrl: String
   val agentFiRelationshipBaseUrl: String
   val sessionCacheBaseUrl: String
   val agentClientRelationshipsBaseUrl: String
@@ -58,7 +57,6 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
   override val runModeConfiguration: Configuration = configuration
   override val mode: Mode = environment.mode
   override lazy val authBaseUrl: String = baseUrl("auth")
-  override lazy val agentServicesAccountBaseUrl: String = baseUrl("agent-services-account")
   override lazy val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
   override lazy val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
   override lazy val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
