@@ -30,7 +30,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnecto
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation}
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation, timed_out}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -57,10 +57,8 @@ class ClientRelationshipManagementController @Inject()(
                                                         val authConnector: FrontendAuthConnector,
                                                         val env: Environment,
                                                         relationshipManagementService: RelationshipManagementService,
-                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val appConfig: AppConfig, ec: ExecutionContext)
+                                                        agentClientAuthorisationService: AgentClientAuthorisationService)(implicit val appConfig: AppConfig, val config: Configuration, ec: ExecutionContext)
   extends FrontendController with I18nSupport with AuthActions {
-
-  implicit lazy val config:Configuration = appConfig.configuration
 
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
@@ -137,6 +135,10 @@ class ClientRelationshipManagementController @Inject()(
 
   def signOut: Action[AnyContent] = Action.async { implicit request =>
     startNewSession
+  }
+
+  def timedOut: Action[AnyContent] = Action.async { implicit request =>
+    Future successful Forbidden(timed_out())
   }
 
   private def startNewSession: Future[Result] =

@@ -729,4 +729,12 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.head.uuId shouldBe "dc89f36b64c94060baa3ae87d6b7ac09next"
     }
   }
+
+  "timedOut" should {
+    "display the timed out page" in {
+      val response: WSResponse = await(doGetRequest("/timed-out"))
+      response.status shouldBe 403
+      checkResponseBodyWithText(response, "You have been signed out", "so we have signed you out to keep your account secure.")
+    }
+  }
 }
