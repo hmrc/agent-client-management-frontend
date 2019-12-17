@@ -153,7 +153,8 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
         scriptElem = Some(Html("My custom script")),
         gaCode = Seq("My custom GA code"),
         messages = Messages.Implicits.applicationMessages,
-        appConfig = appConf
+        appConfig = appConf,
+        hasTimeout = true
       )
 
       val content = contentAsString(html)
@@ -180,7 +181,8 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
         Html("My custom main content"),
         Html("My custom service info content"),
         Some(Html("My custom script")),
-        Seq("My custom GA code")
+        Seq("My custom GA code"),
+        true
       )(Messages.Implicits.applicationMessages, appConf)
       contentAsString(html2) mustBe (content)
     }

@@ -7,5 +7,6 @@ GET         /authorisation-removed                               @uk.gov.hmrc.ag
 
 GET         /keep-alive                                          @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.keepAlive
 GET         /sign-out                                            @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.signOut
+GET         /timed-out                                            @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.timedOut
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)

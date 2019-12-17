@@ -42,6 +42,12 @@ timeout-dialog.minute=minute
 timeout-dialog.button=Stay signed in
 timeout-dialog.p1=For security reasons, you will be signed out in
 
+#timed out
+timed-out.header=You have been signed out
+timed-out.p1=You have not done anything for {0}, so we have signed you out to keep your account secure.
+timed-out.p2.link=Sign in again
+timed-out.p2=to use this service.
+
 # Client Content
 client-authorised-agents.title=Manage who can deal with HMRC for you
 client-authorised-agents-table-relationships.tab3.title=Your activity history
