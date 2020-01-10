@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(
                                                  acaConnector: AgentClientAuthorisationConnector,
-                                                 relationshipManagementService: RelationshipManagementService,
-                                                 suspensionConnector: AgentSuspensionConnector) {
+                                                 relationshipManagementService: RelationshipManagementService) {
 
   def getAgentRequests(clientType: String, clientIdOpt: ClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
@@ -53,8 +52,8 @@ class AgentClientAuthorisationService @Inject()(
       case (agencyName, storedInvites, agentRef) =>
         Future.traverse(storedInvites)(si =>
           for {
-            suspendedServices <- suspensionConnector.getSuspendedServices(si.arn)
-            isSuspended = suspendedServices.isSuspended(si.service)
+            suspensionDetails <- acaConnector.getSuspensionDetails()
+            isSuspended = suspensionDetails.isRegimeSuspended(si.service)
           } yield
          AgentRequest(clientType, si.service, si.arn, agentRef.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId, isSuspended)
         ).map(_.sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated))

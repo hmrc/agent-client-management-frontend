@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsArray, JsObject, JsPath, JsResult, JsSuccess, JsValue, Reads}
+import play.api.libs.json.{JsArray, JsObject, JsPath, JsResult, JsSuccess, JsValue, Json, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation, SuspensionDetails, SuspensionDetailsNotFound}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{SimpleObjectReads, TaxIdentifier}
 import uk.gov.hmrc.http._
@@ -40,8 +40,10 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
   import StoredReads._
 
+  private val baseUrl = appConfig.agentClientAuthorisationBaseUrl
+
   def getInvitation(clientId: TaxIdentifier)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
-    val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/clients/${clientId.getIdTypeForAca}/${clientId.value}/invitations/received"
+    val url = s"$baseUrl/agent-client-authorisation/clients/${clientId.getIdTypeForAca}/${clientId.value}/invitations/received"
     monitor(s"ConsumedAPI-Client-${clientId.getGrafanaId}-Invitations-GET") {
       http.GET[JsObject](url).map(obj => (obj \ "_embedded" \ "invitations").as[Seq[StoredInvitation]]).recover {
         case e: NotFoundException => Seq.empty
@@ -51,7 +53,7 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
 
   def getAgentReferences(arns: Seq[Arn])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentReference]] = {
     Future.sequence(arns.map(arn => {
-      val url = s"${appConfig.agentClientAuthorisationBaseUrl}/agencies/references/arn/${arn.value}"
+      val url = s"$baseUrl/agencies/references/arn/${arn.value}"
       monitor("ConsumedAPI-Agent-Reference-Invitations-GET") {
         http.GET[AgentReference](url.toString).map(obj => obj).recover {
           case e => throw new Exception(s"Agent Reference Not Found: $e")
@@ -70,11 +72,24 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
 
   def getAgencyNames(arns: Seq[Arn])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Map[Arn, String]] = {
     monitor(s"ConsumedAPI-AgencyNames-GET") {
-      val url: String = s"${appConfig.agentClientAuthorisationBaseUrl}/agent-client-authorisation/client/agency-names"
+      val url: String = s"$baseUrl/agent-client-authorisation/client/agency-names"
       http.POST[Seq[String], JsValue](url, arns.map(_.value))
         .map { json => json.as[Map[Arn, String]] }
     }
   }
+
+  def getSuspensionDetails()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SuspensionDetails] =
+    monitor("ConsumerAPI-Get-AgencySuspensionDetails-GET") {
+      http
+        .GET[HttpResponse](s"$baseUrl/agent-client-authorisation/agent/suspension-details")
+        .map(response =>
+          response.status match {
+            case 200 => Json.parse(response.body).as[SuspensionDetails]
+            case 204 => SuspensionDetails(suspensionStatus = false, None)
+          })
+    } recoverWith {
+      case _: NotFoundException => Future failed SuspensionDetailsNotFound("No record found for this agent")
+    }
 
   object StoredReads {
 
