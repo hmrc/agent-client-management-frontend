@@ -78,10 +78,10 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
     }
   }
 
-  def getSuspensionDetails()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SuspensionDetails] =
+  def getSuspensionDetails(arn: Arn)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SuspensionDetails] =
     monitor("ConsumerAPI-Get-AgencySuspensionDetails-GET") {
       http
-        .GET[HttpResponse](s"$baseUrl/agent-client-authorisation/agent/suspension-details")
+        .GET[HttpResponse](s"$baseUrl/agent-client-authorisation/client/suspension-details/${arn.value}")
         .map(response =>
           response.status match {
             case 200 => Json.parse(response.body).as[SuspensionDetails]

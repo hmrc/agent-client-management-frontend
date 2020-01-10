@@ -6,10 +6,9 @@ import org.jsoup.select.Elements
 import play.api.libs.ws._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.SuspensionResponse
+import uk.gov.hmrc.agentclientmanagementfrontend.models.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup}
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.http.HeaderCarrier
@@ -20,7 +19,7 @@ import scala.concurrent.Future
 
 class ClientRelationshipManagementControllerISpec
     extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
-    with AgentClientAuthorisationStub with AgentSuspensionStubs with ClientRelationshipManagementControllerTestSetup {
+    with AgentClientAuthorisationStub with ClientRelationshipManagementControllerTestSetup {
 
   override def featureRemoveAuthorisationPir = true
   override def featureRemoveAuthorisationITSA = true
@@ -100,9 +99,9 @@ class ClientRelationshipManagementControllerISpec
     "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(
       3) with BaseTestSetUp with NoRelationshipsFound {
 
-      givenSuspensionStatus(arn1, SuspensionResponse(Set(serviceVat)))
-      givenSuspensionStatus(arn2, SuspensionResponse(Set()))
-      givenSuspensionStatus(arn3, SuspensionResponse(Set()))
+      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("VATC"))))
+      givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
+      givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
 
       val response: WSResponse = await(doGetRequest(""))
 
@@ -124,7 +123,7 @@ class ClientRelationshipManagementControllerISpec
   }
 
   "Who can deal with HMRC for you tab" should {
-    "Show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound {
+    "Show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoSuspensions {
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -155,7 +154,7 @@ class ClientRelationshipManagementControllerISpec
         "You have not appointed someone to deal with HMRC currently.")
     }
 
-    "Show tab with authorised agents when startDate is blank" in new PendingInvitationsExist(0) with BaseTestSetUp {
+    "Show tab with authorised agents when startDate is blank" in new PendingInvitationsExist(0) with BaseTestSetUp with NoSuspensions {
       getClientActiveAgentRelationshipsNoStartDate(serviceItsa, arn1.value)
       getAgencyNameMap200(arn1, "This Agency Name")
 
@@ -174,9 +173,9 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "if suspension is enabled don't show suspended agents on this tab" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound {
-      givenSuspensionStatus(arn1, SuspensionResponse(Set(Services.HMRCMTDIT)))
-      givenSuspensionStatus(arn2, SuspensionResponse(Set()))
-      givenSuspensionStatus(arn3, SuspensionResponse(Set()))
+      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("ITSA"))))
+      givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
+      givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
 
       val response: WSResponse = await(doGetRequest(""))
 
@@ -225,7 +224,7 @@ class ClientRelationshipManagementControllerISpec
     val req = FakeRequest()
 
     "Show tab for a client with all services and different response scenarios in date order" in new BaseTestSetUp
-    with NoRelationshipsFound with InvitationHistoryExistsDifferentDates {
+    with NoRelationshipsFound with InvitationHistoryExistsDifferentDates with NoSuspensions {
       val response = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -251,7 +250,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Show tab for a client with all services and different response scenarios in time order when dates are the same" in
-      new BaseTestSetUp with NoRelationshipsFound with InvitationHistoryExistsDifferentTimes {
+      new BaseTestSetUp with NoRelationshipsFound with InvitationHistoryExistsDifferentTimes with NoSuspensions {
         val result = await(doGetRequest(""))
 
         result.status shouldBe 200
@@ -261,7 +260,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in new BaseTestSetUp
-    with NoRelationshipsFound with InvitationHistoryExistsDifferentNames {
+    with NoRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions {
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
@@ -278,7 +277,7 @@ class ClientRelationshipManagementControllerISpec
 
     "if suspension is enabled show tab with suspended agent relationships" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound {
       getClientActiveAgentRelationships(serviceItsa, arn1.value, startDateString)
-      givenSuspensionStatus(arn1, SuspensionResponse(Set(Services.HMRCMTDIT)))
+      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("ITSA"))))
       getAgencyNameMap200(arn1, "abc")
 
       val response = await(doGetRequest(""))

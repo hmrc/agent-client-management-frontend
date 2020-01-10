@@ -4,15 +4,14 @@ import java.time.LocalDate
 
 import play.api.test.FakeRequest
 import play.utils.UriEncoding
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.SuspensionResponse
-import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, SuspensionDetails}
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.Nino
 
 trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
-  with AgentClientAuthorisationStub with AgentSuspensionStubs {
+  with AgentClientAuthorisationStub {
 
   val mtdItId = MtdItId("ABCDEF123456789")
   val arn1 = Arn("FARN0001131")
@@ -204,8 +203,8 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   }
 
   trait NoSuspensions {
-    givenSuspensionStatus(arn1,SuspensionResponse(Set()))
-    givenSuspensionStatus(arn2,SuspensionResponse(Set()))
-    givenSuspensionStatus(arn3,SuspensionResponse(Set()))
+    givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = false, None))
+    givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
+    givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
   }
 }

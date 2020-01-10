@@ -2,6 +2,8 @@ package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import play.api.libs.json.Json
+import uk.gov.hmrc.agentclientmanagementfrontend.models.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
 import uk.gov.hmrc.domain.Nino
@@ -121,4 +123,18 @@ trait AgentClientAuthorisationStub {
       ))
   }
 
+  def givenSuspensionDetails(arn: String, suspensionDetails: SuspensionDetails): StubMapping =
+    stubFor(get(urlEqualTo(s"/agent-client-authorisation/client/suspension-details/$arn"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(Json.toJson(suspensionDetails).toString())
+      ))
+
+  def givenSuspensionDetailsNotFound(arn: String): StubMapping =
+    stubFor(get(urlEqualTo(s"/agent-client-authorisation/client/suspension-details/$arn"))
+      .willReturn(
+        aResponse()
+          .withStatus(204)
+      ))
 }

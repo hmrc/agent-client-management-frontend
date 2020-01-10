@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import java.util.UUID
 
 import javax.inject.Inject
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, AgentSuspensionConnector, PirRelationshipConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
@@ -34,7 +34,6 @@ class RelationshipManagementService @Inject()(
                                                pirRelationshipConnector: PirRelationshipConnector,
                                                acaConnector: AgentClientAuthorisationConnector,
                                                relationshipsConnector: AgentClientRelationshipsConnector,
-                                               suspensionConnector: AgentSuspensionConnector,
                                                sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(
@@ -72,8 +71,8 @@ class RelationshipManagementService @Inject()(
 
         val futureRelationshipWithArnCache: Future[Seq[ClientCache]] =
           Future.traverse(relationships)(r => for {
-            suspendedServices <- suspensionConnector.getSuspendedServices(r.arn)
-            isSuspended = suspendedServices.isSuspended(r.serviceName)
+            suspensionDetails <- acaConnector.getSuspensionDetails(r.arn)
+            isSuspended = suspensionDetails.isRegimeSuspended(r.serviceName)
           } yield {
             ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, isSuspended)
           })
