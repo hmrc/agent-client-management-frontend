@@ -282,7 +282,7 @@ class ClientRelationshipManagementControllerISpec
 
       val response = await(doGetRequest(""))
       response.status shouldBe 200
-      checkResponseBodyWithText(response, "Your activity history", "HMRC cancelled your authorisation")
+      checkResponseBodyWithText(response, "Your activity history", "HMRC suspended your authorisation")
     }
 
     "500, when Des returns 400" in {
