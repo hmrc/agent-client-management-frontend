@@ -17,9 +17,9 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import javax.inject.Inject
-import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentSuspensionConnector}
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.AgentClientAuthorisationConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -27,8 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(
                                                  acaConnector: AgentClientAuthorisationConnector,
-                                                 relationshipManagementService: RelationshipManagementService,
-                                                 suspensionConnector: AgentSuspensionConnector) {
+                                                 relationshipManagementService: RelationshipManagementService) {
 
   def getAgentRequests(clientType: String, clientIdOpt: ClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
@@ -53,8 +52,8 @@ class AgentClientAuthorisationService @Inject()(
       case (agencyName, storedInvites, agentRef) =>
         Future.traverse(storedInvites)(si =>
           for {
-            suspendedServices <- suspensionConnector.getSuspendedServices(si.arn)
-            isSuspended = suspendedServices.isSuspended(si.service)
+            suspensionDetails <- acaConnector.getSuspensionDetails(si.arn)
+            isSuspended = suspensionDetails.isRegimeSuspended(si.service)
           } yield
          AgentRequest(clientType, si.service, si.arn, agentRef.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId, isSuspended)
         ).map(_.sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated))
