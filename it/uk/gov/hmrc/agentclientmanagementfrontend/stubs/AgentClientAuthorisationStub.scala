@@ -130,11 +130,4 @@ trait AgentClientAuthorisationStub {
           .withStatus(200)
           .withBody(Json.toJson(suspensionDetails).toString())
       ))
-
-  def givenSuspensionDetailsNotFound(arn: String): StubMapping =
-    stubFor(get(urlEqualTo(s"/agent-client-authorisation/client/suspension-details/$arn"))
-      .willReturn(
-        aResponse()
-          .withStatus(204)
-      ))
 }
