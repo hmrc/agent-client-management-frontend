@@ -275,16 +275,6 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
-    "if suspension is enabled show tab with suspended agent relationships" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound {
-      getClientActiveAgentRelationships(serviceItsa, arn1.value, startDateString)
-      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("ITSA"))))
-      getAgencyNameMap200(arn1, "abc")
-
-      val response = await(doGetRequest(""))
-      response.status shouldBe 200
-      checkResponseBodyWithText(response, "Your activity history", "HMRC suspended your authorisation")
-    }
-
     "500, when Des returns 400" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       get400ClientActiveAgentRelationships(serviceItsa)

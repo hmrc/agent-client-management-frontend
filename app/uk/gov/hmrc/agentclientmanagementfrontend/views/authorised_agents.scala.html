@@ -113,7 +113,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @config.nonSuspendedAuthAgents.map{ authAgent =>
+                        @config.authorisedAgents.map{ authAgent =>
                             <tr>
                                 <td>@authAgent.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
@@ -130,7 +130,7 @@
         </section>
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
-            @if(config.nonPendingNonSuspendedRequestsExist || config.suspendedAuthAgentsExist){
+            @if(config.nonPendingNonSuspendedRequestsExist){
                 <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>
@@ -146,16 +146,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
-                        @config.suspendedAuthAgents.map { suspendedAgent =>
-                            <tr>
-                            <td>@suspendedAgent.agencyName</td>
-                            <td>@Messages(s"client-authorised-agents-table-content.${suspendedAgent.serviceName}")</td>
-                            <td>@Messages(s"client-authorised-agents-table.suspended")<span class="date-hint">
-                            </span></td>
-                            </td></tr>
-                        }
-
 
                         @config.nonPendingNonSuspendedRequests.map { agentReq =>
                             <tr>

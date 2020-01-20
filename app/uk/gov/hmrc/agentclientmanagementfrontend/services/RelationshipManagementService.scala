@@ -31,10 +31,10 @@ import scala.util.Success
 case class DeleteResponse(response: Boolean, agencyName: String, service: String)
 
 class RelationshipManagementService @Inject()(
-                                               pirRelationshipConnector: PirRelationshipConnector,
-                                               acaConnector: AgentClientAuthorisationConnector,
-                                               relationshipsConnector: AgentClientRelationshipsConnector,
-                                               sessionStoreService: SessionStoreService) {
+  pirRelationshipConnector: PirRelationshipConnector,
+  acaConnector: AgentClientAuthorisationConnector,
+  relationshipsConnector: AgentClientRelationshipsConnector,
+  sessionStoreService: SessionStoreService) {
 
   def getAuthorisedAgents(
     clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
@@ -61,7 +61,7 @@ class RelationshipManagementService @Inject()(
                             cgtRelationships))
                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
-        acaConnector.getAgencyNames(relationships.map(_.arn))
+                      acaConnector.getAgencyNames(relationships.map(_.arn))
                     else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 
@@ -69,23 +69,16 @@ class RelationshipManagementService @Inject()(
       case (relationships, agencyNames) =>
         def uuId: String = UUID.randomUUID().toString.replace("-", "")
 
-        val futureRelationshipWithArnCache: Future[Seq[ClientCache]] =
-          Future.traverse(relationships)(r => for {
-            suspensionDetails <- acaConnector.getSuspensionDetails(r.arn)
-            isSuspended = suspensionDetails.isRegimeSuspended(r.serviceName)
-          } yield {
-            ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, isSuspended)
-          })
+        val relationshipWithArnCache =
+          relationships.map(r => ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom))
 
-        futureRelationshipWithArnCache.flatMap { relationshipWithArnCache =>
-          sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
-            relationshipWithArnCache
-              .map { cache =>
-                AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised, cache.isSuspended)
-              }
-              .sortWith(_.agencyName.toLowerCase < _.agencyName.toLowerCase)
-              .sorted(AuthorisedAgent.orderingByDateFrom)
-          }
+        sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
+          relationshipWithArnCache
+            .map { cache =>
+              AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised)
+            }
+            .sortWith(_.agencyName.toLowerCase < _.agencyName.toLowerCase)
+            .sorted(AuthorisedAgent.orderingByDateFrom)
         }
     }
   }
