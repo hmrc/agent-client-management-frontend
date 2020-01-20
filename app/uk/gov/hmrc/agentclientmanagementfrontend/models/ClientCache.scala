@@ -20,7 +20,7 @@ import java.time.LocalDate
 import play.api.libs.json.Json
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
-case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String, dateAuthorised: Option[LocalDate], isSuspended: Boolean = false)
+case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String, dateAuthorised: Option[LocalDate])
 
 object ClientCache {
   implicit val format = Json.format[ClientCache]

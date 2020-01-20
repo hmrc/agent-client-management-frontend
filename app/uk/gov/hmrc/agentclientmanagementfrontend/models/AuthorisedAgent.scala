@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.models
 import java.time.LocalDate
 import play.api.libs.json.Json
 
-case class AuthorisedAgent(uuId: String, serviceName: String, agencyName: String, dateFrom: Option[LocalDate], isSuspended: Boolean = false)
+case class AuthorisedAgent(uuId: String, serviceName: String, agencyName: String, dateFrom: Option[LocalDate])
 
 object AuthorisedAgent {
   implicit val format = Json.format[AuthorisedAgent]
