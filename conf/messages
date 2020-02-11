@@ -4,6 +4,11 @@ servicename.titleSuffix=- Manage who can deal with HMRC for you - GOV.UK
 global.error.badRequest400.title=Bad request - 400
 global.error.badRequest400.heading=Bad request
 global.error.badRequest400.message=Please check that you have entered the correct web address.
+
+global.error.403.title=Forbidden - 403
+global.error.403.heading=Sorry, you haven’t been authorised to proceed.
+global.error.403.message=
+
 global.error.pageNotFound404.title=Page not found - Manage who can deal with HMRC for you - GOV.UK
 global.error.pageNotFound404.heading=Page not found
 global.error.pageNotFound404.message=<p>If you typed the web address, check it is correct.</p> <p>If you pasted the web address, check you copied the entire address.</p> <p>If the web address is correct or you selected a link or button, <a href="https://www.gov.uk/contact-hmrc">contact HMRC</a> if you need to speak to somebody about managing who can deal with HMRC for you.</p>

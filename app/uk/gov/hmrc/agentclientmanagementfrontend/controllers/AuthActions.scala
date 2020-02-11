@@ -19,6 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 import play.api.mvc.Results.Forbidden
 import play.api.mvc.{Request, Result}
 import play.api.{Logger, Mode}
+import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
 import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Utr, Vrn}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
@@ -33,6 +34,8 @@ import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthActions extends AuthorisedFunctions with AuthRedirects {
+
+  val forbiddenView: Html
 
   private val isDevEnv =
     if (env.mode.equals(Mode.Test)) false
@@ -62,11 +65,11 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
               case Some(Organisation) => body("business", clientIds)
               case _ =>
                 Logger.warn("Client logged in with wrong affinity group")
-                Future.successful(Forbidden)
+                Future.successful(Forbidden(forbiddenView))
             }
           } else {
             Logger.warn("Logged in client does not have required enrolments")
-            Future.successful(Forbidden)
+            Future.successful(Forbidden(forbiddenView))
           }
       }
       .recover(handleFailure)
@@ -77,6 +80,6 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
     case _: UnsupportedAuthProvider ⇒
       Logger.warn(s"user logged in with unsupported auth provider")
-      Forbidden
+      Forbidden(forbiddenView)
   }
 }

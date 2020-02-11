@@ -16,18 +16,16 @@
 
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
-import play.api.{Configuration, Environment, Mode}
-import play.twirl.api.Html
+import play.api.{Configuration, Environment}
+import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
-import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{error_template, error_template_5xx}
+import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
+import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,23 +39,19 @@ class ErrorHandler @Inject() (
 
   val env: Environment = appConfig.environment
 
-  private val isDevEnv = if (env.mode.equals(Mode.Test)) false else config.getString("run.mode").forall(Mode.Dev.toString.equals)
-
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     auditClientError(request, statusCode, message)
     super.onClientError(request, statusCode, message)
   }
 
-  override def resolveError(request: RequestHeader, exception: Throwable) = {
+  override def resolveError(request: RequestHeader, exception: Throwable): Result = {
     auditServerError(request, exception)
     exception match {
-      case _: NoActiveSession => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-      case _: InsufficientEnrolments => Forbidden
       case _ => super.resolveError(request, exception)
     }
   }
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) = {
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): HtmlFormat.Appendable = {
     error_template(
       Messages(pageTitle),
       Messages(heading),

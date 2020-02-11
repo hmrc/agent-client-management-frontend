@@ -22,15 +22,16 @@ import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc._
 import play.api.{Configuration, Environment}
+import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.FrontendAuthConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, show_remove_authorisation, timed_out}
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{authorisation_removed, authorised_agents, error_template, show_remove_authorisation, timed_out}
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -161,5 +162,11 @@ class ClientRelationshipManagementController @Inject()(
 
   private def redirectToRoot =
     Redirect(routes.ClientRelationshipManagementController.root())
+
+  override val forbiddenView: Html = error_template(
+    Messages("global.error.403.title"),
+    Messages("global.error.403.heading"),
+    Messages("global.error.403.message")
+  )
 }
 
