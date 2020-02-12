@@ -1,11 +1,14 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.http.Status.SEE_OTHER
+import play.api.i18n.Messages
 import play.api.{Configuration, Environment}
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
+import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_template
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
@@ -26,12 +29,16 @@ class AuthActionsISpec extends BaseISpec {
     implicit val hc = HeaderCarrier()
     implicit val request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
 
-
     def withAuthorisedAsClient[A]: Result = {
       await(super.withAuthorisedAsClient { (clientType, clientIds) =>
         Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
     }
 
+    override val forbiddenView: Html = error_template(
+      Messages("global.error.403.title"),
+      Messages("global.error.403.heading"),
+      Messages("global.error.403.message")
+    )
   }
 
   "withAuthorisedAsClient" should {
@@ -122,7 +129,10 @@ class AuthActionsISpec extends BaseISpec {
            |    { "key":"AgentReferenceNumber", "value": "fooArn" }
            |  ]}
            |]}""".stripMargin)
-        TestController.withAuthorisedAsClient shouldBe Forbidden
+
+      val result = TestController.withAuthorisedAsClient
+      status(result) shouldBe 403
+      bodyOf(result) should include("Sorry, you haven’t been authorised to proceed")
 
     }
 
@@ -136,7 +146,10 @@ class AuthActionsISpec extends BaseISpec {
            |    { "key":"BAR", "value": "fooMtdItId" }
            |  ]}
            |]}""".stripMargin)
-      TestController.withAuthorisedAsClient shouldBe Forbidden
+
+      val result = TestController.withAuthorisedAsClient
+      status(result) shouldBe 403
+      bodyOf(result) should include("Sorry, you haven’t been authorised to proceed")
     }
 
     "redirect to GG login page if user is not logged in" in {

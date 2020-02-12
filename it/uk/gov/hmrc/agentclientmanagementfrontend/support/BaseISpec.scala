@@ -14,6 +14,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs.AuthStubs
 import uk.gov.hmrc.http.HeaderCarrier
@@ -104,7 +105,9 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
   }
 
   private val messagesApi = app.injector.instanceOf[MessagesApi]
-  private implicit val messages: Messages = messagesApi.preferred(Seq.empty[Lang])
+  implicit val messages: Messages = messagesApi.preferred(Seq.empty[Lang])
+
+  implicit  val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
 
