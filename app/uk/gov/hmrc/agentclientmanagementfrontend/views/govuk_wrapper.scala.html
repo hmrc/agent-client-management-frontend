@@ -52,7 +52,6 @@
             window.jsConfig.timeout = @{appConfig.timeout};
             window.jsConfig.countdown = @{appConfig.countdown};
             window.jsConfig.keep_alive_url = "@{routes.ClientRelationshipManagementController.keepAlive().url}";
-            window.jsConfig.message = "@{Messages("timeout-dialog.p1")}"
             window.jsConfig.timed_out_url = "@{routes.ClientRelationshipManagementController.timedOut().url}";
             window.jsConfig.logout_url = "@{routes.ClientRelationshipManagementController.signOut().url}";
     </script>
@@ -73,7 +72,15 @@
     <script src="@controllers.routes.Assets.at("javascripts/acmf-fe.js")" type="text/javascript"></script>
 }
 
-@headerNavLinks = {}
+@headerNavLinks = {
+@if(appConfig.languageToggle){
+    <div class="text--right">@views.html.language_selection(
+        appConfig.languageMap,
+        appConfig.routeToSwitchLanguage,
+        customClass = Some("welsh-toggle")
+    )</div>
+}
+}
 
 @insideHeader = {
 @uiLayouts.header_nav(

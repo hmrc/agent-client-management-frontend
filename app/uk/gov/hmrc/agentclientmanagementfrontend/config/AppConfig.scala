@@ -19,7 +19,10 @@ package uk.gov.hmrc.agentclientmanagementfrontend.config
 import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
+import play.api.i18n.Lang
+import play.api.mvc.Call
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @ImplementedBy(classOf[FrontendAppConfig])
@@ -47,6 +50,9 @@ trait AppConfig {
   val timeout: Int
   val countdown: Int
   val enableAgentSuspension: Boolean
+  val languageToggle: Boolean
+  val languageMap: Map[String, Lang]
+  val routeToSwitchLanguage: String => Call
 }
 
 
@@ -93,9 +99,20 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
 
   override val enableAgentSuspension: Boolean = getConfBooleanOrFail("features.enable-agent-suspension")
 
+  override val languageToggle: Boolean = getConfBooleanOrFail("features.enable-welsh-toggle")
+
+  override val languageMap: Map[String, Lang] = Map(
+    "english" -> Lang("en"),
+    "cymraeg" -> Lang("cy")
+  )
+
+  override val routeToSwitchLanguage: String => Call = (lang: String) => routes.AgentClientManagementLanguageController.switchToLanguage(lang)
+
   private def getConfIntOrFail(key: String): Int =
     configuration.getInt(key).getOrElse(throw new Exception(s"Property not found $key"))
 
   private def getConfBooleanOrFail(key: String): Boolean =
     configuration.getBoolean(key).getOrElse(throw new Exception(s"Property not found $key"))
+
+
 }

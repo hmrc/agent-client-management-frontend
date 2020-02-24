@@ -1,6 +1,6 @@
 servicename.titleSuffix=- Manage who can deal with HMRC for you - GOV.UK
 
-# Error messages for digital services
+# Error messages.en for digital services
 global.error.badRequest400.title=Bad request - 400
 global.error.badRequest400.heading=Bad request
 global.error.badRequest400.message=Please check that you have entered the correct web address.
@@ -26,7 +26,7 @@ global.error.500.vat_helpline=if you need help with Making Tax Digital for VAT.
 global.error.500.sa_helpline.link=Call the HMRC Self Assessment online services helpline
 global.error.500.sa_helpline=if you need help with Making Tax Digital for Income Tax.
 
-# Service specific messages
+# Service specific messages.en
 app.name=agent-client-management
 
 # Start page
