@@ -2,7 +2,8 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
-import play.api.test.Helpers.redirectLocation
+import play.api.test.Helpers.{cookies, redirectLocation}
+
 import scala.concurrent.duration._
 
 class AgentClientManagementLanguageControllerISpec extends BaseISpec {
@@ -21,11 +22,7 @@ class AgentClientManagementLanguageControllerISpec extends BaseISpec {
       status(result) shouldBe 303
       redirectLocation(result)(timeout) shouldBe Some("https://www.gov.uk/fallback")
 
-
-
-      //TODO test the cookie value
-
-
+      cookies(result)(timeout).get("PLAY_LANG").get.value shouldBe "en"
 
     }
 
@@ -36,6 +33,8 @@ class AgentClientManagementLanguageControllerISpec extends BaseISpec {
       val result = controller.switchToLanguage("english")(request)
       status(result) shouldBe 303
       redirectLocation(result)(timeout) shouldBe Some("/some-page")
+
+      cookies(result)(timeout).get("PLAY_LANG").get.value shouldBe "en"
 
     }
   }
