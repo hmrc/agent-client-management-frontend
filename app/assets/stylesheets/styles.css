@@ -24,6 +24,10 @@ table p.p-medium{
 .margin-bottom-30{
     margin-bottom: 50px !important;
 }
+
+.margin-bottom-25{
+    margin-bottom: 25px;
+}
 .date-hint{
     display: block;
     font-size: 0.85em;
