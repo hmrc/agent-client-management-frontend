@@ -25,6 +25,8 @@ global.error.500.vat_helpline.link=Call the VAT online services helpline
 global.error.500.vat_helpline=if you need help with Making Tax Digital for VAT.
 global.error.500.sa_helpline.link=Call the HMRC Self Assessment online services helpline
 global.error.500.sa_helpline=if you need help with Making Tax Digital for Income Tax.
+global.error.500.vat_helpline.href=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/vat-online-services-helpdesk
+global.error.500.sa_helpline.href=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment-online-services-helpdesk
 
 # Service specific messages.en
 app.name=agent-client-management

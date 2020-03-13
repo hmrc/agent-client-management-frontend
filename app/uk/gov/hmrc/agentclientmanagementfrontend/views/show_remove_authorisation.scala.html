@@ -30,15 +30,16 @@
         @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
     }
 
+    <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>
+
+
     @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
 
-        <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>
-        <legend id="details-content-0" aria-hidden="true" class="margin-bottom-25">
-        @Messages(s"clientEndsRelationship.description.$service", agencyName)
-        </legend>
         @input_radio_group(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
+        '_legend -> Html(Messages(s"clientEndsRelationship.description.$service", agencyName)),
+        '_legendClass -> "margin-bottom-25",
             '_groupDivClass -> "form-group soft--ends",
             '_fieldsetAttributes -> Html("""id='confirmResponse'"""),
             '_errorPrefix -> Messages("error.prefix")
