@@ -24,6 +24,10 @@ table p.p-medium{
 .margin-bottom-30{
     margin-bottom: 50px !important;
 }
+
+.margin-bottom-25{
+    margin-bottom: 25px;
+}
 .date-hint{
     display: block;
     font-size: 0.85em;
@@ -32,16 +36,24 @@ table p.p-medium{
 .respond_link{
     font-size: 1em; !important;
 }
-.welsh-toggle {
-    padding-right: 15px;
-    float: right;
-    color: #b1b4b6;
-    font-weight: bold;
-    margin-bottom: 0;
-    text-decoration: none;
+
+.width-20{
+    width: 20%;
 }
 
-#cymraeg-switch:hover, #english-switch:hover{
-    color: white;
-    text-decoration: underline;
+.width-25{
+    width: 25%;
 }
+
+.width-30{
+    width: 35%;
+}
+.width-35{
+    width:35%;
+}
+
+.width-55{
+    width: 55%;
+}
+
+

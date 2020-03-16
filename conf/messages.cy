@@ -25,6 +25,8 @@ global.error.500.vat_helpline.link=Ffoniwch linell Ymholiadau TAW, Tollau ac Ecs
 global.error.500.vat_helpline=os oes angen help arnoch gyda’r cynllun Troi Treth yn Ddigidol ar gyfer TAW.
 global.error.500.sa_helpline.link=Ffoniwch Wasanaeth Cwsmeriaid Cymraeg CThEM
 global.error.500.sa_helpline=os oes angen help arnoch gyda’r cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm.
+global.error.500.vat_helpline.href=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/vat-customs-and-excise-and-duties-enquiries-for-welsh-speaking-customers
+global.error.500.sa_helpline.href=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines
 
 # Service specific messages.en
 app.name=asiant-cleient-rheoli

@@ -73,13 +73,7 @@
 }
 
 @headerNavLinks = {
-@if(appConfig.languageToggle){
-    <div class="text--right">@views.html.language_selection(
-        appConfig.languageMap,
-        appConfig.routeToSwitchLanguage,
-        customClass = Some("welsh-toggle")
-    )</div>
-}
+
 }
 
 @insideHeader = {
@@ -113,6 +107,14 @@
     betaBanner = HtmlFormat.empty,
     includeGridWrapper = false,
     Some(serviceInfoContent))
+
+@if(appConfig.languageToggle){
+    <div class="text--right">@views.html.language_selection(
+        appConfig.languageMap,
+        appConfig.routeToSwitchLanguage,
+        customClass = None
+    )</div>
+}
 }
 
 @mainContentHeader = {
