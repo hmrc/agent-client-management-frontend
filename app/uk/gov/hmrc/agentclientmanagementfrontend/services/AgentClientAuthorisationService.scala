@@ -42,20 +42,17 @@ class AgentClientAuthorisationService @Inject()(
       agencyNames <- if(storedInvitations.nonEmpty)
         acaConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
-      agentRefs <- acaConnector
-        .getAgentReferences(storedInvitations
-          .filter(_.status == "Pending")
-          .map(_.arn))
+      agentRefs <- acaConnector.getAgentReferences(storedInvitations.map(_.arn))
     } yield (agencyNames, storedInvitations, agentRefs)
 
     relationshipsWithAgencyNamesWithStoredInvitations.flatMap {
-      case (agencyName, storedInvites, agentRef) =>
+      case (agencyName, storedInvites, agentRefs) =>
         Future.traverse(storedInvites)(si =>
           for {
             suspensionDetails <- acaConnector.getSuspensionDetails(si.arn)
             isSuspended = suspensionDetails.isRegimeSuspended(si.service)
           } yield
-         AgentRequest(clientType, si.service, si.arn, agentRef.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId, isSuspended)
+         AgentRequest(clientType, si.service, si.arn, agentRefs.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId, isSuspended)
         ).map(_.sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated))
     }
   }

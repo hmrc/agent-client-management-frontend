@@ -85,15 +85,17 @@ class ClientRelationshipManagementControllerISpec
         "What you need to do")
     }
 
-    "Throw an Exception when there is no agent reference found for an Arn" in new PendingInvitationsExist(3)
+    "Ignore invitation when there is no agent reference found for an Arn" in new PendingInvitationsExist(3)
     with BaseTestSetUp with NoSuspensions {
       givenAgentRefNotFoundFor(arn1)
-      givenAgentRefNotFoundFor(arn1.copy(value = "FARN0001131"))
-      givenAgentRefNotFoundFor(arn1.copy(value = "FARN0001133"))
 
       val result = await(doGetRequest(""))
 
-      result.status shouldBe 500
+      result.status shouldBe 200
+
+      checkResponseBodyWithText(
+        result,
+        "You have 2 requests you need to respond to.") //out of 3 show only 2 in the UI due to one missing AgentRef
     }
 
     "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(

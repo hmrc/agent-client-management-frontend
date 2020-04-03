@@ -45,19 +45,19 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {
-     config.pendingNonSuspendedRequests shouldBe Seq(agentReq3, agentReq2)
+     config.validPendingRequests shouldBe Seq(agentReq3, agentReq2)
     }
 
     "return number of non pending requests" in {
-      config.nonPendingNonSuspendedRequests shouldBe Seq(agentReq4)
+      config.validNonPendingRequests shouldBe Seq(agentReq4)
     }
 
     "return true if there are pending requests" in {
-      config.pendingNonSuspendedRequestsExist shouldBe true
+      config.validPendingRequestsExist shouldBe true
     }
 
     "return true if there are non pending requests" in {
-      config.nonPendingNonSuspendedRequestsExist shouldBe true
+      config.validNonPendingRequestsExist shouldBe true
     }
 
     "return true if authorisations exist" in {
@@ -65,7 +65,7 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
     }
 
     "return number of pending requests" in {
-      config.pendingNonSuspendedCount shouldBe 2
+      config.validPendingCount shouldBe 2
     }
 
     "prettify the date" in {

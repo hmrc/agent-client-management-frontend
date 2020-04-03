@@ -22,6 +22,7 @@ import java.time.{LocalDate, LocalDateTime}
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
+import play.api.Logger
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsArray, JsObject, JsPath, JsResult, JsSuccess, JsValue, Json, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
@@ -55,11 +56,15 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
     Future.sequence(arns.map(arn => {
       val url = s"$baseUrl/agencies/references/arn/${arn.value}"
       monitor("ConsumedAPI-Agent-Reference-Invitations-GET") {
-        http.GET[AgentReference](url.toString).map(obj => obj).recover {
-          case e => throw new Exception(s"Agent Reference Not Found: $e")
+        http.GET[AgentReference](url.toString).map(Some(_)).recover {
+          case e =>
+            Logger.warn(s"error during getting agency reference for arn: $arn, error: ${e.getMessage}")
+            None
         }
       }
-    }))
+    })).map(_.collect {
+      case Some(agentRef) => agentRef
+    })
   }
 
   implicit val mapReads: Reads[Map[Arn, String]] = new Reads[Map[Arn, String]] {
