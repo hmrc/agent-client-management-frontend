@@ -134,8 +134,8 @@ class ClientRelationshipManagementControllerISpec
         "Manage who can deal with HMRC for you",
         "Who can deal with HMRC for you",
         "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
-        "Submit your VAT returns through software",
-        "Send your Income Tax updates through software",
+        "Manage your VAT",
+        "Manage your Income Tax",
         "View your PAYE income record",
         "abc",
         "6 June 2017",
@@ -168,7 +168,7 @@ class ClientRelationshipManagementControllerISpec
         "Manage who can deal with HMRC for you",
         "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
         "This Agency Name",
-        "Send your Income Tax updates through software",
+        "Manage your Income Tax",
         "Remove authorisation"
       )
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -187,7 +187,7 @@ class ClientRelationshipManagementControllerISpec
         "Manage who can deal with HMRC for you",
         "Who can deal with HMRC for you",
         "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
-        "Submit your VAT returns through software",
+        "Manage your VAT",
         "View your PAYE income record",
         "6 June 2017",
         "Remove authorisation"
@@ -195,7 +195,7 @@ class ClientRelationshipManagementControllerISpec
       val doc = Jsoup.parse(response.body)
       val currentAuthsTab: Elements = doc.select("section[id=\"currentAuths\"]")
       currentAuthsTab.contains("abc") shouldBe false
-      currentAuthsTab.contains("Send your Income Tax updates through software") shouldBe false
+      currentAuthsTab.contains("Manage your Income Tax") shouldBe false
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
@@ -237,9 +237,9 @@ class ClientRelationshipManagementControllerISpec
         "abc",
         "DEF",
         "ghi",
-        "Send your Income Tax updates through software",
+        "Manage your Income Tax",
         "View your PAYE income record",
-        "Submit your VAT returns through software",
+        "Manage your VAT",
         "You accepted this request",
         "You declined this request",
         "This request expired before you responded",
@@ -613,7 +613,7 @@ class ClientRelationshipManagementControllerISpec
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(
         result,
-        "You removed your authorisation from This Agency Name to send your Income Tax updates through software")
+        "You removed your authorisation from This Agency Name to manage your Income Tax")
     }
 
     "return exception if required session data not found" in {
