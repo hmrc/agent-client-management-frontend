@@ -163,7 +163,7 @@ class ClientRelationshipManagementController @Inject()(
   private def redirectToRoot =
     Redirect(routes.ClientRelationshipManagementController.root())
 
-  override val forbiddenView: Html = error_template(
+  override def forbiddenView(implicit request: Request[_]): Html = error_template(
     Messages("global.error.403.title"),
     Messages("global.error.403.heading"),
     Messages("global.error.403.message")

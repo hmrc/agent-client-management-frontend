@@ -50,6 +50,7 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
   val pageTitle = "My custom page title"
   val heading = "My custom heading"
   val message = "My custom message"
+  val fakeRequest = FakeRequest()
 
   "error_template view" should {
 
@@ -64,6 +65,7 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
         heading = heading,
         message = message,
         messages = applicationMessages,
+        request = fakeRequest,
         appConf
         )
 
@@ -78,6 +80,7 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
       val html2 =
         new error_template().f("My custom page title", "My custom heading", "My custom message")(
           applicationMessages,
+          fakeRequest,
           appConf)
       contentAsString(html2) mustBe (content)
     }
@@ -129,8 +132,8 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
         Some("my-custom-body-class"),
         Some("my-custom-main-class"),
         Some(Html("My custom script")),true)(Html("My custom main content HTML"))(
-        applicationMessages,
         FakeRequest(),
+        applicationMessages,
         appConf)
       contentAsString(html2) mustBe (content)
     }
@@ -153,6 +156,7 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
         scriptElem = Some(Html("My custom script")),
         gaCode = Seq("My custom GA code"),
         messages = Messages.Implicits.applicationMessages,
+        request = fakeRequest,
         appConfig = appConf,
         hasTimeout = true
       )
@@ -183,7 +187,7 @@ class ViewsSpec extends MixedPlaySpec with MockedMetrics {
         Some(Html("My custom script")),
         Seq("My custom GA code"),
         true
-      )(Messages.Implicits.applicationMessages, appConf)
+      )(Messages.Implicits.applicationMessages,fakeRequest, appConf)
       contentAsString(html2) mustBe (content)
     }
   }

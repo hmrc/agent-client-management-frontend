@@ -29,7 +29,7 @@
         serviceInfoContent: Html = HtmlFormat.empty,
         scriptElem: Option[Html] = None,
         gaCode: Seq[String] = Seq.empty,
-        hasTimeout: Boolean = true)(implicit messages: Messages, appConfig: AppConfig)
+        hasTimeout: Boolean = true)(implicit messages: Messages, request: Request[_], appConfig: AppConfig)
 
 
 
@@ -106,7 +106,9 @@
 @uiLayouts.serviceInfo(
     betaBanner = HtmlFormat.empty,
     includeGridWrapper = false,
-    Some(serviceInfoContent))
+    Some(serviceInfoContent),
+    setLang = request.cookies
+            .get("PLAY_LANG").map(_.value).getOrElse("en"))
 
 @if(appConfig.languageToggle){
     <div class="text--right">@views.html.language_selection(

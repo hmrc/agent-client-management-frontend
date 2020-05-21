@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
-  val forbiddenView: Html
+  def forbiddenView(implicit request: Request[_]): Html
 
   private val isDevEnv =
     if (env.mode.equals(Mode.Test)) false
