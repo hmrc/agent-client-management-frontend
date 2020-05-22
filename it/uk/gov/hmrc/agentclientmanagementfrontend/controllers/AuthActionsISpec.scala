@@ -3,7 +3,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.Messages
 import play.api.{Configuration, Environment}
-import play.api.mvc.Result
+import play.api.mvc.{Request, Result}
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -34,7 +34,7 @@ class AuthActionsISpec extends BaseISpec {
         Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
     }
 
-    override val forbiddenView: Html = error_template(
+    override def forbiddenView(implicit request: Request[_]): Html = error_template(
       Messages("global.error.403.title"),
       Messages("global.error.403.heading"),
       Messages("global.error.403.message")
