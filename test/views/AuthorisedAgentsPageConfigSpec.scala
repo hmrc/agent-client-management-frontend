@@ -20,6 +20,7 @@ import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
@@ -29,6 +30,7 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
 
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
+  implicit val request = FakeRequest()
 
   val authAgent1 = AuthorisedAgent("uid123", "HMRC-MTD-IT", "Original Origami Org", Some(LocalDate.parse("2019-01-01")))
 
@@ -41,7 +43,7 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with M
 
   val agentReqs = Seq(agentReq1, agentReq2, agentReq3, agentReq4)
 
-  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(dateOrdering)
+  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering)
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {

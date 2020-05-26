@@ -17,14 +17,12 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.views
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
+import play.api.mvc.Request
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
+import uk.gov.hmrc.agentclientmanagementfrontend.util.DisplayDateUtils
 
-case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit dateOrdering: Ordering[LocalDate]) {
-
-  import AuthorisedAgentsPageConfig._
+case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit request: Request[_], dateOrdering: Ordering[LocalDate]) {
 
   //non suspended and non terminated
   val validPendingRequests: Seq[AgentRequest] = agentRequests
@@ -43,14 +41,8 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val validPendingCount: Int = validPendingRequests.length
 
-  def displayDate(date: Option[LocalDate]): String = date.fold("")(_.format(dateFormatter))
+  def displayDate(date: Option[LocalDate]): String = DisplayDateUtils.displayDateForLang(date)
 
 }
 
-object AuthorisedAgentsPageConfig {
-
-  private val dateFormatter: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.UK)
-
-}
 
