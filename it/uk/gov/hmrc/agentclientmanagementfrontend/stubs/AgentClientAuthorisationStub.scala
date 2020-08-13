@@ -5,8 +5,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.libs.json.Json
 import uk.gov.hmrc.agentclientmanagementfrontend.models.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 trait AgentClientAuthorisationStub {
   me: WireMockSupport =>

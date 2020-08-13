@@ -18,12 +18,10 @@ package uk.gov.hmrc.agentclientmanagementfrontend.config
 
 import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Singleton}
-import play.api.Mode.Mode
 import play.api.i18n.Lang
 import play.api.mvc.Call
-import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @ImplementedBy(classOf[FrontendAppConfig])
 trait AppConfig {
@@ -34,8 +32,6 @@ trait AppConfig {
   val agentClientRelationshipsBaseUrl: String
   val agentClientAuthorisationBaseUrl: String
   val sessionCacheDomain: String
-  val configuration: Configuration
-  val environment: Environment
   val contactFrontendBaseUrl: String
   val agentInvitationsFrontendBaseUrl: String
   val appName: String
@@ -57,10 +53,11 @@ trait AppConfig {
 
 
 @Singleton
-class FrontendAppConfig @Inject()(val configuration: Configuration, val environment: Environment) extends AppConfig with ServicesConfig {
+class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends AppConfig {
 
-  override val runModeConfiguration: Configuration = configuration
-  override val mode: Mode = environment.mode
+  private def baseUrl(serviceName: String) = servicesConfig.baseUrl(serviceName)
+  private def getString(config: String) = servicesConfig.getString(config)
+
   override lazy val authBaseUrl: String = baseUrl("auth")
   override lazy val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
   override lazy val sessionCacheBaseUrl: String = baseUrl("cachable.session-cache")
@@ -108,11 +105,9 @@ class FrontendAppConfig @Inject()(val configuration: Configuration, val environm
 
   override val routeToSwitchLanguage: String => Call = (lang: String) => routes.AgentClientManagementLanguageController.switchToLanguage(lang)
 
-  private def getConfIntOrFail(key: String): Int =
-    configuration.getInt(key).getOrElse(throw new Exception(s"Property not found $key"))
+  private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 
-  private def getConfBooleanOrFail(key: String): Boolean =
-    configuration.getBoolean(key).getOrElse(throw new Exception(s"Property not found $key"))
+  private def getConfBooleanOrFail(key: String): Boolean = servicesConfig.getBoolean(key)
 
 
 }

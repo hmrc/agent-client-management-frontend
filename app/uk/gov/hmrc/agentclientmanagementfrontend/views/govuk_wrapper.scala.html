@@ -14,11 +14,24 @@
  * limitations under the License.
  *@
 
-@import layouts.{govuk_template => hmrcGovUkTemplate}
-@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers, layouts => uiLayouts}
-@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
-
+@import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
+@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
+
+@this(
+        govUkTemplate: views.html.layouts.GovUkTemplate,
+        uiHead: uk.gov.hmrc.play.views.html.layouts.Head,
+        uiHeaderNav: uk.gov.hmrc.play.views.html.layouts.HeaderNav,
+        uiFooter: uk.gov.hmrc.play.views.html.layouts.Footer,
+        uiServiceInfo: uk.gov.hmrc.play.views.html.layouts.ServiceInfo,
+        uiMainContentHeader: uk.gov.hmrc.play.views.html.layouts.MainContentHeader,
+        uiMainContent: uk.gov.hmrc.play.views.html.layouts.MainContent,
+        uiFooterLinks: uk.gov.hmrc.play.views.html.layouts.FooterLinks,
+        helperReportAProblemLink: uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink,
+        uiBetaBanner: uk.gov.hmrc.play.views.html.layouts.BetaBanner
+)
+
 @(title: String,
         mainClass: Option[String] = None,
         mainDataAttributes: Option[Html] = None,
@@ -57,7 +70,7 @@
     </script>
 }
 
-@uiLayouts.head(
+@uiHead(
     linkElem = None,
     headScripts = Some(headScripts))
     <meta name="format-detection" content="telephone=no"/>
@@ -77,7 +90,7 @@
 }
 
 @insideHeader = {
-@uiLayouts.header_nav(
+@uiHeaderNav(
     navTitle = Some(Messages("client-authorised-agents.title")),
     navTitleLink = None,
     showBetaLink = false,
@@ -91,7 +104,7 @@
 }
 
 @bodyEnd = {
-@uiLayouts.footer(analyticsToken = Some(appConfig.googleAnalyticsToken),
+@uiFooter(analyticsToken = Some(appConfig.googleAnalyticsToken),
     analyticsHost = appConfig.googleAnalyticsHost,
     ssoUrl = None,
     scriptElem = Some(scriptElement),
@@ -103,7 +116,7 @@
 @footerLinks = {}
 
 @serviceInfo = {
-@uiLayouts.serviceInfo(
+@uiServiceInfo(
     betaBanner = HtmlFormat.empty,
     includeGridWrapper = false,
     Some(serviceInfoContent),
@@ -121,18 +134,18 @@
 
 @mainContentHeader = {
 @if(contentHeader.isDefined) {
-    @uiLayouts.main_content_header(contentHeader.get)
+    @uiMainContentHeader(contentHeader.get)
 }
 }
 
 @getHelpForm = @{
-    uiHelpers.reportAProblemLink(appConfig.contactFrontendAjaxUrl, appConfig.contactFrontendNonJsUrl)
+    helperReportAProblemLink(appConfig.contactFrontendAjaxUrl, appConfig.contactFrontendNonJsUrl)
 }
 
 @titleSuffix = @{ Messages("servicename.titleSuffix") }
 
 @content = {
-@uiLayouts.main_content(article = mainContent,
+@uiMainContent(article = mainContent,
     mainClass = mainClass,
     mainDataAttributes = mainDataAttributes,
     mainContentHeader = mainContentHeader,
@@ -141,4 +154,4 @@
     sidebar = sidebar)
 }
 
-@hmrcGovUkTemplate(Some(title + " " + titleSuffix), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links()), nav = true)(content)
+@govUkTemplate(Some(title + " " + titleSuffix), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links()), nav = true)(content)

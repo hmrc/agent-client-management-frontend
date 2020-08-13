@@ -1,7 +1,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.matching.{MatchResult, UrlPattern}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 

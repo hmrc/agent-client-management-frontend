@@ -19,14 +19,14 @@ package views
 import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.play.test.UnitSpec
 
-class AuthorisedAgentsPageConfigSpec extends UnitSpec with OneAppPerSuite with MockitoSugar {
+class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 

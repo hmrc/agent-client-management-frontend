@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PirRelationshipConnector @Inject()(
                                           appConfig: AppConfig,
-                                          http: HttpGet with HttpDelete,
+                                          http: HttpClient,
                                           metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry

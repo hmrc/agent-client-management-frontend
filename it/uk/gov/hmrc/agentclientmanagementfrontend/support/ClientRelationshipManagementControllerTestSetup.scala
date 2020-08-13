@@ -3,7 +3,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.support
 import java.time.LocalDate
 
 import play.api.test.FakeRequest
-import play.utils.UriEncoding
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, SuspensionDetails}
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services

@@ -25,19 +25,19 @@ import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
-import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
+import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ErrorHandler @Inject() (
   val messagesApi: MessagesApi,
-  val auditConnector: AuditConnector)(implicit val config: Configuration,  appConfig: AppConfig, ec: ExecutionContext)
+  val auditConnector: AuditConnector,
+  errorTemplate: error_template,
+  errorTemplate5xx: error_template_5xx)(implicit val config: Configuration, val env: Environment, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
 
   val appName: String = appConfig.appName
-
-  val env: Environment = appConfig.environment
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     auditClientError(request, statusCode, message)
@@ -52,13 +52,13 @@ class ErrorHandler @Inject() (
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): HtmlFormat.Appendable = {
-    error_template(
+    errorTemplate(
       Messages(pageTitle),
       Messages(heading),
       Messages(message))
   }
 
-  override def internalServerErrorTemplate(implicit request: Request[_]): Html = error_template_5xx()
+  override def internalServerErrorTemplate(implicit request: Request[_]): Html = errorTemplate5xx()
 }
 
 object EventTypes {
