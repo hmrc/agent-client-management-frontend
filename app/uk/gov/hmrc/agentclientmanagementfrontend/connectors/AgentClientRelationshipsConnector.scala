@@ -31,7 +31,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
-                                                  http: HttpDelete with HttpGet, metrics: Metrics) extends HttpAPIMonitor {
+                                                  http: HttpClient, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 

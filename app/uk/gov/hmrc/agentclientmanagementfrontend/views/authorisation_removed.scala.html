@@ -16,10 +16,13 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+
+@this(mainTemplate: main_template)
 
 @(agencyName: String, service: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages(s"clientEndsRelationshipEnded.title.$service"), bodyClasses = None) {
+@mainTemplate(title = Messages(s"clientEndsRelationshipEnded.title.$service"), bodyClasses = None) {
 
  <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.h1.$service", agencyName)</h1>
  <p>@Messages(s"clientEndsRelationshipEnded.p1.$service", agencyName)</p>

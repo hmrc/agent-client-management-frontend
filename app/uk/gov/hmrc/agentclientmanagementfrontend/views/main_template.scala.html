@@ -16,6 +16,11 @@
 
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@import uk.gov.hmrc.play.views.html.layouts.Sidebar
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.govuk_wrapper
+
+@this(govUkWrapper: govuk_wrapper, uiSidebar: Sidebar)
+
 @(title: String,
         sidebarLinks: Option[Html] = None,
         contentHeader: Option[Html] = None,
@@ -28,7 +33,7 @@
 
 @sidebar = {
     @if(sidebarLinks.isDefined) {
-        @layouts.sidebar(sidebarLinks.get, Some("sidebar"))
+        @uiSidebar(sidebarLinks.get, Some("sidebar"))
     }
 }
 
@@ -36,7 +41,7 @@
 @scriptElem
 }
 
-@govuk_wrapper(title,
+@govUkWrapper(title,
     mainClass,
     bodyClasses = bodyClasses,
     sidebar = sidebar,

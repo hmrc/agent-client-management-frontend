@@ -36,7 +36,7 @@ import uk.gov.hmrc.http._
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
-                                                  http: HttpDelete with HttpGet with HttpPost, metrics: Metrics) extends HttpAPIMonitor {
+                                                  http: HttpClient, metrics: Metrics) extends HttpAPIMonitor {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
   import StoredReads._

@@ -15,14 +15,20 @@
  *@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
-@import uk.gov.hmrc.play.views.html.helpers.{form, errorSummary, input_radio_group}
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.RadioConfirm
-
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_prefix
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+@import uk.gov.hmrc.play.views.html.helpers.ErrorSummary
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(mainTemplate: main_template, errorPrefix: error_prefix, inputRadioGroup: InputRadioGroup, uiForm: FormWithCSRF, errorSummary: ErrorSummary)
+
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = error_prefix(confirmForm) + Messages("clientEndsRelationship.title"), bodyClasses = None) {
+@mainTemplate(title = errorPrefix(confirmForm) + Messages("clientEndsRelationship.title"), bodyClasses = None) {
 
     <a id="backLink" href="@routes.ClientRelationshipManagementController.root()" class="link-back">@Messages("button.back")</a>
 
@@ -33,9 +39,9 @@
     <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>
 
 
-    @form(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
+    @uiForm(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
 
-        @input_radio_group(
+        @inputRadioGroup(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
         '_legend -> Html(Messages(s"clientEndsRelationship.description.$service", agencyName)),

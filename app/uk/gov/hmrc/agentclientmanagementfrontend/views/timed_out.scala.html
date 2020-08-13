@@ -16,6 +16,9 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+
+@this(mainTemplate: main_template)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -24,7 +27,7 @@
     if(timeout < 60) s"$timeout seconds" else s"${timeout/60} minutes"
 }
 
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("timed-out.header"), hasTimeout = false) {
+@mainTemplate(title = Messages("timed-out.header"), hasTimeout = false) {
 
     <h1 class="heading-xlarge margin-bottom-30">@Messages("timed-out.header")</h1>
     <p>@Messages("timed-out.p1", timeString)</p>

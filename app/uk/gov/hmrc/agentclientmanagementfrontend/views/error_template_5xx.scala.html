@@ -15,10 +15,13 @@
  *@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+
+@this(mainTemplate: main_template)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template(title = Messages("global.error.500.title")) {
+@mainTemplate(title = Messages("global.error.500.title")) {
     <h1 class="heading-xlarge">@Messages("global.error.500.heading")</h1>
 
     <p>@Messages("global.error.500.message")</p>

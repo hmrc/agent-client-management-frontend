@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import org.scalatestplus.play.OneAppPerSuite
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
@@ -24,10 +24,11 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class ErrorHandlerSpec extends UnitSpec with OneAppPerSuite {
+class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite {
 
   val handler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  implicit val lang: Lang = Lang("en")
 
   "ErrorHandler should show the error page" when {
     "a client error (404) occurs" in {

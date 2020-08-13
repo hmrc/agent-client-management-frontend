@@ -15,7 +15,11 @@
  *@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+
+@this()
+
 @(form: Form[_])(implicit messages: Messages, appConfig: AppConfig)
+
 @if(form.hasErrors){
     @Messages("error.prefix")
 }

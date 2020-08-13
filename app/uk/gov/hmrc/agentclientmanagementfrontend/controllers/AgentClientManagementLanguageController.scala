@@ -18,20 +18,20 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import javax.inject.Inject
 import play.api.Configuration
-import play.api.i18n.{Lang, MessagesApi}
+import play.api.i18n.Lang
+import play.api.mvc._
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
 class AgentClientManagementLanguageController @Inject()(
-                                                        configuration: Configuration,
-                                                        languageUtils: LanguageUtils,
-                                                        override val messagesApi: MessagesApi,
-                                                        appConfig: AppConfig)
-  extends LanguageController(configuration, languageUtils) {
+  configuration: Configuration,
+  languageUtils: LanguageUtils,
+  cc: ControllerComponents,
+  appConfig: AppConfig)
+    extends LanguageController(configuration, languageUtils, cc) {
 
   override def languageMap: Map[String, Lang] = appConfig.languageMap
 
   override def fallbackURL: String = "https://www.gov.uk/fallback"
-
 
 }
