@@ -14,3 +14,4 @@ addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.16")
 
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.3.4")  // provides sbt command "dependencyUpdates"
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")  // provides sbt command "dependencyTree"
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.12")
