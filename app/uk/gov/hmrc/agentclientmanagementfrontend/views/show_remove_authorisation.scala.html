@@ -19,11 +19,14 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_prefix
-@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.input_radio_group_custom
 @import uk.gov.hmrc.play.views.html.helpers.ErrorSummary
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(mainTemplate: main_template, errorPrefix: error_prefix, inputRadioGroup: InputRadioGroup, uiForm: FormWithCSRF, errorSummary: ErrorSummary)
+@this(
+        mainTemplate: main_template,
+        errorPrefix: error_prefix,
+        inputRadioGroupCustom: input_radio_group_custom, uiForm: FormWithCSRF, errorSummary: ErrorSummary)
 
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -36,22 +39,17 @@
         @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
     }
 
-    <h1 class="heading-large">@Messages("clientEndsRelationship.h1", agencyName)</h1>
-
 
     @uiForm(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
 
-        @inputRadioGroup(
+        @inputRadioGroupCustom(
             confirmForm("confirmResponse"),
             Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
-        '_legend -> Html(Messages(s"clientEndsRelationship.description.$service", agencyName)),
-        '_legendClass -> "margin-bottom-25",
+                '_legend -> Html(s"""<h1 class="heading-xlarge">${Messages("clientEndsRelationship.h1", agencyName)}</h1>"""),
+           '_inputHint ->     Messages(s"clientEndsRelationship.description.$service", agencyName),
             '_groupDivClass -> "form-group soft--ends",
-            '_fieldsetAttributes -> Html("""id='confirmResponse'"""),
-            '_errorPrefix -> Messages("error.prefix")
+            '_fieldsetAttributes -> Html("""id='confirmResponse'""")
         )
-        <div class="form-group">
             <button type="submit" class="button" id="buttonDeauthorise">@Messages("button.continue")</button>
-        </div>
     }
 }

@@ -24,9 +24,9 @@
 
 @mainTemplate(title = Messages(s"clientEndsRelationshipEnded.title.$service"), bodyClasses = None) {
 
- <h1 class="heading-large">@Messages(s"clientEndsRelationshipEnded.h1.$service", agencyName)</h1>
+ <h1 class="heading-xlarge">@Messages(s"clientEndsRelationshipEnded.h1.$service", agencyName)</h1>
  <p>@Messages(s"clientEndsRelationshipEnded.p1.$service", agencyName)</p>
 
- <a href="@routes.ClientRelationshipManagementController.root()" class="button" role="button" id="goToPtaButton">@Messages("button.continue")</a>
+ <a class="button" role="button" id="goToPtaButton" href="@routes.ClientRelationshipManagementController.root()">@Messages("button.continue")</a>
 
 }
