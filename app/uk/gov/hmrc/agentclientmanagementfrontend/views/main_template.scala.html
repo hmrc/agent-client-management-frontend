@@ -19,7 +19,8 @@
 @import uk.gov.hmrc.play.views.html.layouts.Sidebar
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.govuk_wrapper
 
-@this(govUkWrapper: govuk_wrapper, uiSidebar: Sidebar)
+
+@this(govUkWrapper: govuk_wrapper, uiSidebar: Sidebar, uiArticle: uk.gov.hmrc.agentclientmanagementfrontend.views.html.article_as_div )
 
 @(title: String,
         sidebarLinks: Option[Html] = None,
@@ -46,7 +47,7 @@
     bodyClasses = bodyClasses,
     sidebar = sidebar,
     contentHeader = contentHeader,
-    mainContent = layouts.article(mainContent),
+    mainContent = uiArticle(mainContent),
     serviceInfoContent = serviceInfoContent,
     scriptElem = Some(scriptElement),
     hasTimeout = hasTimeout)
