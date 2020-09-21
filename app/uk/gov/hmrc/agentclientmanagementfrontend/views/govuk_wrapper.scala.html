@@ -156,4 +156,4 @@
     sidebar = sidebar)
 }
 
-@govUkTemplate(Some(title + " " + titleSuffix), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiLayouts.footer_links()), nav = true)(content)
+@govUkTemplate(Some(title + " " + titleSuffix), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uiFooterLinks(additionalLinks = Some(footerLinks))), nav = true)(content)
