@@ -37,7 +37,18 @@
 
 @mainTemplate(title = Messages("client-authorised-agents.title"), bodyClasses = Some("full-width")){
 
-    <h1 class="heading-large">@Messages("client-authorised-agents.title")</h1>
+    <h1 class="heading-large margin-bottom-25">@Messages("client-authorised-agents.title")</h1>
+
+    <p>@Messages("client-authorised-agents.p")</p>
+
+    <ul class="list list-bullet">
+        <li>@Messages("client-authorised-agents.li.1")</li>
+        <li>@Messages("client-authorised-agents.li.2")</li>
+        <li>@Messages("client-authorised-agents.li.3")</li>
+        <li>@Messages("client-authorised-agents.li.4")</li>
+    </ul>
+
+    <p class="margin-bottom-30"><a href="https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent">@Messages("client-authorised-agents.link.text")</a></p>
 
     <div class="govuk-tabs" data-module="tabs">
         <h2 class="govuk-tabs__title">
@@ -70,26 +81,29 @@
             <p class="panel panel-border-wide">@pendingNo</p>
                 <table class="font-small">
                     <colgroup>
-                        <col class="width-55">
                         <col class="width-25">
-                        <col class="width-20">
+                        <col class="width-25">
+                        <col class="width-25">
+                        <col class="width-25">
                     </colgroup>
                     <thead>
                         <tr>
                             <th scope="col">@Messages("client-authorised-agents-table.current.agentName")</th>
+                            <th scope="col">@Messages("client-authorised-agents-table.current.taxService")</th>
                             <th scope="col">@Messages("client-authorised-agents-table.current.expiryDate")</th>
                             <th scope="col" >@Messages("client-authorised-agents-table.current.action")</th>
                         </tr>
                     </thead>
                     <tbody>
-                    @config.validPendingRequests.map { agentReq =>
+                    @config.displayValidPendingRequests.map { agentReq =>
                         <tr>
-                            <td>@agentReq.agencyName</td>
+                            <td style="font-weight: bold">@agentReq.agencyName</td>
+                            <td>@agentReq.serviceName</td>
                             <td>@config.displayDate(Some(agentReq.expiryDate))</td>
                             <td>
                                 <a href=@appConfig.warmUpUrl(agentReq.clientType, agentReq.uid, agentReq.agencyName)>
                                     <span aria-hidden="true">@Messages("client-authorised-agents-table.actions.respond")</span>
-                                    <span class="visuallyhidden">@Messages("client-authorised-agents-table.actions.respond") @agentReq.agencyName</span>
+                                    <span class="visuallyhidden">@Messages("client-authorised-agents-table.actions.respond") @agentReq.agencyName @Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</span>
 
                                 </a>
                             </td>
@@ -103,7 +117,6 @@
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="currentAuths">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab2.title")</h2>
             @if(config.authorisedAgentsExist){
-                <p>@Messages("client-authorised-agents-table-relationships.tab2.p")</p>
                 <table class="font-small">
                     <colgroup>
                         <col class="width-20">
@@ -122,7 +135,7 @@
                     <tbody>
                         @config.authorisedAgents.map{ authAgent =>
                             <tr>
-                                <td>@authAgent.agencyName</td>
+                                <td style="font-weight: bold">@authAgent.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
                                 <td>@config.displayDate(authAgent.dateFrom)</td>
                                 <td>@if(appConfig.featuresRemoveAuthorisation(authAgent.serviceName)){
@@ -144,12 +157,11 @@
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
             @if(config.validNonPendingRequestsExist){
-                <p>@Messages("client-authorised-agents-table-relationships.tab3.p")</p>
                 <table class="font-small">
                     <colgroup>
-                        <col class="width-30">
+                        <col class="width-25">
                         <col class="width-35">
-                        <col class="width-35">
+                        <col class="width-40">
                     </colgroup>
                     <thead>
                         <tr>
@@ -162,7 +174,7 @@
 
                         @config.validNonPendingRequests.map { agentReq =>
                             <tr>
-                                <td>@agentReq.agencyName</td>
+                                <td style="font-weight: bold">@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
                                 <td>@Messages(s"client-authorised-agents-table.${agentReq.status}")<span class="date-hint">
                                 @config.displayDate(Some(agentReq.lastUpdated.toLocalDate))</span></td>
