@@ -18,28 +18,35 @@ package uk.gov.hmrc.agentclientmanagementfrontend.views
 
 import java.time.LocalDate
 
+import play.api.i18n.Messages
 import play.api.mvc.Request
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.DisplayDateUtils
 
-case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit request: Request[_], dateOrdering: Ordering[LocalDate]) {
+case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit request: Request[_], dateOrdering: Ordering[LocalDate], messages: Messages) {
 
   //non suspended and non terminated
-  val validPendingRequests: Seq[AgentRequest] = agentRequests
+  val displayValidPendingRequests: Seq[AgentRequest] = agentRequests
     .filter(x => x.status == "Pending" && !x.isSuspended && x.uid != "")
-    .sortBy(_.expiryDate).map(x => x.arn -> x)
-    .toMap.values.toSet.toSeq
+    .groupBy(_.arn)
+    .flatMap {
+    case (_ , authRequests) => authRequests.sortBy(_.expiryDate).reverse.headOption.map(ar => ar.copy(
+      serviceName =
+        if(authRequests.size == 1) Messages(s"client-authorised-agents-table-content.${ar.serviceName}")
+      else
+        Messages("client-authorised-agents-table.current.serviceSize", authRequests.size)))
+  }.toSeq.sortBy(_.expiryDate).reverse
 
   //non suspended and non terminated
   val validNonPendingRequests: Seq[AgentRequest] = agentRequests.filter(x => x.status != "Pending" && !x.isSuspended && x.uid != "")
 
-  val validPendingRequestsExist: Boolean = validPendingRequests.nonEmpty
+  val validPendingRequestsExist: Boolean = displayValidPendingRequests.nonEmpty
 
   val validNonPendingRequestsExist: Boolean = validNonPendingRequests.nonEmpty
 
   val authorisedAgentsExist: Boolean = authorisedAgents.nonEmpty
 
-  val validPendingCount: Int = validPendingRequests.length
+  val validPendingCount: Int = displayValidPendingRequests.length
 
   def displayDate(date: Option[LocalDate]): String = DisplayDateUtils.displayDateForLang(date)
 

@@ -23,7 +23,7 @@ import play.api.mvc._
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
-class AgentClientManagementLanguageController @Inject()(
+class ServiceLanguageController @Inject()(
   configuration: Configuration,
   languageUtils: LanguageUtils,
   cc: ControllerComponents,
@@ -32,6 +32,6 @@ class AgentClientManagementLanguageController @Inject()(
 
   override def languageMap: Map[String, Lang] = appConfig.languageMap
 
-  override def fallbackURL: String = "https://www.gov.uk/fallback"
+  override def fallbackURL: String = "https://www.tax.service.gov.uk/manage-your-tax-agents/"
 
 }

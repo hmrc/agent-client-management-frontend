@@ -45,14 +45,21 @@ class ClientRelationshipManagementControllerISpec
       checkResponseBodyWithText(
         response,
         "Manage who can deal with HMRC for you",
+        "This page allows you to view and change agent authorisations for:",
+        "Making Tax Digital for VAT",
+        "Manage a Capital Gains Tax on UK property account",
+        "Maintain a trust or estate",
+        "Making Tax Digital for Income Tax (trial service)",
+        "For other tax services, read the guidance",
         "Current requests",
-        "Who sent the request",
+        "Agent",
+        "Tax service",
         "You need to respond by",
         "What you need to do",
         "1 January 9999",
         "abc",
         "Respond to request",
-        "You have 3 requests you need to respond to."
+        "You have 3 authorisation requests you need to respond to."
       )
     }
 
@@ -63,9 +70,8 @@ class ClientRelationshipManagementControllerISpec
         response.status shouldBe 200
         checkResponseBodyWithText(
           response,
-          "Manage who can deal with HMRC for you",
           "Current requests",
-          "You have 1 request you need to respond to.")
+          "You have 1 authorisation request you need to respond to.")
       }
 
     "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0) with BaseTestSetUp
@@ -95,7 +101,7 @@ class ClientRelationshipManagementControllerISpec
 
       checkResponseBodyWithText(
         result,
-        "You have 2 requests you need to respond to.") //out of 3 show only 2 in the UI due to one missing AgentRef
+        "You have 2 authorisation requests you need to respond to.") //out of 3 show only 2 in the UI due to one missing AgentRef
     }
 
     "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(
@@ -112,19 +118,20 @@ class ClientRelationshipManagementControllerISpec
         response,
         "Manage who can deal with HMRC for you",
         "Current requests",
-        "Who sent the request",
+        "Agent",
+        "Tax service",
         "You need to respond by",
         "What you need to do",
         "1 January 9999",
         "DEF",
         "Respond to request",
-        "You have 2 requests you need to respond to."
+        "You have 2 authorisation requests you need to respond to."
       )
     }
 
   }
 
-  "Who can deal with HMRC for you tab" should {
+  "Authorised agents tab" should {
     "Show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoSuspensions {
       val response: WSResponse = await(doGetRequest(""))
 
@@ -132,8 +139,11 @@ class ClientRelationshipManagementControllerISpec
       checkResponseBodyWithText(
         response,
         "Manage who can deal with HMRC for you",
-        "Who can deal with HMRC for you",
-        "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
+        "Authorised agents",
+        "Agent",
+        "Tax service",
+        "When you gave consent",
+        "Action",
         "Manage your VAT",
         "Manage your Income Tax",
         "View your PAYE income record",
@@ -152,7 +162,7 @@ class ClientRelationshipManagementControllerISpec
       checkResponseBodyWithText(
         response,
         "Manage who can deal with HMRC for you",
-        "Who can deal with HMRC for you",
+        "Authorised agents",
         "You have not appointed someone to deal with HMRC currently.")
     }
 
@@ -166,7 +176,7 @@ class ClientRelationshipManagementControllerISpec
       checkResponseBodyWithText(
         response,
         "Manage who can deal with HMRC for you",
-        "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
+        "Authorised agents",
         "This Agency Name",
         "Manage your Income Tax",
         "Remove authorisation"
@@ -185,8 +195,7 @@ class ClientRelationshipManagementControllerISpec
       checkResponseBodyWithText(
         response,
         "Manage who can deal with HMRC for you",
-        "Who can deal with HMRC for you",
-        "Find who you currently allow to deal with HMRC and remove your consent if you want to do so.",
+        "Authorised agents",
         "Manage your VAT",
         "View your PAYE income record",
         "6 June 2017",
@@ -222,7 +231,7 @@ class ClientRelationshipManagementControllerISpec
     }
   }
 
-  "Your activity history tab" should {
+  "History tab" should {
     val req = FakeRequest()
 
     "Show tab for a client with all services and different response scenarios in date order" in new BaseTestSetUp
@@ -232,17 +241,16 @@ class ClientRelationshipManagementControllerISpec
       response.status shouldBe 200
       checkResponseBodyWithText(
         response,
-        "Your activity history",
-        "Keep track of changes to who HMRC can deal with and find details of previous requests.",
+        "History",
         "abc",
         "DEF",
         "ghi",
         "Manage your Income Tax",
         "View your PAYE income record",
         "Manage your VAT",
-        "You accepted this request",
-        "You declined this request",
-        "This request expired before you responded",
+        "You accepted on:",
+        "You declined on:",
+        "The request expired on:",
         "15 January 2017",
         "5 January 2017"
       )
@@ -273,7 +281,7 @@ class ClientRelationshipManagementControllerISpec
       val response = await(doGetRequest(""))
 
       response.status shouldBe 200
-      checkResponseBodyWithText(response, "Your activity history", "You do not have any previous activity.")
+      checkResponseBodyWithText(response, "History", "You do not have any previous activity.")
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 

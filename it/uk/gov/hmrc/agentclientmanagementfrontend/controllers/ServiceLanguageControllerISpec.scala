@@ -6,9 +6,9 @@ import play.api.test.Helpers.{cookies, redirectLocation}
 
 import scala.concurrent.duration._
 
-class AgentClientManagementLanguageControllerISpec extends BaseISpec {
+class ServiceLanguageControllerISpec extends BaseISpec {
 
-  lazy private val controller: AgentClientManagementLanguageController = app.injector.instanceOf[AgentClientManagementLanguageController]
+  lazy private val controller: ServiceLanguageController = app.injector.instanceOf[ServiceLanguageController]
 
   implicit private val timeout = 2.seconds
 
@@ -20,7 +20,7 @@ class AgentClientManagementLanguageControllerISpec extends BaseISpec {
 
       val result = controller.switchToLanguage("english")(request)
       status(result) shouldBe 303
-      redirectLocation(result)(timeout) shouldBe Some("https://www.gov.uk/fallback")
+      redirectLocation(result)(timeout) shouldBe Some("https://www.tax.service.gov.uk/manage-your-tax-agents/")
 
       cookies(result)(timeout).get("PLAY_LANG").get.value shouldBe "en"
 

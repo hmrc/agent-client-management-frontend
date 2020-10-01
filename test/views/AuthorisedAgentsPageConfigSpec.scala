@@ -20,17 +20,22 @@ import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.play.test.UnitSpec
 
+
 class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
   implicit val request = FakeRequest()
+
+  val messagesApi = app.injector.instanceOf[MessagesApi]
+  implicit val messages = MessagesImpl(Lang("en"), messagesApi)
 
   val authAgent1 = AuthorisedAgent("uid123", "HMRC-MTD-IT", "Original Origami Org", Some(LocalDate.parse("2019-01-01")))
 
@@ -43,11 +48,14 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite w
 
   val agentReqs = Seq(agentReq1, agentReq2, agentReq3, agentReq4)
 
-  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering)
+  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering, messages)
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {
-     config.validPendingRequests shouldBe Seq(agentReq3, agentReq2)
+     config.displayValidPendingRequests shouldBe Seq(
+       agentReq3.copy(serviceName = "2 tax services"),
+       agentReq2.copy(serviceName = "Manage your VAT")
+     )
     }
 
     "return number of non pending requests" in {

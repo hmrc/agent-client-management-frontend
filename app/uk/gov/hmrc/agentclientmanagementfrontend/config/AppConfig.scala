@@ -103,7 +103,7 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
     "cymraeg" -> Lang("cy")
   )
 
-  override val routeToSwitchLanguage: String => Call = (lang: String) => routes.AgentClientManagementLanguageController.switchToLanguage(lang)
+  override val routeToSwitchLanguage: String => Call = (lang: String) => routes.ServiceLanguageController.switchToLanguage(lang)
 
   private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 

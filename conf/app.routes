@@ -9,6 +9,6 @@ GET         /keep-alive                                          @uk.gov.hmrc.ag
 GET         /sign-out                                            @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.signOut
 GET         /timed-out                                            @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.timedOut
 
-GET         /language/:lang                                      @uk.gov.hmrc.agentclientmanagementfrontend.controllers.AgentClientManagementLanguageController.switchToLanguage(lang: String)
+GET         /language/:lang                                      @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ServiceLanguageController.switchToLanguage(lang: String)
 
 GET         /assets/*file                                       controllers.Assets.at(path="/public", file)
