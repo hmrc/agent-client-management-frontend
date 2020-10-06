@@ -23,6 +23,7 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
 import play.api.Logger
+import play.api.http.Status.{NOT_FOUND, NO_CONTENT}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsArray, JsObject, JsPath, JsResult, JsSuccess, JsValue, Json, Reads}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
@@ -94,6 +95,20 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
           })
     } recoverWith {
       case _: NotFoundException => Future failed SuspensionDetailsNotFound("No record found for this agent")
+    }
+
+  def setRelationshipEnded(invitationId: InvitationId)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[Option[Boolean]] =
+    monitor("ConsumedApi-Set-Relationship-Ended-PUT") {
+      val url = new URL(s"$baseUrl/agent-client-authorisation/invitations/${invitationId.value}/relationship-ended?endedBy=Client")
+      http.PUT[String, HttpResponse](url.toString, "").map { r =>
+        r.status match {
+          case NO_CONTENT => Some(true)
+          case NOT_FOUND  => Some(false)
+          case _          => None
+        }
+      }
     }
 
   object StoredReads {
