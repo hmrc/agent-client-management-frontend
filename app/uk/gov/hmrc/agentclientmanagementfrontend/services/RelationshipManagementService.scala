@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
+import java.time.LocalDateTime
 import java.util.UUID
 
 import javax.inject.Inject
+import play.api.Logger
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
@@ -35,6 +37,8 @@ class RelationshipManagementService @Inject()(
   acaConnector: AgentClientAuthorisationConnector,
   relationshipsConnector: AgentClientRelationshipsConnector,
   sessionStoreService: SessionStoreService) {
+
+  implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
   def getAuthorisedAgents(
     clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
@@ -122,6 +126,7 @@ class RelationshipManagementService @Inject()(
                                           .andThen {
                                             case Success(true) =>
                                               for {
+                                                _ <- setRelationshipEnded(clientId, cache.arn, cache.service)
                                                 _ <- sessionStoreService.remove()
                                                 _ <- sessionStoreService.storeClientCache(remainingCache)
                                               } yield ()
@@ -132,6 +137,27 @@ class RelationshipManagementService @Inject()(
                          case None => Future.failed(new Exception("failed to retrieve session cache"))
                        }
     } yield deleteResponse
+
+  private def setRelationshipEnded(clientId: TaxIdentifier, arn: Arn, service: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+    //get the most recent invitation for the matching client/agent/service to update the IsRelationshipEnded flag
+    acaConnector.getInvitation(clientId)
+     .map(invs => invs.filter(inv =>
+       inv.arn == arn &&
+       inv.service == service &&
+       inv.status == "Accepted")
+       .sortBy(_.lastUpdated)
+       .reverse)
+      .map(_.headOption)
+      .flatMap {
+        case Some(inv) => acaConnector.setRelationshipEnded(InvitationId(inv.invitationId)).map {
+          case Some(true) => ()
+          case _ =>
+            Logger.warn(s"couldn't set 'isRelationshipEnded' on the invitation: ${inv.invitationId}")
+          //should we fail here ?
+        }
+        case None => Future.successful(())
+      }
+  }
 
   def getAuthorisedAgentDetails(
     id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String)]] =
