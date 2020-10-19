@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 import java.util.UUID
 
 import javax.inject.Inject
@@ -86,6 +86,41 @@ class RelationshipManagementService @Inject()(
         }
     }
   }
+
+  def getDeAuthorisedAgents(
+                             clientIdOpt: ClientIdentifiers
+                           )(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[Inactive]] = {
+    val pirInactiveRelationships = inactiveRelationships(clientIdOpt.nino) {
+      case _: Nino => pirRelationshipConnector.getInactiveClientRelationships()
+    }
+    val otherInactiveRelationships = relationshipsConnector.getInactiveClientRelationships
+    for{
+      pir <- pirInactiveRelationships
+      other <- otherInactiveRelationships
+    } yield pir ++ other
+  }
+
+  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] ={
+    agentRequests.map {
+      case ar:AgentRequest if
+      ar.status =="Accepted" &&
+        ar.isRelationshipEnded &&
+        ar.relationshipEndedBy.isDefined =>
+        inactive.find {
+          i => i.arn == ar.arn && i.serviceName == ar.serviceName && isOnOrAfter(i.dateTo,ar.lastUpdated)
+        } match {
+          case Some(r) => r.dateTo.fold(ar)(d => ar.copy(
+            status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.get}",
+            lastUpdated = d.atStartOfDay()))
+          case None => ar
+        }
+      case ar: AgentRequest => ar
+    }
+  }
+
+  private def isOnOrAfter(a: Option[LocalDate], that: LocalDateTime): Boolean =
+    !a.map(_.isBefore(that.toLocalDate)).getOrElse(false)
+
 
   def deleteITSARelationship(id: String, clientId: MtdItId)(
     implicit c: HeaderCarrier,
@@ -170,6 +205,12 @@ class RelationshipManagementService @Inject()(
     identifierOpt match {
       case Some(identifier) => f(identifier)
       case None             => Future.successful(Seq.empty)
+    }
+
+  def inactiveRelationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]) =
+    identifierOpt match {
+      case Some(identifier) => f(identifier)
+      case None => Future.successful(Seq.empty)
     }
 
   def removeNinoSpaces(nino: Nino): Nino =

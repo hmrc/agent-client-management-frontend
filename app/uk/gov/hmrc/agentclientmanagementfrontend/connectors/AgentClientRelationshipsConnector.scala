@@ -22,12 +22,13 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{CgtRelationship, ItsaRelationship, TrustRelationship, VatRelationship}
+import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
@@ -57,6 +58,19 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
         arnOpt.map(arn => ItsaRelationship(arn, dateFromOpt))
       }.recover {
         case _ : NotFoundException => None
+      }
+    }
+  }
+
+  def getInactiveClientRelationships(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[InactiveRelationship]] = {
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/inactive"
+    monitor(s"ConsumedAPI-GetInactiveRelationships-AgentClientRelationship") {
+      http.GET[HttpResponse](url).map { response =>
+        response.status match {
+          case 200 => (response.json).as[Seq[InactiveRelationship]]
+        }
+      }.recover {
+        case _ : NotFoundException => Seq.empty
       }
     }
   }

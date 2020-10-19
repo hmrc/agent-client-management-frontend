@@ -78,7 +78,9 @@ class ClientRelationshipManagementController @Inject()(
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientType, clientIds)
         authRequests  <- relationshipManagementService.getAuthorisedAgents(clientIds)
-      } yield Ok(authorisedAgentsView(AuthorisedAgentsPageConfig(authRequests, agentRequests)))
+        deAuthed <- relationshipManagementService.getDeAuthorisedAgents(clientIds)
+        refined   = relationshipManagementService.matchAndRefineStatus(agentRequests, deAuthed)
+      } yield Ok(authorisedAgentsView(AuthorisedAgentsPageConfig(authRequests, refined)))
     }
   }
 

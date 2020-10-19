@@ -25,6 +25,27 @@ trait PirRelationshipStub {
                |}]""".stripMargin)))
   }
 
+  def getInactivePIRRelationships(arn: Arn): StubMapping = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/inactive"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"""
+               |[
+               |{
+               |"arn": "${arn.value}",
+               |"service": "INCOME-RECORD-VIEWER",
+               |"clientId": "AE123456A",
+               |"relationshipStatus": "TERMINATED",
+               |"startDate": "2017-01-05T11:45:41.023",
+               |"endDate": "2018-01-05T11:45:41.023",
+               |"fromCesa": false
+               |}]""".stripMargin
+          ))
+      )
+  }
+
   def getNotFoundForPIRRelationship(service: String, nino: String): StubMapping = {
     stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(

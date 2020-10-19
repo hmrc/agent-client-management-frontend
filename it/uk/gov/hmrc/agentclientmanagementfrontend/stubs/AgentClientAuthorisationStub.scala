@@ -10,7 +10,7 @@ import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId}
 trait AgentClientAuthorisationStub {
   me: WireMockSupport =>
 
-  def getInvitations(arn: Arn, clientId: String, clientIdType:String, service: String, status: String, expiryDate: String, lastUpdated: String, clientType: String = "") = {
+  def getInvitations(arn: Arn, clientId: String, clientIdType:String, service: String, status: String, expiryDate: String, lastUpdated: String, clientType: String = "", isRelationshipEnded: Boolean = false, relationshipEndedBy: Option[String] = None) = {
     stubFor(get(urlEqualTo(s"/agent-client-authorisation/clients/$clientIdType/$clientId/invitations/received"))
       .willReturn(
         aResponse()
@@ -38,6 +38,8 @@ trait AgentClientAuthorisationStub {
                |   "clientIdType": "$clientIdType",
                |   "suppliedClientId": "$clientId",
                |   "suppliedClientIdType": "$clientIdType",
+               |   "isRelationshipEnded" : $isRelationshipEnded,
+               |    ${relationshipEndedBy.map(v => s""" "relationshipEndedBy" : "$v", """).getOrElse("")}
                |   "status": "$status",
                |   "created": "2018-01-15T13:14:00.000+08:00",
                |   "lastUpdated": "$lastUpdated",

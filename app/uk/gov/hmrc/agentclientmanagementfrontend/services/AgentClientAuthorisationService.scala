@@ -52,7 +52,18 @@ class AgentClientAuthorisationService @Inject()(
             suspensionDetails <- acaConnector.getSuspensionDetails(si.arn)
             isSuspended = suspensionDetails.isRegimeSuspended(si.service)
           } yield
-         AgentRequest(clientType, si.service, si.arn, agentRefs.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid, agencyName.getOrElse(si.arn, ""), si.status, si.expiryDate, si.lastUpdated, si.invitationId, isSuspended)
+         AgentRequest(
+           clientType, si.service,
+           si.arn,
+           agentRefs.find(_.arn == si.arn).getOrElse(AgentReference.emptyAgentReference).uid,
+           agencyName.getOrElse(si.arn, ""),
+           si.status,
+           si.expiryDate,
+           si.lastUpdated,
+           si.invitationId,
+           isSuspended,
+           si.isRelationshipEnded,
+         si.relationshipEndedBy)
         ).map(_.sorted(AgentRequest.orderingByAgencyName).sorted(AgentRequest.orderingByLastUpdated))
     }
   }

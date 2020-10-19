@@ -34,6 +34,8 @@ case class StoredInvitation(
   lastUpdated: LocalDateTime,
   expiryDate: LocalDate,
   invitationId: String,
+                           isRelationshipEnded: Boolean,
+                           relationshipEndedBy: Option[String],
   selfUrl: URL)
 
 object StoredInvitation {
@@ -55,6 +57,8 @@ object StoredInvitation {
              lastUpdated: LocalDateTime,
              expiryDate: LocalDate,
              invitationId: String,
+           isRelationshipEnded: Boolean,
+           relationshipEndedBy: Option[String] = None,
              selfUrl: URL): StoredInvitation =
     StoredInvitation(
       arn,
@@ -69,6 +73,7 @@ object StoredInvitation {
       lastUpdated,
       expiryDate,
       invitationId,
+      isRelationshipEnded,
+      relationshipEndedBy,
       selfUrl)
-
 }
