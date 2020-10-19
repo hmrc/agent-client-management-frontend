@@ -3,6 +3,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, MtdItId}
 
 trait AgentClientRelationshipsStub {
   me: WireMockSupport =>
@@ -79,5 +80,40 @@ trait AgentClientRelationshipsStub {
       .willReturn(
         aResponse()
           .withStatus(503)))
+  }
+
+  def getInactiveClientRelationshipsEmpty(): StubMapping = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/inactive"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"""[]"""
+          ))
+    )
+  }
+
+  def getInactiveClientRelationshipsExist(arnVat: Arn, mtdItIdArn: Arn): StubMapping = {
+    stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/inactive"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"""[
+               |{
+               |"arn": "${arnVat.value}",
+               |"service": "HMRC-MTD-VAT",
+               |"dateFrom": "2017-01-05",
+               |"dateTo": "2018-01-01"
+               |},
+               |{
+               |"arn": "${mtdItIdArn.value}",
+               |"service": "HMRC-MTD-IT",
+               |"dateFrom": "2017-01-10",
+               |"dateTo": "2018-10-10"
+               |}]""".stripMargin
+          )
+      )
+    )
   }
 }

@@ -29,7 +29,9 @@ case class AgentRequest(
                          expiryDate: LocalDate,
                          lastUpdated: LocalDateTime,
                          invitationId: String,
-                         isSuspended: Boolean = false)
+                         isSuspended: Boolean = false,
+                       isRelationshipEnded: Boolean = false,
+                       relationshipEndedBy: Option[String] = None)
 
 object AgentRequest {
 

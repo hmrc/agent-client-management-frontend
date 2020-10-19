@@ -21,7 +21,7 @@ import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.models.PirRelationship
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{PirInactiveRelationship, PirRelationship}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.domain.Nino
@@ -44,6 +44,15 @@ class PirRelationshipConnector @Inject()(
       val url = s"$baseUrl/agent-fi-relationship/relationships/service/${Services.HMRCPIR}/clientId/${nino.value}"
       http.GET[Seq[PirRelationship]](url.toString).recover {
         case e: NotFoundException => Seq.empty
+      }
+    }
+  }
+
+  def getInactiveClientRelationships()(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[PirInactiveRelationship]] = {
+    monitor(s"ConsumedAPI-AfiRelationships-GET") {
+      val url = s"$baseUrl/agent-fi-relationship/relationships/inactive"
+      http.GET[Seq[PirInactiveRelationship]](url).recover {
+        case _: NotFoundException => Seq.empty
       }
     }
   }

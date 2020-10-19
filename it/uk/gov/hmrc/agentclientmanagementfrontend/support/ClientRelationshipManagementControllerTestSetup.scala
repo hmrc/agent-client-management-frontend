@@ -50,6 +50,11 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getNotFoundClientActiveAgentRelationships(serviceCgt)
   }
 
+  //stubs for no inactive relationships
+  trait NoInactiveRelationshipsFound {
+    getInactiveClientRelationshipsEmpty()
+  }
+
   //stubs for relationships found
   trait RelationshipsFound {
     getClientActiveAgentRelationships(serviceItsa, arn1.value, startDateString)
@@ -135,6 +140,37 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
       "Expired",
       "9999-01-01",
       lastUpdatedAfter)
+    getInvitationsNotFound(validUtr.value, "UTR")
+    getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
+    givenAgentRefExistsFor(arn1)
+    givenAgentRefExistsFor(arn2)
+    givenAgentRefExistsFor(arn3)
+    getThreeAgencyNamesMap200(
+      (arn1, "abc"),
+      (arn2, "DEF"),
+      (arn3, "ghi")
+    )
+  }
+
+  //stub for when there is invitation history and some invitations have been de-authed
+  trait InvitationHistoryExistsWithInactiveRelationships {
+    getInvitations(
+      arn3,
+      validVrn.value,
+      "VRN",
+      serviceVat,
+      "Accepted",
+      "9999-01-01",
+      lastUpdatedBefore, isRelationshipEnded = true, relationshipEndedBy = Some("Agent"))
+    getInvitations(arn1, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01", lastUpdated, isRelationshipEnded = true, relationshipEndedBy = Some("Client"))
+    getInvitations(
+      arn2,
+      validNino.value,
+      "NI",
+      serviceIrv,
+      "Accepted",
+      "9999-01-01",
+      lastUpdatedAfter, isRelationshipEnded = true, relationshipEndedBy = Some("HMRC"))
     getInvitationsNotFound(validUtr.value, "UTR")
     getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
     givenAgentRefExistsFor(arn1)

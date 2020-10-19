@@ -37,7 +37,7 @@ class ClientRelationshipManagementControllerISpec
 
   "Current requests tab" should {
     "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(
-      3) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions {
+      3) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound  {
 
       val response: WSResponse = await(doGetRequest(""))
 
@@ -64,7 +64,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Show tab with different message when number of pending invitations is 1" in
-      new PendingInvitationsExist(1) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions {
+      new PendingInvitationsExist(1) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
         val response: WSResponse = await(doGetRequest(""))
 
         response.status shouldBe 200
@@ -75,7 +75,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0) with BaseTestSetUp
-    with NoRelationshipsFound with NoSuspensions {
+    with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -92,7 +92,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Ignore invitation when there is no agent reference found for an Arn" in new PendingInvitationsExist(3)
-    with BaseTestSetUp with NoSuspensions {
+    with BaseTestSetUp with NoSuspensions with NoInactiveRelationshipsFound {
       givenAgentRefNotFoundFor(arn1)
 
       val result = await(doGetRequest(""))
@@ -132,7 +132,7 @@ class ClientRelationshipManagementControllerISpec
   }
 
   "Authorised agents tab" should {
-    "Show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoSuspensions {
+    "Show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -155,7 +155,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Show tab with no authorised agents and different content" in new PendingInvitationsExist(0) with BaseTestSetUp
-    with NoRelationshipsFound {
+    with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -166,7 +166,7 @@ class ClientRelationshipManagementControllerISpec
         "You have not appointed someone to deal with HMRC currently.")
     }
 
-    "Show tab with authorised agents when startDate is blank" in new PendingInvitationsExist(0) with BaseTestSetUp with NoSuspensions {
+    "Show tab with authorised agents when startDate is blank" in new PendingInvitationsExist(0) with BaseTestSetUp with NoSuspensions with NoInactiveRelationshipsFound {
       getClientActiveAgentRelationshipsNoStartDate(serviceItsa, arn1.value)
       getAgencyNameMap200(arn1, "This Agency Name")
 
@@ -184,7 +184,7 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "if suspension is enabled don't show suspended agents on this tab" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound {
+    "if suspension is enabled don't show suspended agents on this tab" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoInactiveRelationshipsFound {
       givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("ITSA"))))
       givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
       givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
@@ -235,7 +235,7 @@ class ClientRelationshipManagementControllerISpec
     val req = FakeRequest()
 
     "Show tab for a client with all services and different response scenarios in date order" in new BaseTestSetUp
-    with NoRelationshipsFound with InvitationHistoryExistsDifferentDates with NoSuspensions {
+      with NoRelationshipsFound with InvitationHistoryExistsDifferentDates with NoSuspensions with NoInactiveRelationshipsFound {
       val response = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -260,7 +260,7 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "Show tab for a client with all services and different response scenarios in time order when dates are the same" in
-      new BaseTestSetUp with NoRelationshipsFound with InvitationHistoryExistsDifferentTimes with NoSuspensions {
+      new BaseTestSetUp with NoRelationshipsFound with InvitationHistoryExistsDifferentTimes with NoSuspensions with NoInactiveRelationshipsFound {
         val result = await(doGetRequest(""))
 
         result.status shouldBe 200
@@ -270,14 +270,14 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in new BaseTestSetUp
-    with NoRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions {
+      with NoRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions with NoInactiveRelationshipsFound {
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.indexOf("abc") < result.body.indexOf("def") && result.body.indexOf("def") < result.body.indexOf("ghi") shouldBe true
     }
 
-    "Show tab for a client with no relationship history" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound {
+    "Show tab for a client with no relationship history" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val response = await(doGetRequest(""))
 
       response.status shouldBe 200
@@ -343,6 +343,21 @@ class ClientRelationshipManagementControllerISpec
       result.status shouldBe 500
       result.body.contains("Sorry, there is a problem with the service") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
+    }
+
+    "Show refined statuses that indicate who terminated a relationship when inactive relationships are found" in new BaseTestSetUp
+      with NoRelationshipsFound with InvitationHistoryExistsWithInactiveRelationships with NoSuspensions {
+
+      getInactivePIRRelationships(arn2)
+      getInactiveClientRelationshipsExist(arn3, arn1)
+
+      val response = await(doGetRequest(""))
+
+      response.status shouldBe 200
+
+      response.body.contains(s"You removed authorisation on:") shouldBe true
+      response.body.contains(s"HMRC removed authorisation on:") shouldBe true
+      response.body.contains(s"Your agent removed authorised on:") shouldBe true
     }
   }
 

@@ -129,8 +129,10 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
           (JsPath \ "lastUpdated").read[LocalDateTime] and
           (JsPath \ "expiryDate").read[LocalDate] and
           (JsPath \ "invitationId").read[String] and
+          (JsPath \ "isRelationshipEnded").read[Boolean] and
+          (JsPath \ "relationshipEndedBy").readNullable[String] and
           (JsPath \ "_links" \ "self").read[URL]) (
-          (a, b, c, d, e, f, g, h, i, j, k, l, m) => StoredInvitation.apply(a, b, c, d, e, f, g, h, i, j, k, l, m)
+          (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => StoredInvitation.apply(a, b, c, d, e, f, g, h, i, j, k, l, m, n ,o)
         )
       }
   }
