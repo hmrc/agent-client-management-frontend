@@ -53,10 +53,10 @@ object PirInactiveRelationship {
 
   implicit val reads: Reads[PirInactiveRelationship] = (
     (JsPath \ "arn").read[Arn] and
-      (JsPath \ "startDate").readNullable[LocalDateTime].map(date => javaDateTimeToJodaDate(date.get)) and
-      (JsPath \ "endDate").readNullable[LocalDateTime].map(date => javaDateTimeToJodaDate(date.get)))(PirInactiveRelationship.apply _)
+      (JsPath \ "startDate").readNullable[LocalDateTime].map(date => localDateTimeToLocalDate(date.get)) and
+      (JsPath \ "endDate").readNullable[LocalDateTime].map(date => localDateTimeToLocalDate(date.get)))(PirInactiveRelationship.apply _)
 
-  def javaDateTimeToJodaDate(javaTime: LocalDateTime): Option[LocalDate] = {
+  def localDateTimeToLocalDate(javaTime: LocalDateTime): Option[LocalDate] = {
     Some(LocalDate.parse(javaTime.toLocalDate.toString))
   }
 }

@@ -105,7 +105,7 @@ class RelationshipManagementService @Inject()(
       case ar:AgentRequest if
       ar.status =="Accepted" &&
         ar.isRelationshipEnded &&
-        ar.relationshipEndedBy.isDefined => {
+        ar.relationshipEndedBy.isDefined =>
         inactive.find {
           i => i.arn == ar.arn && i.serviceName == ar.serviceName && isOnOrAfter(i.dateTo,ar.lastUpdated)
         } match {
@@ -114,18 +114,13 @@ class RelationshipManagementService @Inject()(
             lastUpdated = d.atStartOfDay()))
           case None => ar
         }
-      }
       case ar: AgentRequest => ar
     }
   }
 
-  private def isOnOrAfter(a: Option[LocalDate], that: LocalDateTime): Boolean = {
-    try{
-      !a.get.isBefore(that.toLocalDate)
-    } catch {
-      case _: Exception => false
-    }
-  }
+  private def isOnOrAfter(a: Option[LocalDate], that: LocalDateTime): Boolean =
+    !a.map(_.isBefore(that.toLocalDate)).getOrElse(false)
+
 
   def deleteITSARelationship(id: String, clientId: MtdItId)(
     implicit c: HeaderCarrier,
