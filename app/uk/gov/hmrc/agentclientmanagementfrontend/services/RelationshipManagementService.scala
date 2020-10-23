@@ -93,7 +93,9 @@ class RelationshipManagementService @Inject()(
     val pirInactiveRelationships = inactiveRelationships(clientIdOpt.nino) {
       case _: Nino => pirRelationshipConnector.getInactiveClientRelationships()
     }
-    val otherInactiveRelationships = relationshipsConnector.getInactiveClientRelationships
+    val otherInactiveRelationships =
+    if(clientIdOpt.hasOnlyNino) Future successful(Seq.empty)
+    else relationshipsConnector.getInactiveClientRelationships
     for{
       pir <- pirInactiveRelationships
       other <- otherInactiveRelationships
