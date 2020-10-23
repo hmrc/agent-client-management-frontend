@@ -285,6 +285,16 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
+    "Show tab for a client with no relationship history and has only a Nino enrolment" in new PendingInvitationsExist(0) with NoRelationshipsFound with NoInactiveRelationshipsFound {
+      val req = FakeRequest()
+      authorisedAsClientNi(req,validNino.value)
+      val response = await(doGetRequest(""))
+
+      response.status shouldBe 200
+      checkResponseBodyWithText(response, "History", "You do not have any previous activity.")
+      sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
+    }
+
     "500, when Des returns 400" in {
       authorisedAsClientMtdItId(req, mtdItId.value)
       get400ClientActiveAgentRelationships(serviceItsa)
