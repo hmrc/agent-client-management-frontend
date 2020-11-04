@@ -65,6 +65,10 @@ table p.p-medium{
     padding: 20px 15px 15px;
 }
 
+.hint-text{
+    color: #505A5F;
+}
+
 .flash.error-summary a {
     font-weight: bold;
 }
@@ -93,10 +97,6 @@ table p.p-medium{
 .form-field--error legend h1 {
     margin-top: 0 !important
 }
-
-
-@import '_palette';
-@import '_focus';
 
 
 

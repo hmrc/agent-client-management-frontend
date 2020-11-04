@@ -99,6 +99,7 @@ client-authorised-agents-table-content.HMRC-TERS-ORG=Cynnal ymddiriedolaeth neu 
 client-authorised-agents-table-content.HMRC-CGT-PD=Cynnal eich cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU
 client-authorised-agents.feedbackPrompt=A oes unrhyw beth o’i le gyda’r dudalen hon?
 client-authorised-agents-table-row-header.unauthoriseLink=Tynnu awdurdodiad
+client-authorised-agents-table-row-header.unauthoriseLink.aria-text=Remove authorisation from {0} to {1}
 client-authorised-agents-table.current.serviceSize={0} tax services
 
 clientEndsRelationship.title=Tynnu awdurdodiad
