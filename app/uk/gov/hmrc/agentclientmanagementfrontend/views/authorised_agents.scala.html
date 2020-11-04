@@ -141,7 +141,7 @@
                                 <td>@if(appConfig.featuresRemoveAuthorisation(authAgent.serviceName)){
                                     <a href="@routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)">
                                     <span aria-hidden="true"> @Messages("client-authorised-agents-table-row-header.unauthoriseLink")</span>
-                                        <span class="visuallyhidden">@Messages("client-authorised-agents-table-row-header.unauthoriseLink") @authAgent.agencyName @Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</span>
+                                        <span class="visuallyhidden">@Messages("client-authorised-agents-table-row-header.unauthoriseLink.aria-text", authAgent.agencyName, Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}"))</span>
                                     </a>
                                 }
                                 </td>

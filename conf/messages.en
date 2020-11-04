@@ -99,6 +99,7 @@ client-authorised-agents-table-content.HMRC-TERS-ORG=Maintain a trust or an esta
 client-authorised-agents-table-content.HMRC-CGT-PD=Maintain your Capital Gains Tax on UK property account
 client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
 client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation
+client-authorised-agents-table-row-header.unauthoriseLink.aria-text=Remove authorisation from {0} to {1}
 client-authorised-agents-table.current.serviceSize={0} tax services
 
 clientEndsRelationship.title=Remove authorisation
