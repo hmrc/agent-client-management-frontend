@@ -20,11 +20,14 @@ import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.{Configuration, Environment}
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.test.FakeRequest
+import uk.gov.hmrc.agentclientmanagementfrontend.config.{AppConfig, FrontendAppConfig}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 
 
@@ -48,7 +51,11 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite w
 
   val agentReqs = Seq(agentReq1, agentReq2, agentReq3, agentReq4)
 
-  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering, messages)
+  val env = Environment.simple()
+  val configuration = new ServicesConfig(Configuration.load(env))
+  val appConfig = new FrontendAppConfig(configuration)
+
+  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering, messages, appConfig )
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {

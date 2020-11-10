@@ -58,7 +58,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
-      getThreeAgencyNamesMap200((validArn, "abc"), (validArn.copy(value = "FARN0001131"), "DEF"), (validArn.copy(value = "FARN0001133"), "DEF"))
+      getNAgencyNamesMap200(Map(validArn -> "abc",validArn.copy(value = "FARN0001131")-> "DEF" , validArn.copy(value = "FARN0001133")-> "DEF"))
       getInvitationsNotFound(validVrn.value, "VRN")
       getInvitationsNotFound(mtdItId.value, "MTDITID")
       getInvitationsNotFound(validNino.value, "NI")

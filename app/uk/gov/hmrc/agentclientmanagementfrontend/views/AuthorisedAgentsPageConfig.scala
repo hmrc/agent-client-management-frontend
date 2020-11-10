@@ -16,14 +16,20 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.views
 
+import java.net.URLEncoder.encode
 import java.time.LocalDate
 
 import play.api.i18n.Messages
-import play.api.mvc.Request
+import play.api.mvc.{AnyContent, Request}
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
-import uk.gov.hmrc.agentclientmanagementfrontend.util.DisplayDateUtils
+import uk.gov.hmrc.agentclientmanagementfrontend.util.{DisplayDateUtils, Paginated}
 
-case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])(implicit request: Request[_], dateOrdering: Ordering[LocalDate], messages: Messages) {
+import scala.util.Try
+
+case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])
+                                     (implicit request: Request[_], dateOrdering: Ordering[LocalDate], messages: Messages, appConfig:AppConfig)
+  extends Paginated[AgentRequest]{
 
   //non suspended and non terminated
   val displayValidPendingRequests: Seq[AgentRequest] = agentRequests
@@ -50,6 +56,45 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   def displayDate(date: Option[LocalDate]): String = DisplayDateUtils.displayDateForLang(date)
 
+  //Pagination details
+  val pageState = AuthorisedAgentsPageState.fromRequest(request)
+  val allItems: Seq[AgentRequest] = validNonPendingRequests
+  val itemsPerPage: Int = appConfig.itemsperpage
+  val requestedPage: Int = pageState.page
+  val urlForPage: Int => String = pageState.urlForPaginatedPage(request.path)
+  val itemsDescription = messages("myta.history")
+
 }
 
 
+case class AuthorisedAgentsPageState(page: Int) {
+
+  lazy val queryParamsToMap: Map[String, List[String]] = {
+    val queryParams = scala.collection.mutable.HashMap.empty[String,List[String]]
+    if (page > 1) queryParams += AuthorisedAgentsPageState.Page -> List(page.toString)
+    queryParams.toMap
+  }
+
+  lazy val toQueryString: String = {
+    val query = queryParamsToMap.map { case (k,v) =>
+      encode(k, "UTF8") + "=" + encode(v.last, "UTF8")
+    }.mkString("&")
+
+    if(query.length > 0) s"?" + query else ""
+  }
+
+  def urlForPaginatedPage(path: String): Int => String = { pageNumber =>
+    path + this.copy(page = pageNumber).toQueryString + AuthorisedAgentsPageState.History
+  }
+
+}
+
+object AuthorisedAgentsPageState {
+  val Page = "page"
+  val History = "#history"
+
+  def fromRequest(request:Request[_]):AuthorisedAgentsPageState = {
+    val page = Try(request.getQueryString(Page).fold(1)(_.toInt)).getOrElse(1)
+    AuthorisedAgentsPageState(page)
+  }
+}
