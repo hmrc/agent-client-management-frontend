@@ -129,3 +129,9 @@ clientEndsRelationshipEnded.p1.HMRC-CGT-PD=If you want to allow {0} to maintain 
 clientEndsRelationship.yes=Yes
 clientEndsRelationship.no=No
 error.prefix=Error:
+
+#Pagination
+pager.prev=Prev
+pager.next=Next
+pager.summary=Showing {0} – {1} of {2} {3}
+myta.history=History

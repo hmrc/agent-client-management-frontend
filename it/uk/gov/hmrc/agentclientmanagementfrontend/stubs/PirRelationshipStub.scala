@@ -46,6 +46,16 @@ trait PirRelationshipStub {
       )
   }
 
+  def getInactivePIRRelationshipsEmpty(): StubMapping = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/inactive"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(
+            s"[]")))
+  }
+
+
   def getNotFoundForPIRRelationship(service: String, nino: String): StubMapping = {
     stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/service/$service/clientId/$nino"))
       .willReturn(

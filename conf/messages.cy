@@ -129,3 +129,9 @@ clientEndsRelationshipEnded.p1.HMRC-CGT-PD=Os hoffech ganiatáu i {0} gynnal eic
 clientEndsRelationship.yes=Iawn
 clientEndsRelationship.no=Na
 error.prefix=Gwall:
+
+#Pagination
+pager.prev=###Prev
+pager.next=###Next
+pager.summary=###Showing {0} – {1} of {2} {3}
+myta.history=###History

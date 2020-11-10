@@ -270,12 +270,26 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in new BaseTestSetUp
-      with NoRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions with NoInactiveRelationshipsFound {
+      with NoRelationshipsFound with NoInactiveRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions  {
       val result = await(doGetRequest(""))
 
       result.status shouldBe 200
       result.body.indexOf("abc") < result.body.indexOf("def") && result.body.indexOf("def") < result.body.indexOf("ghi") shouldBe true
     }
+
+    "Show tab for a client with all services and different response scenarios in time order when dates are the same with pagination" in
+      new BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound with InvitationsForPagination {
+        val result = await(doGetRequest(""))
+
+        result.status shouldBe 200
+
+        result.body contains ("Name100") shouldBe true
+        result.body contains ("Name109") shouldBe true
+        result.body contains ("Name110") shouldBe false
+        result.body contains ("Next") shouldBe true
+        result.body contains ("Showing 1 – 10 of 46 History")  shouldBe true
+      }
+
 
     "Show tab for a client with no relationship history" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val response = await(doGetRequest(""))

@@ -8,7 +8,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import com.github.tomakehurst.wiremock.matching.{MatchResult, UrlPattern}
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import com.github.tomakehurst.wiremock.stubbing.{ServeEvent, StubMapping}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 import uk.gov.hmrc.play.it.Port
 
@@ -62,4 +62,10 @@ trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach {
   def urlContains(str: String): UrlPattern = new UrlPattern(containing(str),false){
     override def `match`(url: String): MatchResult = pattern.`match`(url)
   }
+
+  def getAllWiremockEvents():List[ServeEvent] = {
+    import scala.collection.JavaConverters._
+    wireMockServer.getAllServeEvents.asScala.toList
+  }
+
 }

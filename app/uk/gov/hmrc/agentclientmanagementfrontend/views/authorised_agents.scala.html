@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.components._
 
 @this(
     mainTemplate: main_template
@@ -172,7 +173,7 @@
                     </thead>
                     <tbody>
 
-                        @config.validNonPendingRequests.map { agentReq =>
+                        @config.visibleItems.map { agentReq =>
                             <tr>
                                 <td style="font-weight: bold">@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>
@@ -187,7 +188,7 @@
             }
         </tbody>
         </table>
-
+        @pager(config)
         </section>
     </div>
 

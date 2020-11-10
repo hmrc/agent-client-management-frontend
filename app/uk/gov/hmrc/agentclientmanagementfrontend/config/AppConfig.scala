@@ -49,6 +49,7 @@ trait AppConfig {
   val languageToggle: Boolean
   val languageMap: Map[String, Lang]
   val routeToSwitchLanguage: String => Call
+  val itemsperpage:Int
 }
 
 
@@ -105,9 +106,10 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
 
   override val routeToSwitchLanguage: String => Call = (lang: String) => routes.ServiceLanguageController.switchToLanguage(lang)
 
+  lazy val itemsperpage = servicesConfig.getInt("pagination.itemsperpage")
+
   private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 
   private def getConfBooleanOrFail(key: String): Boolean = servicesConfig.getBoolean(key)
-
 
 }

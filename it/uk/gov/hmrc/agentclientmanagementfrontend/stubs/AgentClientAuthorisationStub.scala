@@ -50,6 +50,45 @@ trait AgentClientAuthorisationStub {
                |}}""".stripMargin)))
   }
 
+  def getVatInvitations(arns: Seq[Arn], clientId: String) = {
+    val invitations = arns.map{arn =>
+      s"""
+        |{
+        |  "_links": {
+        |    "accept": {
+        |       "href": "/agent-client-authorisation/clients/MTDITID/ABCDEF123456789/invitations/received/A3A7PPJK1UBDY/accept"
+        |     },
+        |     "reject": {
+        |       "href": "/agent-client-authorisation/clients/MTDITID/ABCDEF123456789/invitations/received/A3A7PPJK1UBDY/reject"
+        |     },
+        |     "self": {
+        |        "href": "/agent-client-authorisation/clients/MTDITID/ABCDEF123456789/invitations/received/A3A7PPJK1UBDY"
+        |     }
+        |   },
+        |   "arn": "${arn.value}",
+        |   "service": "HMRC-MTD-VAT",
+        |   "clientId": "$clientId",
+        |   "clientIdType": "VRN",
+        |   "suppliedClientId": "$clientId",
+        |   "suppliedClientIdType": "VRN",
+        |   "isRelationshipEnded" : false,
+        |   "relationshipEndedBy" : "",
+        |   "status": "Rejected",
+        |   "created": "2018-01-15T13:14:00.000+08:00",
+        |   "lastUpdated": "2017-01-15T13:16:00.000+08:00",
+        |   "expiryDate": "9999-01-01",
+        |   "invitationId": "ATDMZYN4YDLNW"
+        |   }
+        |""".stripMargin
+    }.mkString(",\r\n")
+    stubFor(get(urlEqualTo(s"/agent-client-authorisation/clients/VRN/$clientId/invitations/received"))
+      .willReturn(
+        aResponse()
+          .withStatus(200)
+          .withBody(s"""{ "_embedded": { "invitations": [ $invitations ] }}""" )))
+  }
+
+
   def getInvitationsNotFound(clientId: String, clientIdType: String): StubMapping = {
     stubFor(get(urlEqualTo(s"/agent-client-authorisation/clients/$clientIdType/$clientId/invitations/received"))
       .willReturn(
@@ -96,21 +135,16 @@ trait AgentClientAuthorisationStub {
       ))
   }
 
-  def getThreeAgencyNamesMap200(arnWithName1: (Arn, String), arnWithName2: (Arn, String), arnWithName3: (Arn, String)): StubMapping = {
+  def getNAgencyNamesMap200(arnsWithNames: Map[Arn, String]): StubMapping = {
+    val requestJson = arnsWithNames.keys.map(_.value).mkString("[\"","\",\"","\"]")
+    val responseJson = arnsWithNames.toList.map(e => s"""{"arn": "${e._1.value}", "agencyName": "${e._2}" }""").mkString("[",",","]")
     stubFor(post(urlEqualTo(s"/agent-client-authorisation/client/agency-names"))
       .withHeader("Content-Type", containing("application/json"))
-      .withRequestBody(equalToJson(s"""["${arnWithName1._1.value}","${arnWithName2._1.value}","${arnWithName3._1.value}"]""", true, true))
+      .withRequestBody(equalToJson(requestJson, true, true))
       .willReturn(
         aResponse()
           .withStatus(200)
-          .withBody(
-            s"""
-               |[
-               |{"arn": "${arnWithName1._1.value}", "agencyName": "${arnWithName1._2}" },
-               |{"arn": "${arnWithName2._1.value}", "agencyName": "${arnWithName2._2}" },
-               |{"arn": "${arnWithName3._1.value}", "agencyName": "${arnWithName3._2}" }
-               |]
-            """.stripMargin)
+          .withBody(responseJson)
       ))
   }
 
