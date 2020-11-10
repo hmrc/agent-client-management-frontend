@@ -106,7 +106,7 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
 
   override val routeToSwitchLanguage: String => Call = (lang: String) => routes.ServiceLanguageController.switchToLanguage(lang)
 
-  lazy val itemsperpage = servicesConfig.getInt("pagination.itemsperpage")  //.getConfInt("pagination.itemsperpage",10)
+  lazy val itemsperpage = servicesConfig.getInt("pagination.itemsperpage")
 
   private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 
