@@ -18,7 +18,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.mvc.Results.Forbidden
 import play.api.mvc.{Request, Result}
-import play.api.{Logger, Mode}
+import play.api.{Logging, Mode}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
 import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Utr, Vrn}
@@ -33,13 +33,13 @@ import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AuthActions extends AuthorisedFunctions with AuthRedirects {
+trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
 
   def forbiddenView(implicit request: Request[_]): Html
 
   private val isDevEnv =
     if (env.mode.equals(Mode.Test)) false
-    else config.getString("run.mode").forall(Mode.Dev.toString.equals)
+    else config.getOptional[String]("run.mode").forall(Mode.Dev.toString.equals)
 
   protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers) => Future[Result])(
     implicit request: Request[A],
@@ -64,11 +64,11 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
               case Some(Individual)   => body("personal", clientIds)
               case Some(Organisation) => body("business", clientIds)
               case _ =>
-                Logger.warn("Client logged in with wrong affinity group")
+                logger.warn("Client logged in with wrong affinity group")
                 Future.successful(Forbidden(forbiddenView))
             }
           } else {
-            Logger.warn("Logged in client does not have required enrolments")
+            logger.warn("Logged in client does not have required enrolments")
             Future.successful(Forbidden(forbiddenView))
           }
       }
@@ -79,7 +79,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.path}")
 
     case _: UnsupportedAuthProvider ⇒
-      Logger.warn(s"user logged in with unsupported auth provider")
+      logger.warn(s"user logged in with unsupported auth provider")
       Forbidden(forbiddenView)
   }
 }

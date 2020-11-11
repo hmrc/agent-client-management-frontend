@@ -3,7 +3,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.stubs
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, MtdItId}
+import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 trait AgentClientRelationshipsStub {
   me: WireMockSupport =>

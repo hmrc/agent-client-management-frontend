@@ -9,10 +9,8 @@ import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs.{AgentClientAuthorisationStub, AgentClientRelationshipsStub, PirRelationshipStub}
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, CgtRef, MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
 
 class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpec
   with PirRelationshipStub
@@ -30,7 +28,6 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   private lazy val controller: ClientRelationshipManagementController = app.injector.instanceOf[ClientRelationshipManagementController]
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
   val urlJustWithPrefix = s"http://localhost:$port/manage-your-tax-agents"
   val doGetRequest = (endOfUrl: String) => wsClient.url(s"$urlJustWithPrefix$endOfUrl").get()
 

@@ -2,16 +2,15 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.Messages
-import play.api.{Configuration, Environment}
-import play.api.mvc.{Request, Result}
 import play.api.mvc.Results._
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
+import play.api.{Configuration, Environment}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_template
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
