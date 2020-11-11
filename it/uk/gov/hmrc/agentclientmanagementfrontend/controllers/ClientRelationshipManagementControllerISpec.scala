@@ -36,8 +36,8 @@ class ClientRelationshipManagementControllerISpec
     wsClient.url(s"$urlJustWithPrefix$endOfUrl").withFollowRedirects(false).get()
 
   "Current requests tab" should {
-    "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(
-      3) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound  {
+    "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(3)
+      with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound  {
 
       val response: WSResponse = await(doGetRequest(""))
 

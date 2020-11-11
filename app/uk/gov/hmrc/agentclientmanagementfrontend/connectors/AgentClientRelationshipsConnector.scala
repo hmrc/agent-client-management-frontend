@@ -21,18 +21,21 @@ import java.time.LocalDate
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
+import play.api.Logging
+import play.api.http.Status._
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.domain.TaxIdentifier
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
-                                                  http: HttpClient, metrics: Metrics) extends HttpAPIMonitor {
+                                                  http: HttpClient, metrics: Metrics) extends HttpAPIMonitor with Logging {
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
@@ -41,88 +44,103 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
   def deleteRelationship(arn: Arn, clientId: TaxIdentifier)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/${clientId.getServiceKey}/client/${clientId.getIdTypeForAcr}/${clientId.value}"
     monitor(s"ConsumedAPI-AgentClientRelationship-${clientId.getGrafanaId}-DELETE") {
-      http.DELETE[HttpResponse](deleteEndpoint.toString).map(_.status == 204) recover { case _: NotFoundException => false }
+      http.DELETE[HttpResponse](deleteEndpoint).map(_.status == 204)
     }
   }
 
   def getActiveClientItsaRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[ItsaRelationship]] = {
     val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-MTD-IT"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-MTD-IT-GET") {
-      http.GET[HttpResponse](url.toString).map { response =>
-        val arnOpt =  response.status match {
-          case 200 => (response.json \ "arn").asOpt[Arn]
+      http.GET[HttpResponse](url).map(response =>
+        response.status match {
+          case OK =>
+            val json = response.json
+            (json \ "arn").asOpt[Arn].map(arn => ItsaRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+          case NOT_FOUND =>
+            None
+          case s =>
+            val message = s"Unexpected response: $s from: $url body: ${response.body}"
+            logger.error(message)
+            throw UpstreamErrorResponse(message, s)
         }
-        val dateFromOpt = response.status match {
-          case 200 => (response.json \ "dateFrom").asOpt[LocalDate]
-        }
-        arnOpt.map(arn => ItsaRelationship(arn, dateFromOpt))
-      }.recover {
-        case _ : NotFoundException => None
-      }
+      )
     }
   }
 
   def getInactiveClientRelationships(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[InactiveRelationship]] = {
     val url = s"$baseUrl/agent-client-relationships/client/relationships/inactive"
     monitor(s"ConsumedAPI-GetInactiveRelationships-AgentClientRelationship") {
-      http.GET[HttpResponse](url).map { response =>
-        response.status match {
-          case 200 => (response.json).as[Seq[InactiveRelationship]]
+      http.GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK => response.json.as[Seq[InactiveRelationship]]
+            case NOT_FOUND => Seq.empty
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
         }
-      }.recover {
-        case _ : NotFoundException => Seq.empty
-      }
     }
   }
 
   def getActiveClientVatRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[VatRelationship]] = {
     val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-MTD-VAT"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-MTD-VAT-GET") {
-      http.GET[HttpResponse](url.toString).map { response =>
-        val arnOpt =  response.status match {
-          case 200 => (response.json \ "arn").asOpt[Arn]
+      http.GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK =>
+              val json = response.json
+              (json \ "arn").asOpt[Arn].map(arn => VatRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+            case NOT_FOUND =>
+              None
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
         }
-        val dateFromOpt = response.status match {
-          case 200 => (response.json \ "dateFrom").asOpt[LocalDate]
-        }
-        arnOpt.map(arn => VatRelationship(arn, dateFromOpt))
-      }.recover {
-        case _ : NotFoundException => None
-      }
     }
   }
 
   def getActiveClientTrustRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[TrustRelationship]] = {
-    val url =  s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-TERS-ORG"
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-TERS-ORG"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-TERS-ORG-GET") {
-      http.GET[HttpResponse](url.toString).map { response =>
-        val arnOpt =  response.status match {
-          case 200 => (response.json \ "arn").asOpt[Arn]
+      http.GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK =>
+              val json = response.json
+              (json \ "arn").asOpt[Arn].map(arn => TrustRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+            case NOT_FOUND =>
+              None
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
         }
-        val dateFromOpt = response.status match {
-          case 200 => (response.json \ "dateFrom").asOpt[LocalDate]
-        }
-        arnOpt.map(arn => TrustRelationship(arn, dateFromOpt))
-      }.recover {
-        case _ : NotFoundException => None
-      }
     }
   }
 
   def getActiveClientCgtRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[CgtRelationship]] = {
-    val url =  s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-CGT-PD"
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-CGT-PD"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-CGT-PD-GET") {
-      http.GET[HttpResponse](url.toString).map { response =>
-        val arnOpt =  response.status match {
-          case 200 => (response.json \ "arn").asOpt[Arn]
+      http.GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK =>
+              val json = response.json
+              (json \ "arn").asOpt[Arn].map(arn => CgtRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+            case NOT_FOUND =>
+              None
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
         }
-        val dateFromOpt = response.status match {
-          case 200 => (response.json \ "dateFrom").asOpt[LocalDate]
-        }
-        arnOpt.map(arn => CgtRelationship(arn, dateFromOpt))
-      }.recover {
-        case _ : NotFoundException => None
-      }
     }
   }
 }

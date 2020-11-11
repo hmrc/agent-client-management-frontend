@@ -20,7 +20,7 @@ import java.time.{LocalDate, LocalDateTime}
 import java.util.UUID
 
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
@@ -36,7 +36,7 @@ class RelationshipManagementService @Inject()(
   pirRelationshipConnector: PirRelationshipConnector,
   acaConnector: AgentClientAuthorisationConnector,
   relationshipsConnector: AgentClientRelationshipsConnector,
-  sessionStoreService: SessionStoreService) {
+  sessionStoreService: SessionStoreService) extends Logging {
 
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
@@ -189,7 +189,7 @@ class RelationshipManagementService @Inject()(
         case Some(inv) => acaConnector.setRelationshipEnded(InvitationId(inv.invitationId)).map {
           case Some(true) => ()
           case _ =>
-            Logger.warn(s"couldn't set 'isRelationshipEnded' on the invitation: ${inv.invitationId}")
+            logger.warn(s"couldn't set 'isRelationshipEnded' on the invitation: ${inv.invitationId}")
           //should we fail here ?
         }
         case None => Future.successful(())

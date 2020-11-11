@@ -150,11 +150,11 @@ class ClientRelationshipManagementController @Inject()(
     }
   }
 
-  def keepAlive: Action[AnyContent] = Action.async { implicit request =>
+  def keepAlive: Action[AnyContent] = Action.async {
     Future.successful(Ok("OK"))
   }
 
-  def signOut: Action[AnyContent] = Action.async { implicit request =>
+  def signOut: Action[AnyContent] = Action.async {
     startNewSession
   }
 

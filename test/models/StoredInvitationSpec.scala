@@ -20,11 +20,9 @@ import java.net.URL
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
 
-import play.utils.UriEncoding
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{ClientCache, StoredInvitation}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId, Vrn}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class StoredInvitationSpec extends UnitSpec {
