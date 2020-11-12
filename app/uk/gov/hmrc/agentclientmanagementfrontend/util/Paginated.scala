@@ -34,7 +34,6 @@ trait Paginated[T] {  //T the type of items to be paginated
   val itemsPerPage: Int  //the number of items to display per page
   val requestedPage: Int  //the page number requested by the user (via query param)
   val urlForPage: Int => String  //a function which takes a target page number and returns a URL to navigate to that page
-  val itemsDescription: String // a description of what the items are - eg. accounts, transactions, etc.
 
   private val FirstPage = 1
   private val FixedWidth = 5

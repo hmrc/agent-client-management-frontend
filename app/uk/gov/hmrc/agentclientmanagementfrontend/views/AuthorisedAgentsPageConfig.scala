@@ -62,8 +62,6 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
   val itemsPerPage: Int = appConfig.itemsperpage
   val requestedPage: Int = pageState.page
   val urlForPage: Int => String = pageState.urlForPaginatedPage(request.path)
-  val itemsDescription = messages("myta.history")
-
 }
 
 

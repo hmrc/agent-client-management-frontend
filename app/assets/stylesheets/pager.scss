@@ -1,8 +1,10 @@
+$breakpoint:100px;
+
 .pager {
   margin-top: 0.3125em;
   margin-bottom: 1.25em;
 }
-@media (min-width: 641px) {
+@media (min-width: $breakpoint) {
   .pager {
     margin-top: 0.26316em;
     margin-bottom: 1.05263em;
@@ -12,7 +14,7 @@
 .pager-items {
   display: none;
 }
-@media (min-width: 641px) {
+@media (min-width:  $breakpoint) {
   .pager-items {
     display: inline;
   }
@@ -35,23 +37,23 @@
 .pager-prev {
   margin-right: 10px;
 }
-@media (min-width: 641px) {
+@media (min-width:  $breakpoint) {
   .pager-next,
   .pager-prev {
     margin-right: 0;
   }
 }
-@media (min-width: 641px) {
+@media (min-width:  $breakpoint) {
   .pager-prev {
     margin-right: 10px;
   }
 }
-@media (min-width: 641px) {
+@media (min-width:  $breakpoint) {
   .pager-next {
     margin-left: 10px;
   }
 }
-@media (min-width: 641px) {
+@media (min-width:  $breakpoint) {
   .pager-controls {
     float: right;
   }
