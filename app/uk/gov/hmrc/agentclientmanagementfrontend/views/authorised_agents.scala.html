@@ -158,7 +158,15 @@
         <section class="govuk-tabs__panel govuk-tabs__panel--hidden" id="history">
             <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
             @if(config.validNonPendingRequestsExist){
-                <table class="font-small">
+        <div class="pager-summary">
+            @messages("pager.showing")
+            <span style="font-weight: bold">@{config.firstItemOnPage + 1}</span>
+            @messages("pager.to")
+            <span style="font-weight: bold">@{config.lastItemOnPage}</span>
+            @messages("pager.of")
+            <span style="font-weight: bold">@{config.allItems.length}</span>
+        </div>
+        <table class="font-small">
                     <colgroup>
                         <col class="width-25">
                         <col class="width-35">

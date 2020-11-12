@@ -131,7 +131,6 @@ clientEndsRelationship.no=No
 error.prefix=Error:
 
 #Pagination
-pager.prev=Prev
-pager.next=Next
-pager.summary=Showing {0} – {1} of {2} {3}
-myta.history=History
+pager.showing=Showing
+pager.to=to
+pager.of=of

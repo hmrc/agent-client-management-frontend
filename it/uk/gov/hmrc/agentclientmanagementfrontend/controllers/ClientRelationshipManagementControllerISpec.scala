@@ -286,8 +286,7 @@ class ClientRelationshipManagementControllerISpec
         result.body contains ("Name100") shouldBe true
         result.body contains ("Name109") shouldBe true
         result.body contains ("Name110") shouldBe false
-        result.body contains ("Next") shouldBe true
-        result.body contains ("Showing 1 – 10 of 46 History")  shouldBe true
+        result.body contains ("Showing")  shouldBe true
       }
 
 

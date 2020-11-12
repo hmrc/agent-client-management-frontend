@@ -131,7 +131,6 @@ clientEndsRelationship.no=Na
 error.prefix=Gwall:
 
 #Pagination
-pager.prev=###Prev
-pager.next=###Next
-pager.summary=###Showing {0} – {1} of {2} {3}
-myta.history=###History
+pager.showing=Dangos
+pager.to=i
+pager.of=o
