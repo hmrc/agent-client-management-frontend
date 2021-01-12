@@ -16,7 +16,7 @@ class ServiceLanguageControllerISpec extends BaseISpec {
 
     val request = FakeRequest("GET", "/language/english")
 
-    "redirect to https://www.gov.uk/fallback when the request header contains no referer" in {
+    "redirect to https://www.tax.service.gov.uk/manage-your-tax-agents/ when the request header contains no referer" in {
 
       val result = controller.switchToLanguage("english")(request)
       status(result) shouldBe 303
