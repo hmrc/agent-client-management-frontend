@@ -111,8 +111,26 @@ clientEndsRelationship.description.HMRC-TERS-ORG=Os byddwch yn tynnu’ch awdurd
 clientEndsRelationship.description.HMRC-CGT-PD=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU ar eich rhan mwyach.
 error.summary.heading=Mae problem wedi codi
 error.confirmResponse.invalid.description=Dewiswch ‘Iawn’ os hoffech dynnu’ch awdurdodiad.
+
+clientEndsRelationshipEnded.title=Authorisation removed
+clientEndsRelationshipEnded.h2=What this means
+clientEndsRelationshipEnded.p1=You removed your authorisation for {0} to {1}.
+clientEndsRelationshipEnded.HMRC-MTD-IT=manage Making Tax Digital for Income Tax
+clientEndsRelationshipEnded.PERSONAL-INCOME-RECORD=view your income record
+clientEndsRelationshipEnded.HMRC-MTD-VAT=manage Making Tax Digital for VAT
+clientEndsRelationshipEnded.HMRC-TERS-ORG=maintain a trust or an estate
+clientEndsRelationshipEnded.HMRC-CGT-PD=manage your Capital Gains Tax on UK property account
+clientEndsRelationshipEnded.p2=If you did not mean to remove your authorisation, ask {0} to send you a new authorisation request link.
+clientEndsRelationshipEnded.p3.sa-legacy-relationship.true=You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.
+clientEndsRelationshipEnded.link=Check or remove active agent authorisation for Self Assessment
+clientEndsRelationshipEnded.p3.sa-legacy-relationship.false=If {0} or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.
+clientEndedRelationshipEnded.self-assessment.details.header=Check or remove separate Self Assessment authorisation
+clientEndedRelationshipEnded.self-assessment.details.text=To check if you have a separate Self Assessment authorisation in place or to remove it, <a href={0}>sign in with your Government Gateway user ID.</a> It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax.
+clientEndedRelationshipEnded.button=Manage who can deal with HMRC for you
+clientEndedRelationshipEnded.finish=Finish and sign out
+
 clientEndsRelationshipEnded.h1.HMRC-MTD-IT=Rydych wedi tynnu’ch awdurdodiad oddi ar {0} i anfon eich diweddariadau Treth Incwm drwy feddalwedd
-clientEndsRelationshipEnded.title.HMRC-MTD-IT=Rydych wedi tynnu’ch awdurdodiad oddi ar eich asiant i anfon eich diweddariadau Treth Incwm drwy feddalwedd
+
 clientEndsRelationshipEnded.h1.PERSONAL-INCOME-RECORD=Rydych wedi tynnu’ch awdurdodiad oddi ar {0} i fwrw golwg dros eich cofnod incwm
 clientEndsRelationshipEnded.title.PERSONAL-INCOME-RECORD=Rydych wedi tynnu’ch awdurdodiad oddi ar eich asiant i fwrw golwg dros eich cofnod incwm
 clientEndsRelationshipEnded.h1.HMRC-MTD-VAT=Rydych wedi tynnu’ch awdurdodiad oddi ar {0} i gyflwyno’ch Ffurflenni TAW drwy feddalwedd
