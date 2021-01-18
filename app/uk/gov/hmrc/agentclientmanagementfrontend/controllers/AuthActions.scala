@@ -41,7 +41,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
     if (env.mode.equals(Mode.Test)) false
     else config.getOptional[String]("run.mode").forall(Mode.Dev.toString.equals)
 
-  protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers) => Future[Result])(
+  protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers, Option[Utr]) => Future[Result])(
     implicit request: Request[A],
     hc: HeaderCarrier,
     ec: ExecutionContext): Future[Result] =
@@ -59,10 +59,12 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
 
           val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr, cgtRef)
 
+          val legacySaUtr = clientId("IR-SA", "UTR").map(Utr(_))
+
           if (clientIds.haveAtLeastOneFieldDefined) {
             affinityG match {
-              case Some(Individual)   => body("personal", clientIds)
-              case Some(Organisation) => body("business", clientIds)
+              case Some(Individual)   => body("personal", clientIds, legacySaUtr)
+              case Some(Organisation) => body("business", clientIds, None)
               case _ =>
                 logger.warn("Client logged in with wrong affinity group")
                 Future.successful(Forbidden(forbiddenView))

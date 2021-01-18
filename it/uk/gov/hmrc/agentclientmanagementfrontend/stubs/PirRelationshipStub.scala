@@ -83,4 +83,11 @@ trait PirRelationshipStub {
         aResponse()
           .withStatus(httpStatus)))
   }
+
+  def getLegacyActiveSaRelationshipExists(utr: String, httpStatus: Int = 200): StubMapping = {
+    stubFor(get(urlEqualTo(s"/agent-fi-relationship/relationships/active-legacy-sa/utr/$utr"))
+    .willReturn(
+      aResponse()
+        .withStatus(httpStatus)))
+  }
 }

@@ -12,6 +12,7 @@ trait AuthStubs {
   case class Enrolment(serviceName: String, identifierName: String, identifierValue: String)
 
   def authorisedAsClientMtdItId[A](request: FakeRequest[A], mtdItId: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId)), isAgent = false )
+  def authorisedAsClientMtdItIdWithIrSa[A](request: FakeRequest[A], mtdItId: String, utr: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId), Enrolment("IR-SA", "UTR", utr)), isAgent = false)
   def authorisedAsClientNi[A](request: FakeRequest[A], nino: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino)), isAgent = false )
   def authorisedAsClientVat[A](request: FakeRequest[A], vrn: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-VAT", "VRN", vrn)), isAgent = false )
   def authorisedAsClientAll[A](request: FakeRequest[A], nino: String, mtdItId: String, vrn:String, utr: String, cgtRef: String): FakeRequest[A] =

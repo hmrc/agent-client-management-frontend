@@ -18,13 +18,14 @@ package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
+
 import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{PirInactiveRelationship, PirRelationship}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, Utr}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -76,6 +77,13 @@ class PirRelationshipConnector @Inject()(
     monitor(s"ConsumedAPI-AfiRelationship-DELETE") {
       val url = s"$baseUrl/agent-fi-relationship/relationships/agent/${arn.value}/service/${Services.HMRCPIR}/client/${nino.value}"
       http.DELETE[HttpResponse](url).map(_.status == OK)
+    }
+  }
+
+  def legacyActiveSaRelationshipExists(utr: Utr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    monitor("ConsumedAPI-AfiLegacyRelationship-GET"){
+      val url = s"$baseUrl/agent-fi-relationship/relationships/active-legacy-sa/utr/${utr.value}"
+      http.GET[HttpResponse](url).map(_.status == OK)
     }
   }
 }
