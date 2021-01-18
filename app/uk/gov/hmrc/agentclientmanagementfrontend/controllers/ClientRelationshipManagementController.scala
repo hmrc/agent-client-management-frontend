@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import java.time.LocalDate
-
-import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -27,6 +24,7 @@ import play.api.mvc._
 import play.api.{Configuration, Environment}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+import uk.gov.hmrc.agentclientmanagementfrontend.connectors.PirRelationshipConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.services.{AgentClientAuthorisationService, DeleteResponse, RelationshipManagementService}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
@@ -34,6 +32,8 @@ import uk.gov.hmrc.agentclientmanagementfrontend.views.html._
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientEnrolments}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import java.time.LocalDate
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 case class RadioConfirm(value: Option[Boolean])
@@ -55,6 +55,7 @@ class ClientRelationshipManagementController @Inject()(
   override val messagesApi: MessagesApi,
   featureFlags: FeatureFlags,
   val env: Environment,
+  pirRelationshipConnector: PirRelationshipConnector,
   relationshipManagementService: RelationshipManagementService,
   cc: MessagesControllerComponents,
   val authConnector: AuthConnector,
@@ -74,7 +75,7 @@ class ClientRelationshipManagementController @Inject()(
   def root(): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
-    withAuthorisedAsClient { (clientType, clientIds) =>
+    withAuthorisedAsClient { (clientType, clientIds, _) =>
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientType, clientIds)
         authRequests  <- relationshipManagementService.getAuthorisedAgents(clientIds)
@@ -85,7 +86,7 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, _) =>
+    withAuthorisedAsClient { (_, _, _) =>
       if (isActiveService(service, featureFlags)) {
         relationshipManagementService.getAuthorisedAgentDetails(id).map {
           case Some((agencyName, _)) => Ok(showRemoveAuthView(RadioConfirm.confirmRadioForm, agencyName, service, id))
@@ -106,7 +107,7 @@ class ClientRelationshipManagementController @Inject()(
     }
 
   def submitRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, clientIds) =>
+    withAuthorisedAsClient { (_, clientIds, _) =>
       def response =
         service match {
           case Services.HMRCMTDIT =>
@@ -142,9 +143,19 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
-    withAuthorisedAsClient { (_, _) =>
+    withAuthorisedAsClient { (_, _, maybeLegacySaUtr) =>
       (request.session.get("agencyName"), request.session.get("service")) match {
-        case (Some(agencyName), Some(service)) => Future.successful(Ok(authorisationsRemoved(agencyName, service)))
+        case (Some(agencyName), Some(service)) => {
+          service match {
+            case "HMRC-MTD-IT" => maybeLegacySaUtr.fold(Future successful(
+              Ok(authorisationsRemoved(agencyName, service, None)))){
+              utr => pirRelationshipConnector.legacyActiveSaRelationshipExists(utr).map{ hasRelationship =>
+                if(hasRelationship) Ok(authorisationsRemoved(agencyName, service, Some(utr.value)))
+                else Ok(authorisationsRemoved(agencyName, service, None))}
+            }
+            case _    => Future successful Ok(authorisationsRemoved(agencyName, service, None))
+          }
+        }
         case _                                 => Future.successful(redirectToRoot)
       }
     }
@@ -156,6 +167,10 @@ class ClientRelationshipManagementController @Inject()(
 
   def signOut: Action[AnyContent] = Action.async {
     startNewSession
+  }
+
+  def signOutAndRedirectToTaxAccountRouter: Action[AnyContent] = Action.async{
+    Future successful Redirect(appConfig.taxAccountRouterSignInUrl).withNewSession
   }
 
   def timedOut: Action[AnyContent] = Action.async { implicit request =>

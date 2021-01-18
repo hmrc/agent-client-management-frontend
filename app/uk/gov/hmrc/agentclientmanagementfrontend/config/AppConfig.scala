@@ -50,6 +50,10 @@ trait AppConfig {
   val languageMap: Map[String, Lang]
   val routeToSwitchLanguage: String => Call
   val itemsperpage:Int
+  val taxAccountRouterBaseUrl: String
+  val taxAccountRouterSignInUrl: String
+  val contactBaseUrl: String
+  val contactCheckSARelationshipUrl: String => String
 }
 
 
@@ -107,6 +111,14 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
   override val routeToSwitchLanguage: String => Call = (lang: String) => routes.ServiceLanguageController.switchToLanguage(lang)
 
   lazy val itemsperpage = servicesConfig.getInt("pagination.itemsperpage")
+
+  override val taxAccountRouterBaseUrl: String = getString("microservice.services.tax-account-router.external-url")
+
+  override val taxAccountRouterSignInUrl: String = s"$taxAccountRouterBaseUrl/bas-gateway/sign-in?continue_url=/account"
+
+  override val contactBaseUrl: String = getString("microservice.services.contact.external-url")
+
+  override val contactCheckSARelationshipUrl: String => String = (utr: String) => s"$contactBaseUrl/contact/self-assessment/ind/$utr/aboutyou"
 
   private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 

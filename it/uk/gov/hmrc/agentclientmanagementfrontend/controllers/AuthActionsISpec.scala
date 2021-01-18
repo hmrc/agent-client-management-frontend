@@ -31,7 +31,7 @@ class AuthActionsISpec extends BaseISpec {
     val errorTemplate = app.injector.instanceOf[error_template]
 
     def withAuthorisedAsClient[A]: Result = {
-      await(super.withAuthorisedAsClient { (clientType, clientIds) =>
+      await(super.withAuthorisedAsClient { (clientType, clientIds, _) =>
         Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
     }
 

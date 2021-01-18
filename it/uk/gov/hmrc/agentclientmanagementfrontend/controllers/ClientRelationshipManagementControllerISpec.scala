@@ -659,7 +659,58 @@ class ClientRelationshipManagementControllerISpec
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(
         result,
-        "You removed your authorisation from This Agency Name to manage your Income Tax")
+        "Authorisation removed",
+      "What this means",
+      "You removed your authorisation for This Agency Name to manage Making Tax Digital for Income Tax.",
+      "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
+      "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
+      "To check if you have a separate Self Assessment authorisation in place or to remove it",
+        "sign in with your Government Gateway user ID.",
+        " It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax.")
+    }
+
+    "show authorisation_removed page with relevant content when we find the client has an active legacy SA relationship with an agent" in {
+      val req = FakeRequest().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service)
+
+      getLegacyActiveSaRelationshipExists(validUtr.value)
+
+      val result = await(
+        controller.authorisationRemoved(
+          authorisedAsClientMtdItIdWithIrSa(req, mtdItId.value, validUtr.value)))
+
+      status(result) shouldBe 200
+      checkHtmlResultWithBodyText(
+        result,
+        "Authorisation removed",
+        "What this means",
+        "You removed your authorisation for This Agency Name to manage Making Tax Digital for Income Tax.",
+        "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
+        "You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.",
+      "Check or remove active agent authorisation for Self Assessment",
+      "Manage who can deal with HMRC for you",
+      "Finish and sign out")
+    }
+
+    "show authorisation_removed page with relevant content when client has IR-SA enrolment but there is no legacy relationship" in {
+      val req = FakeRequest().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service)
+
+      getLegacyActiveSaRelationshipExists(validUtr.value, 404)
+
+      val result = await(
+        controller.authorisationRemoved(
+          authorisedAsClientMtdItIdWithIrSa(req, mtdItId.value, validUtr.value)))
+
+      status(result) shouldBe 200
+      checkHtmlResultWithBodyText(
+        result,
+        "Authorisation removed",
+        "What this means",
+        "You removed your authorisation for This Agency Name to manage Making Tax Digital for Income Tax.",
+        "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
+        "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
+        "To check if you have a separate Self Assessment authorisation in place or to remove it",
+        "sign in with your Government Gateway user ID.",
+        " It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax.")
     }
 
     "return exception if required session data not found" in {

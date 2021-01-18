@@ -38,4 +38,6 @@ object Services {
 
   val CGT ="HMRC-CGT-PD"
 
+  val IRSA = "IR-SA"
+
 }
