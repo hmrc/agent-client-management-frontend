@@ -48,7 +48,7 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
   private val baseUrl = appConfig.agentClientAuthorisationBaseUrl
 
   def getInvitation(clientId: TaxIdentifier)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[StoredInvitation]] = {
-    val url = s"$baseUrl/agent-client-authorisation/clients/${clientId.getIdTypeForAca}/${clientId.value}/invitations/received"
+    val url = s"$baseUrl/agent-client-authorisation/clients/${clientId.getIdTypeForAca}/${clientId.value.replaceAll("\\s","")}/invitations/received"
     monitor(s"ConsumedAPI-Client-${clientId.getGrafanaId}-Invitations-GET") {
       http.GET[HttpResponse](url)
         .map { response =>
