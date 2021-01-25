@@ -112,22 +112,22 @@ clientEndsRelationship.description.HMRC-CGT-PD=Os byddwch yn tynnu’ch awdurdod
 error.summary.heading=Mae problem wedi codi
 error.confirmResponse.invalid.description=Dewiswch ‘Iawn’ os hoffech dynnu’ch awdurdodiad.
 
-clientEndsRelationshipEnded.title=Authorisation removed
-clientEndsRelationshipEnded.h2=What this means
-clientEndsRelationshipEnded.p1=You removed your authorisation for {0} to {1}.
-clientEndsRelationshipEnded.HMRC-MTD-IT=manage Making Tax Digital for Income Tax
-clientEndsRelationshipEnded.PERSONAL-INCOME-RECORD=view your income record
-clientEndsRelationshipEnded.HMRC-MTD-VAT=manage Making Tax Digital for VAT
-clientEndsRelationshipEnded.HMRC-TERS-ORG=maintain a trust or an estate
-clientEndsRelationshipEnded.HMRC-CGT-PD=manage your Capital Gains Tax on UK property account
-clientEndsRelationshipEnded.p2=If you did not mean to remove your authorisation, ask {0} to send you a new authorisation request link.
-clientEndsRelationshipEnded.p3.sa-legacy-relationship.true=You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.
-clientEndsRelationshipEnded.link=Check or remove active agent authorisation for Self Assessment
-clientEndsRelationshipEnded.p3.sa-legacy-relationship.false=If {0} or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.
-clientEndedRelationshipEnded.self-assessment.details.header=Check or remove separate Self Assessment authorisation
-clientEndedRelationshipEnded.self-assessment.details.text=To check if you have a separate Self Assessment authorisation in place or to remove it, <a href={0}>sign in with your Government Gateway user ID.</a> It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax.
-clientEndedRelationshipEnded.button=Manage who can deal with HMRC for you
-clientEndedRelationshipEnded.finish=Finish and sign out
+clientEndsRelationshipEnded.title=Awdurdodiad wedi’i ddileu
+clientEndsRelationshipEnded.h2=Beth y mae hyn yn ei olygu
+clientEndsRelationshipEnded.p1=Gwnaethoch ddileu’ch awdurdodiad ar gyfer {0} i {1}.
+clientEndsRelationshipEnded.HMRC-MTD-IT=rheoli Troi Treth yn Ddigidol ar gyfer Treth Incwm
+clientEndsRelationshipEnded.PERSONAL-INCOME-RECORD=bwrw golwg dros eich cofnod incwm
+clientEndsRelationshipEnded.HMRC-MTD-VAT=rheoli Troi Treth yn Ddigidol ar gyfer TAW
+clientEndsRelationshipEnded.HMRC-TERS-ORG=cynnal ymddiriedolaeth neu ystâd
+clientEndsRelationshipEnded.HMRC-CGT-PD=rheoli’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU
+clientEndsRelationshipEnded.p2=Os nad oeddech yn bwriadu dileu’ch awdurdodiad, gofynnwch am i {0} anfon cysylltiad newydd atoch ar gyfer cais am awdurdodiad.
+clientEndsRelationshipEnded.p3.sa-legacy-relationship.true=Mae gennych hefyd awdurdodiad asiant ar gyfer Hunanasesiad sy’n dal i fod ar waith. Mae hyn yn golygu bod gan asiant ganiatâd i fwrw golwg dros eich Hunanasesiad a’i ddiwygio. Os ydych am ddileu’r awdurdodiad hwn yn ogystal, bydd angen i chi wneud hynny ar wahân.
+clientEndsRelationshipEnded.link=Gwirio neu ddileu awdurdodiad asiant sydd ar waith ar gyfer Hunanasesiad
+clientEndsRelationshipEnded.p3.sa-legacy-relationship.false=Os oedd {0} neu asiant arall yn rheoli’ch Hunanasesiad cyn y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm, efallai y bydd gennych awdurdodiad ar wahân ar waith o hyd. Mae hyn yn golygu bod gan asiant ganiatâd i fwrw golwg dros eich Hunanasesiad a’i ddiwygio.
+clientEndedRelationshipEnded.self-assessment.details.header=Gwirio neu ddileu awdurdodiad Hunanasesiad ar wahân
+clientEndedRelationshipEnded.self-assessment.details.text=Er mwyn gwirio a oes gennych awdurdodiad Hunanasesiad ar wahân ar waith, neu i’w ddileu, <a href={0}>mewngofnodwch gan ddefnyddio’ch Dynodydd Defnyddiwr (ID) Porth y Llywodraeth.</a> Defnyddiwch yr un un Dynodydd Defnyddiwr a ddefnyddiwyd gennych ar gyfer yr Hunanasesiad a gawsoch cyn y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm.
+clientEndedRelationshipEnded.button=Rheoli pwy sy’n gallu delio â CThEM ar eich rhan
+clientEndedRelationshipEnded.finish=Gorffen ac allgofnodi
 
 clientEndsRelationshipEnded.h1.HMRC-MTD-IT=Rydych wedi tynnu’ch awdurdodiad oddi ar {0} i anfon eich diweddariadau Treth Incwm drwy feddalwedd
 
