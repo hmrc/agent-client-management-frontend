@@ -12,9 +12,9 @@ class TestSessionStoreService extends SessionStoreService(null) {
 
   private val sessions = collection.mutable.Map[String,Session]()
 
-  private def sessionKey(implicit hc: HeaderCarrier): String = hc.userId match {
+  private def sessionKey(implicit hc: HeaderCarrier): String = hc.gaUserId match {
     case None => "default"
-    case Some(userId) => userId.toString
+    case Some(userId) => userId
   }
 
   def currentSession(implicit hc: HeaderCarrier): Session = {

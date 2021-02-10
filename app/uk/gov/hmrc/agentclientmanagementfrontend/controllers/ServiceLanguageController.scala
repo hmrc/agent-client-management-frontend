@@ -28,7 +28,7 @@ class ServiceLanguageController @Inject()(
   languageUtils: LanguageUtils,
   cc: ControllerComponents,
   appConfig: AppConfig)
-    extends LanguageController(configuration, languageUtils, cc) {
+    extends LanguageController(languageUtils, cc) {
 
   override def languageMap: Map[String, Lang] = appConfig.languageMap
 
