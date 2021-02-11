@@ -1,4 +1,3 @@
-import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 lazy val scoverageSettings = {
@@ -15,13 +14,12 @@ lazy val scoverageSettings = {
 
 lazy val compileDeps = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "4.0.0",
+  "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "3.4.0",
   "uk.gov.hmrc" %% "govuk-template" % "5.61.0-play-27",
   "uk.gov.hmrc" %% "play-ui" % "8.21.0-play-27",
-  "uk.gov.hmrc" %% "auth-client" % "4.0.0-play-27",
   "uk.gov.hmrc" %% "play-partials" % "7.1.0-play-27",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "4.4.0",
-  "uk.gov.hmrc" %% "agent-mtd-identifiers" % "0.21.0-play-27",
+  "uk.gov.hmrc" %% "agent-mtd-identifiers" % "0.22.0-play-27",
   "uk.gov.hmrc" %% "http-caching-client" % "9.2.0-play-27",
   "uk.gov.hmrc" %% "play-language" % "4.10.0-play-27"
 )
@@ -80,5 +78,5 @@ lazy val root = (project in file("."))
     unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
     parallelExecution in IntegrationTest := false
   )
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
 
