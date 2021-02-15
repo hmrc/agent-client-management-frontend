@@ -96,6 +96,7 @@ client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your PAYE inc
 client-authorised-agents-table-content.HMRC-MTD-VAT=Manage your VAT
 client-authorised-agents-table-content.HMRC-MTD-IT=Manage your Income Tax
 client-authorised-agents-table-content.HMRC-TERS-ORG=Maintain a trust or an estate
+client-authorised-agents-table-content.HMRC-TERSNT-ORG=Maintain an NT trust or an estate
 client-authorised-agents-table-content.HMRC-CGT-PD=Maintain your Capital Gains Tax on UK property account
 client-authorised-agents.feedbackPrompt=Is there anything wrong with this page?
 client-authorised-agents-table-row-header.unauthoriseLink=Remove authorisation

@@ -29,6 +29,13 @@ trait AgentClientRelationshipsStub {
           .withStatus(httpStatus)))
   }
 
+  def deleteActiveTrustNTRelationship(urn: String, clientId: String, httpStatus: Int = 204): StubMapping = {
+    stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$urn/service/HMRC-TERSNT-ORG/client/URN/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(httpStatus)))
+  }
+
   def getClientActiveAgentRelationships(service: String, agentArn: String, startDate: String): StubMapping = {
     stubFor(get(urlEqualTo(s"/agent-client-relationships/client/relationships/service/$service"))
       .willReturn(

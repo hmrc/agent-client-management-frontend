@@ -32,6 +32,7 @@ case class SuspensionDetails(suspensionStatus: Boolean, regimes: Option[Set[Stri
       "HMRC-MTD-IT"            -> "ITSA",
       "HMRC-MTD-VAT"           -> "VATC",
       "HMRC-TERS-ORG"          -> "TRS",
+      "HMRC-TERSNT-ORG"        -> "TRS",
       "HMRC-CGT-PD"            -> "CGT",
       "PERSONAL-INCOME-RECORD" -> "PIR")
 

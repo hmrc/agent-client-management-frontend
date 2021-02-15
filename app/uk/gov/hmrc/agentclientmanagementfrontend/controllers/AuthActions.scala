@@ -21,7 +21,7 @@ import play.api.mvc.{Request, Result}
 import play.api.{Logging, Mode}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
-import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Urn, Utr, Vrn}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
@@ -55,9 +55,10 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
           val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
           val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))
           val utr = clientId("HMRC-TERS-ORG", "SAUTR").map(Utr(_))
+          val urn = clientId("HMRC-TERSNT-ORG", "URN").map(Urn(_))
           val cgtRef = clientId("HMRC-CGT-PD", "CGTPDRef").map(CgtRef(_))
 
-          val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr, cgtRef)
+          val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr, cgtRef, urn)
 
           val legacySaUtr = clientId("IR-SA", "UTR").map(Utr(_))
 

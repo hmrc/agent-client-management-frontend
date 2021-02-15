@@ -124,6 +124,26 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
     }
   }
 
+  def getActiveClientTrustNtRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[TrustNtRelationship]] = {
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-TERSNT-ORG"
+    monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-TERSNT-ORG-GET") {
+      http.GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK =>
+              val json = response.json
+              (json \ "arn").asOpt[Arn].map(arn => TrustNtRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+            case NOT_FOUND =>
+              None
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
+        }
+    }
+  }
+
   def getActiveClientCgtRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[CgtRelationship]] = {
     val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-CGT-PD"
     monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-CGT-PD-GET") {

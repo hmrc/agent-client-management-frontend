@@ -17,7 +17,6 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import java.time.LocalDateTime
-
 import java.time.LocalDate
 import play.api.libs.json._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
@@ -82,6 +81,19 @@ object TrustRelationship {
   implicit val reads: Reads[TrustRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
       (JsPath \ "dateFrom").readNullable[LocalDate])(TrustRelationship.apply _)
+
+}
+
+case class TrustNtRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.TRUSTNT
+}
+
+object TrustNtRelationship {
+  implicit val relationshipWrites = Json.writes[TrustNtRelationship]
+
+  implicit val reads: Reads[TrustNtRelationship] =
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+      (JsPath \ "dateFrom").readNullable[LocalDate])(TrustNtRelationship.apply _)
 
 }
 
