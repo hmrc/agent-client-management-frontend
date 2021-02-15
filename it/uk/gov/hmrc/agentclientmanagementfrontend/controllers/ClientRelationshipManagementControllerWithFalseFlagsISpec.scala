@@ -37,6 +37,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   val validNino = Nino("AE123456A")
   val validVrn =  Vrn("101747641")
   val validUtr = Utr("1977030537")
+  val validUrn = Urn("ABC12345NT")
   val validCgtRef = CgtRef("XMCGTP123456789")
   val startDate = Some(LocalDate.parse("2017-06-06"))
   val startDateString = "2017-06-06"
@@ -51,7 +52,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
 
   "manageTaxAgents, works as normal except projections of remove authorisation links for false service flag" should {
     "200, do not show remove authorisation links, other than that works normal" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
@@ -71,7 +72,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
 
     def getRemoveAuthorisationPage(service: String) = {
       s"return BadRequest for service: $service when flag for service is false" in {
-        authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
+        authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value)
 
         val result = await(doGetRequest(s"/remove-authorisation/service/$service/id/${cache.uuId}"))
 
@@ -86,9 +87,9 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
 
     def postRemoveAuthorisationForm(service: String) = {
       s"return BadRequest for attempting to remove relationship when flag for service: $service is false" in {
-        authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value)
+        authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value)
 
-        val result = await(controller.submitRemoveAuthorisation(service, cache.uuId)(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validCgtRef.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        val result = await(controller.submitRemoveAuthorisation(service, cache.uuId)(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
         status(result) shouldBe 400
       }

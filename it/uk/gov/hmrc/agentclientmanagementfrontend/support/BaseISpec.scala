@@ -33,6 +33,8 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
 
   def featureRemoveAuthorisationTrust = false
 
+  def featureRemoveAuthorisationTrustNT = false
+
   override implicit lazy val app: Application = appBuilder.build()
 
   protected def appBuilder: GuiceApplicationBuilder = {
@@ -52,6 +54,7 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "features.remove-authorisation.HMRC-MTD-IT" -> featureRemoveAuthorisationITSA,
         "features.remove-authorisation.HMRC-MTD-VAT" -> featureRemoveAuthorisationVat,
         "features.remove-authorisation.HMRC-TERS-ORG" -> featureRemoveAuthorisationTrust,
+        "features.remove-authorisation.HMRC-TERSNT-ORG" -> featureRemoveAuthorisationTrustNT,
         "features.enable-agent-suspension" -> true,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,

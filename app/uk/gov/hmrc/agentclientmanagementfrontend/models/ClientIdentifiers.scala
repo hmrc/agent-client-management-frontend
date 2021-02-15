@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Urn, Utr, Vrn}
 import uk.gov.hmrc.domain.Nino
 
-case class ClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn], utr: Option[Utr], cgtRef: Option[CgtRef]) {
-
-  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined || utr.isDefined || cgtRef.isDefined
-  val hasOnlyNino: Boolean = mtdItId.isEmpty && nino.isDefined && vrn.isEmpty && utr.isEmpty && cgtRef.isEmpty
+case class ClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn], utr: Option[Utr], cgtRef: Option[CgtRef], urn: Option[Urn]) {
+  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined || utr.isDefined || cgtRef.isDefined || urn.isDefined
+  val hasOnlyNino: Boolean = mtdItId.isEmpty && nino.isDefined && vrn.isEmpty && utr.isEmpty && cgtRef.isEmpty && urn.isEmpty
 }

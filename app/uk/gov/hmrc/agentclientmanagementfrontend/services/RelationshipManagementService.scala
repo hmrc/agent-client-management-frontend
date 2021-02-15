@@ -53,6 +53,8 @@ class RelationshipManagementService @Inject()(
       relationships(clientIdOpt.utr)(_ => relationshipsConnector.getActiveClientTrustRelationship.map(_.toSeq))
     val cgtRelationships =
       relationships(clientIdOpt.cgtRef)(_ => relationshipsConnector.getActiveClientCgtRelationship.map(_.toSeq))
+    val urnRelationships =
+      relationships(clientIdOpt.urn)(_ => relationshipsConnector.getActiveClientTrustNtRelationship.map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
@@ -62,6 +64,7 @@ class RelationshipManagementService @Inject()(
                             pirRelationships,
                             vatRelationships,
                             trustRelationships,
+                            urnRelationships,
                             cgtRelationships))
                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
@@ -121,7 +124,7 @@ class RelationshipManagementService @Inject()(
   }
 
   private def isOnOrAfter(a: Option[LocalDate], that: LocalDateTime): Boolean =
-    !a.map(_.isBefore(that.toLocalDate)).getOrElse(false)
+    !a.exists(_.isBefore(that.toLocalDate))
 
 
   def deleteITSARelationship(id: String, clientId: MtdItId)(
@@ -143,6 +146,11 @@ class RelationshipManagementService @Inject()(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
     deleteRelationship(id, utr)(arn => relationshipsConnector.deleteRelationship(arn, utr))
+
+  def deleteTrustNtRelationship(id: String, urn: Urn)(
+    implicit c: HeaderCarrier,
+    ec: ExecutionContext): Future[DeleteResponse] =
+    deleteRelationship(id, urn)(arn => relationshipsConnector.deleteRelationship(arn, urn))
 
   def deleteCgtRelationship(id: String, cgtRef: CgtRef)(
     implicit c: HeaderCarrier,

@@ -32,7 +32,7 @@ class AuthActionsISpec extends BaseISpec {
 
     def withAuthorisedAsClient[A]: Result = {
       await(super.withAuthorisedAsClient { (clientType, clientIds, _) =>
-        Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
+        Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} urn: ${clientIds.urn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
     }
 
     override def forbiddenView(implicit request: Request[_]): Html = errorTemplate(
@@ -76,6 +76,22 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("AE123456A")
     }
 
+    "call body with urn when valid urn client" in {
+      givenAuthorisedFor(
+        "{}",
+        s"""{
+           |"affinityGroup":"Individual",
+           |"allEnrolments": [
+           |  { "key":"HMRC-TERSNT-ORG", "identifiers": [
+           |    { "key":"URN", "value": "AE12345" }
+           |  ]}
+           |]}""".stripMargin)
+
+      val result = TestController.withAuthorisedAsClient
+      status(result) shouldBe 200
+      bodyOf(result) should include("AE12345")
+    }
+
     "call body with vrn when valid VAT client" in {
       givenAuthorisedFor(
         "{}",
@@ -92,7 +108,7 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("fooVrn")
     }
 
-    "call body with nino, mtdItId, vrn and utr when valid client" in {
+    "call body with nino, mtdItId, vrn, urn and utr when valid client" in {
       givenAuthorisedFor(
         "{}",
         s"""{
@@ -109,6 +125,9 @@ class AuthActionsISpec extends BaseISpec {
            |  ]},
            |  { "key":"HMRC-TERS-ORG", "identifiers": [
            |    { "key":"SAUTR", "value": "fooUtr" }
+           |  ]},
+           |  { "key":"HMRC-TERSNT-ORG", "identifiers": [
+           |    { "key":"URN", "value": "AE12345NT" }
            |  ]}
            |]}""".stripMargin)
 
@@ -118,6 +137,7 @@ class AuthActionsISpec extends BaseISpec {
       bodyOf(result) should include("AE123456A")
       bodyOf(result) should include("fooVrn")
       bodyOf(result) should include("fooUtr")
+      bodyOf(result) should include("AE12345NT")
     }
 
     "throw Forbidden when client not enrolled for service" in {
