@@ -15,6 +15,7 @@
  */
 
 import javax.inject.{Inject, Singleton}
+import play.api.Logger.logger
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment}
@@ -41,24 +42,28 @@ class ErrorHandler @Inject() (
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     auditClientError(request, statusCode, message)
+    logger.error(s"onClientError $message")
     super.onClientError(request, statusCode, message)
   }
 
   override def resolveError(request: RequestHeader, exception: Throwable): Result = {
     auditServerError(request, exception)
     exception match {
-      case _ => super.resolveError(request, exception)
+      case _ =>
+        logger.error(s"$exception")
+        super.resolveError(request, exception)
     }
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): HtmlFormat.Appendable = {
-    errorTemplate(
-      Messages(pageTitle),
-      Messages(heading),
-      Messages(message))
+    logger.error(s"$message")
+    errorTemplate(Messages(pageTitle), Messages(heading), Messages(message))
   }
 
-  override def internalServerErrorTemplate(implicit request: Request[_]): Html = errorTemplate5xx()
+  override def internalServerErrorTemplate(implicit request: Request[_]): Html = {
+    logger.error(s"internalServerError ${request.body}")
+    errorTemplate5xx()
+  }
 }
 
 object EventTypes {

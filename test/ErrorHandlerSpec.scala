@@ -15,36 +15,45 @@
  */
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Logger
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 import scala.concurrent.Future
 
-class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite {
+class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite with LogCapturing {
 
   val handler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit val lang: Lang = Lang("en")
 
   "ErrorHandler should show the error page" when {
-    "a client error (404) occurs" in {
-      val result = handler.onClientError(FakeRequest(), NOT_FOUND, "")
+    "a client error (404) occurs with log" in {
+      withCaptureOfLoggingFrom(Logger) { logEvents =>
+        val result = handler.onClientError(FakeRequest(), NOT_FOUND, "some error")
 
-      status(result) shouldBe NOT_FOUND
-      contentType(result) shouldBe Some(HTML)
+        status(result) shouldBe NOT_FOUND
+        contentType(result) shouldBe Some(HTML)
         checkIncludesText(result,"<p>If you typed the web address, check it is correct.</p>")
         checkIncludesMessages(result, "global.error.pageNotFound404.title", "global.error.pageNotFound404.heading")
-    }
-    "a client error (400) occurs" in {
-      val result = handler.onClientError(FakeRequest(), BAD_REQUEST, "")
 
-      status(result) shouldBe BAD_REQUEST
-      contentType(result) shouldBe Some(HTML)
-      checkIncludesMessages(result, "global.error.badRequest400.title", "global.error.badRequest400.heading","global.error.badRequest400.message")
+        logEvents.count(_.getMessage.contains(s"onClientError some error")) shouldBe 1
+      }
+    }
+    "a client error (400) occurs with log" in {
+      withCaptureOfLoggingFrom(Logger) { logEvents =>
+        val result = handler.onClientError(FakeRequest(), BAD_REQUEST, "some error")
+
+        status(result) shouldBe BAD_REQUEST
+        contentType(result) shouldBe Some(HTML)
+        checkIncludesMessages(result, "global.error.badRequest400.title", "global.error.badRequest400.heading","global.error.badRequest400.message")
+
+        logEvents.count(_.getMessage.contains(s"onClientError some error")) shouldBe 1
+      }
     }
   }
 
