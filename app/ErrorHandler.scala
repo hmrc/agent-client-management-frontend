@@ -48,11 +48,8 @@ class ErrorHandler @Inject() (
 
   override def resolveError(request: RequestHeader, exception: Throwable): Result = {
     auditServerError(request, exception)
-    exception match {
-      case _ =>
-        logger.error(s"$exception")
-        super.resolveError(request, exception)
-    }
+    logger.error(s"$exception")
+    super.resolveError(request, exception)
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): HtmlFormat.Appendable = {
