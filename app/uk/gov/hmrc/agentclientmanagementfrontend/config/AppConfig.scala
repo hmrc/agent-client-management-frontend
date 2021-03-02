@@ -40,8 +40,6 @@ trait AppConfig {
   val contactFrontendAjaxUrl: String
   val contactFrontendNonJsUrl: String
   def featuresRemoveAuthorisation(service: String): Boolean
-  val googleAnalyticsToken: String
-  val googleAnalyticsHost: String
   val loggerDateFormat: String
   val timeout: Int
   val countdown: Int
@@ -88,10 +86,6 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
     s"${contactFrontendUrl}nonjs?service=$appName"
 
   override def featuresRemoveAuthorisation(service: String): Boolean = getConfBooleanOrFail(s"features.remove-authorisation.$service")
-
-  override val googleAnalyticsToken: String = getString("google-analytics.token")
-
-  override val googleAnalyticsHost: String = getString("google-analytics.host")
 
   lazy val loggerDateFormat: String = getString("logger.json.dateformat")
 
