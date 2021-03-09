@@ -21,10 +21,12 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.components._
+@import uk.gov.hmrc.agentclientmanagementfrontend.models.AgentRequest
 
 @this(
     mainTemplate: main_template
 )
+
 
 @(config: AuthorisedAgentsPageConfig)(implicit messages: Messages, request: Request[_], appConfig: AppConfig, now: LocalDate)
 
@@ -181,7 +183,7 @@
                     </thead>
                     <tbody>
 
-                        @config.visibleItems.map { agentReq =>
+                        @config.visibleItems.sortWith(_.agencyName < _.agencyName).sorted(AgentRequest.orderingByLastUpdated).map { agentReq =>
                             <tr>
                                 <td style="font-weight: bold">@agentReq.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")</td>

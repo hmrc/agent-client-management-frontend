@@ -19,7 +19,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   val validNino = Nino("AE123456A")
   val validVrn = Vrn("101747641")
   val validUtr = Utr("1977030537")
-  val validUrn = Urn("ABC12345NT")
+  val validUrn = Urn("XATRUST12345678")
   val validCgtRef = CgtRef("XMCGTP123456789")
   val startDate = Some(LocalDate.parse("2017-06-06"))
   val startDateString = "2017-06-06"
@@ -49,6 +49,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getNotFoundClientActiveAgentRelationships(serviceVat)
     getNotFoundClientActiveAgentRelationships(serviceTrust)
     getNotFoundClientActiveAgentRelationships(serviceCgt)
+    getNotFoundClientActiveAgentRelationships(serviceTrustNT)
     getNotFoundForPIRRelationship(serviceIrv, validNino.value)
   }
 
@@ -64,6 +65,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getActivePIRRelationship(arn2, serviceIrv, validNino.value, fromCesa = false)
     getClientActiveAgentRelationships(serviceVat, arn3.value, startDateString)
     getNotFoundClientActiveAgentRelationships(serviceTrust)
+    getNotFoundClientActiveAgentRelationships(serviceTrustNT)
     getNotFoundClientActiveAgentRelationships(serviceCgt)
     getNAgencyNamesMap200(Map(arn1-> "abc",arn2-> "DEF", arn3-> "ghi"))
   }
