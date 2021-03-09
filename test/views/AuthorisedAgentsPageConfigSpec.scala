@@ -17,7 +17,6 @@
 package views
 
 import java.time.{LocalDate, LocalDateTime, ZoneOffset}
-
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.{Configuration, Environment}

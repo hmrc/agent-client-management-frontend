@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
-import java.time.{LocalDate, LocalDateTime}
-import java.util.UUID
-
-import javax.inject.Inject
 import play.api.Logging
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
@@ -27,6 +23,9 @@ import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDateTime
+import java.util.UUID
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
@@ -105,26 +104,29 @@ class RelationshipManagementService @Inject()(
     } yield pir ++ other
   }
 
-  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] ={
-    agentRequests.map {
-      case ar:AgentRequest if
-      ar.status =="Accepted" &&
-        ar.isRelationshipEnded &&
-        ar.relationshipEndedBy.isDefined =>
-        inactive.find {
-          i => i.arn == ar.arn && i.serviceName == ar.serviceName && isOnOrAfter(i.dateTo,ar.lastUpdated)
-        } match {
-          case Some(r) => r.dateTo.fold(ar)(d => ar.copy(
-            status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.get}",
-            lastUpdated = d.atStartOfDay()))
-          case None => ar
-        }
-      case ar: AgentRequest => ar
-    }
-  }
+  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] = {
 
-  private def isOnOrAfter(a: Option[LocalDate], that: LocalDateTime): Boolean =
-    !a.exists(_.isBefore(that.toLocalDate))
+    def updateStatus(ar: AgentRequest)(requests: Seq[AgentRequest], inactives: Seq[Inactive]): Option[AgentRequest] = {
+      requests.reverse.map(Some(_)).zipAll(inactives.reverse.map(Some(_)), None, None).find(_._1.contains(ar)) match {
+        case Some((Some(accepted), Some(inactive))) =>
+          inactive.dateTo.fold(Some(accepted))(endDate =>
+            Some(accepted.copy(
+              status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}", lastUpdated = endDate.atStartOfDay()))
+          )
+        case Some((Some(accepted), None)) =>
+          Some(accepted)
+        case e => logger.error(s"unexpected match result $e"); None
+      }
+    }
+
+    agentRequests.filter(_.status == "Accepted").sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
+      case (arn, ar) => ar.groupBy(_.serviceName).flatMap {
+        case (service, ar) => {
+          ar.map(updateStatus(_)(ar, inactive.filter(x => x.serviceName == service && x.arn == arn)))
+        }
+      }
+    }.toSeq.flatten ++ agentRequests.filterNot(_.status == "Accepted")
+  }
 
 
   def deleteITSARelationship(id: String, clientId: MtdItId)(
