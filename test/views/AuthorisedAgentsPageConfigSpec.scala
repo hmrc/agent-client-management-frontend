@@ -16,19 +16,20 @@
 
 package views
 
-import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.{Configuration, Environment}
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import uk.gov.hmrc.agentclientmanagementfrontend.config.{AppConfig, FrontendAppConfig}
+import play.api.{Application, Configuration, Environment}
+import uk.gov.hmrc.agentclientmanagementfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 
+import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 
 class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -55,6 +56,12 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite w
   val appConfig = new FrontendAppConfig(configuration)
 
   val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering, messages, appConfig )
+
+  override implicit lazy val app: Application = appBuilder.build()
+
+  protected def appBuilder: GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .configure("auditing.enabled" -> false)
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {

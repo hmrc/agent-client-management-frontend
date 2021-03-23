@@ -15,7 +15,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
+import uk.gov.hmrc.agentclientmanagementfrontend.services.MongoDBSessionStoreService
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs.AuthStubs
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -64,7 +64,7 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
 
   private class TestGuiceModule extends AbstractModule {
     override def configure(): Unit = {
-      bind(classOf[SessionStoreService]).toInstance(sessionStoreService)
+      bind(classOf[MongoDBSessionStoreService]).toInstance(sessionStoreService)
     }
   }
 

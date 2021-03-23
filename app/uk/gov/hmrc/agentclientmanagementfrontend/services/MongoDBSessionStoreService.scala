@@ -17,22 +17,29 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import javax.inject.{Inject, Singleton}
-
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
+import uk.gov.hmrc.agentclientmanagementfrontend.repository.{SessionCache, SessionCacheRepository}
+import uk.gov.hmrc.cache.repository.CacheRepository
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.SessionCache
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SessionStoreService @Inject()(sessionCache: SessionCache) {
+class MongoDBSessionStoreService @Inject()(sessionCache: SessionCacheRepository) {
 
-  def fetchClientCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ClientCache]]] =
-    sessionCache.fetchAndGetEntry[Seq[ClientCache]](s"clientCache")
+  final val cache = new SessionCache[Seq[ClientCache]] {
+    override val sessionName: String = "clientCache"
+    override val cacheRepository: CacheRepository = sessionCache
+  }
 
-  def storeClientCache(cache: Seq[ClientCache])(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Unit] =
-    sessionCache.cache(s"clientCache", cache).map(_ => ())
+  def fetchClientCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ClientCache]]] = {
+    cache.fetch
+  }
+
+  def storeClientCache(_cache: Seq[ClientCache])(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Unit] = {
+    cache.save(_cache).map(_ => ())
+  }
 
   def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
-    sessionCache.remove().map(_ => ())
+    cache.delete().map(_ => ())
 }

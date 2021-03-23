@@ -1,12 +1,12 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.support
 
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
-import uk.gov.hmrc.agentclientmanagementfrontend.services.SessionStoreService
+import uk.gov.hmrc.agentclientmanagementfrontend.services.MongoDBSessionStoreService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TestSessionStoreService extends SessionStoreService(null) {
+class TestSessionStoreService extends MongoDBSessionStoreService(null) {
 
   class Session (var clientCache: Option[Seq[ClientCache]] = None)
 

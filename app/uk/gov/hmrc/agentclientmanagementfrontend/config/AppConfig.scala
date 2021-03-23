@@ -52,6 +52,7 @@ trait AppConfig {
   val taxAccountRouterSignInUrl: String
   val contactBaseUrl: String
   val contactCheckSARelationshipUrl: String => String
+  val mongoDbExpireAfterSeconds: Int
 }
 
 
@@ -113,6 +114,8 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
   override val contactBaseUrl: String = getString("microservice.services.contact.external-url")
 
   override val contactCheckSARelationshipUrl: String => String = (utr: String) => s"$contactBaseUrl/contact/self-assessment/ind/$utr/aboutyou"
+
+  override val mongoDbExpireAfterSeconds: Int = servicesConfig.getInt("mongodb.session.expireAfterSeconds")
 
   private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 

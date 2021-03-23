@@ -35,7 +35,7 @@ class RelationshipManagementService @Inject()(
   pirRelationshipConnector: PirRelationshipConnector,
   acaConnector: AgentClientAuthorisationConnector,
   relationshipsConnector: AgentClientRelationshipsConnector,
-  sessionStoreService: SessionStoreService) extends Logging {
+  sessionStoreService: MongoDBSessionStoreService) extends Logging {
 
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 

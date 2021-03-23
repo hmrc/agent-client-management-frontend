@@ -1,3 +1,4 @@
+import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 lazy val scoverageSettings = {
@@ -19,17 +20,18 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "play-partials"              % "7.1.0-play-27",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring"   % "4.4.0",
   "uk.gov.hmrc" %% "agent-mtd-identifiers"      % "0.23.0-play-27",
-  "uk.gov.hmrc" %% "http-caching-client"        % "9.2.0-play-27",
+  "uk.gov.hmrc" %% "mongo-caching"              % "6.16.0-play-27",
   "uk.gov.hmrc" %% "play-language"              % "4.10.0-play-27"
 )
 
 def testDeps(scope: String) = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % scope,
   "org.scalatest" %% "scalatest" % "3.0.8" % scope,
-  "org.mockito" % "mockito-core" % "3.2.0" % scope,
+  "org.mockito" % "mockito-core" % "3.4.6" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % scope,
   "com.github.tomakehurst" % "wiremock-jre8" % "2.27.1" % scope,
-  "org.jsoup" % "jsoup" % "1.9.2" % scope
+  "org.jsoup" % "jsoup" % "1.9.2" % scope,
+  "uk.gov.hmrc" %% "reactivemongo-test" % "4.22.0-play-27" % scope
 )
 
 lazy val root = (project in file("."))
@@ -42,7 +44,6 @@ lazy val root = (project in file("."))
       "-Xfatal-warnings",
       "-Xlint:-missing-interpolator,_",
       "-Yno-adapted-args",
-      "-Ywarn-dead-code",
       "-deprecation",
       "-feature",
       "-unchecked",
