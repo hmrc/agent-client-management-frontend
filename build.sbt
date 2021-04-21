@@ -16,12 +16,12 @@ lazy val scoverageSettings = {
 lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "3.4.0",
   "uk.gov.hmrc" %% "govuk-template"             % "5.61.0-play-27",
-  "uk.gov.hmrc" %% "play-ui"                    % "8.21.0-play-27",
+  "uk.gov.hmrc" %% "play-ui"                    % "9.1.0-play-27",
   "uk.gov.hmrc" %% "play-partials"              % "7.1.0-play-27",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring"   % "4.4.0",
   "uk.gov.hmrc" %% "agent-mtd-identifiers"      % "0.23.0-play-27",
   "uk.gov.hmrc" %% "mongo-caching"              % "6.16.0-play-27",
-  "uk.gov.hmrc" %% "play-language"              % "4.10.0-play-27"
+  "uk.gov.hmrc" %% "play-language"              % "4.12.0-play-27"
 )
 
 def testDeps(scope: String) = Seq(
@@ -51,12 +51,12 @@ lazy val root = (project in file("."))
       "-P:silencer:pathFilters=views;routes;TestStorage"),
     PlayKeys.playDefaultPort := 9568,
     resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("hmrc", "release-candidates"),
       Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
     ),
-    libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
+    resolvers += "HMRC-open-artefacts-maven" at "https://open.artefacts.tax.service.gov.uk/maven2",
+    resolvers += Resolver.url("HMRC-open-artefacts-ivy", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns),
+
+libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.0" cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % "1.7.0" % Provided cross CrossVersion.full
