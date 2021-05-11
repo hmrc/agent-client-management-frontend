@@ -118,8 +118,8 @@ class RelationshipManagementService @Inject()(
         case e => logger.error(s"unexpected match result $e"); None
       }
     }
-
-    agentRequests.filter(_.status == "Accepted").sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
+    val accepted = Seq("Accepted", "Deauthorised")
+    agentRequests.filter(ar => accepted.contains(ar.status)).sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
       case (arn, ar) => ar.groupBy(_.serviceName).flatMap {
         case (service, ar) => {
           ar.map(updateStatus(_)(ar, inactive.filter(x => x.serviceName == service && x.arn == arn)))
