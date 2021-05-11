@@ -78,7 +78,6 @@ client-authorised-agents-table-row-header.authServices=Tax service
 client-authorised-agents-table-row-header.dateAuthorised=When you gave consent
 client-authorised-agents-table-row-header.status=Activity
 client-authorised-agents-table-row-header.actions=Action
-client-authorised-agents-table.Deauthorised=Deauthorised
 client-authorised-agents-table.Pending=Pending
 client-authorised-agents-table.Accepted=You accepted on:
 client-authorised-agents-table.AcceptedThenCancelledByClient=You removed authorisation on:

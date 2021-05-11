@@ -106,6 +106,14 @@ class RelationshipManagementService @Inject()(
 
   def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] = {
 
+    logger.info("requests:")
+    logger.info(agentRequests.toString)
+
+    logger.info("inactives:")
+    logger.info(inactive.toString)
+
+    val accepted = Seq("Accepted", "Deauthorised")
+
     def updateStatus(ar: AgentRequest)(requests: Seq[AgentRequest], inactives: Seq[Inactive]): Option[AgentRequest] = {
       requests.reverse.map(Some(_)).zipAll(inactives.reverse.map(Some(_)), None, None).find(_._1.contains(ar)) match {
         case Some((Some(accepted), Some(inactive))) =>
@@ -118,14 +126,16 @@ class RelationshipManagementService @Inject()(
         case e => logger.error(s"unexpected match result $e"); None
       }
     }
-    val accepted = Seq("Accepted", "Deauthorised")
-    agentRequests.filter(ar => accepted.contains(ar.status)).sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
+
+    def acceptedRequests(agentRequest: AgentRequest) = accepted.contains(agentRequest.status)
+
+    agentRequests.filter(acceptedRequests).sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
       case (arn, ar) => ar.groupBy(_.serviceName).flatMap {
         case (service, ar) => {
           ar.map(updateStatus(_)(ar, inactive.filter(x => x.serviceName == service && x.arn == arn)))
         }
       }
-    }.toSeq.flatten ++ agentRequests.filterNot(_.status == "Accepted")
+    }.toSeq.flatten ++ agentRequests.filterNot(acceptedRequests)
   }
 
 

@@ -78,7 +78,6 @@ client-authorised-agents-table-row-header.authServices=Gwasanaeth treth
 client-authorised-agents-table-row-header.dateAuthorised=Pryd gwnaethoch roi caniatâd
 client-authorised-agents-table-row-header.status=Gweithgaredd
 client-authorised-agents-table-row-header.actions=Camau i’w cymryd
-client-authorised-agents-table.Deauthorised=Deauthorised
 client-authorised-agents-table.Pending=Ar y gweill
 client-authorised-agents-table.Accepted=Gwnaethoch dderbyn ar:
 client-authorised-agents-table.AcceptedThenCancelledByClient=Gwnaethoch dynnu’r awdurdodiad ar:

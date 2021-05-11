@@ -383,6 +383,21 @@ class ClientRelationshipManagementControllerISpec
       response.body.contains(s"HMRC removed authorisation on:") shouldBe true
       response.body.contains(s"Your agent removed authorised on:") shouldBe true
     }
+
+    "Show refined statuses that indicate who terminated a relationship when inactive relationships and Deauthorised statuses are found" in new BaseTestSetUp
+      with NoRelationshipsFound with InvitationHistoryExistsWithInactiveRelationshipsIncludingDeauthedStatus with NoSuspensions {
+
+      getInactivePIRRelationships(arn2)
+      getInactiveClientRelationshipsExist(arn3, arn1)
+
+      val response = await(doGetRequest(""))
+
+      response.status shouldBe 200
+
+      response.body.contains(s"You removed authorisation on:") shouldBe true
+      response.body.contains(s"HMRC removed authorisation on:") shouldBe true
+      response.body.contains(s"Your agent removed authorised on:") shouldBe true
+    }
   }
 
   "showRemoveAuthorisation page" should {

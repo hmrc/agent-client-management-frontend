@@ -174,6 +174,32 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getNAgencyNamesMap200(Map(arn1-> "abc",arn2-> "DEF", arn3-> "ghi"))
   }
 
+  trait InvitationHistoryExistsWithInactiveRelationshipsIncludingDeauthedStatus {
+    getInvitations(
+      arn3,
+      validVrn.value,
+      "VRN",
+      serviceVat,
+      "Deauthorised",
+      "9999-01-01",
+      lastUpdatedBefore, isRelationshipEnded = true, relationshipEndedBy = Some("Agent"))
+    getInvitations(arn1, mtdItId.value, "MTDITID", serviceItsa, "Accepted", "9999-01-01", lastUpdated, isRelationshipEnded = true, relationshipEndedBy = Some("Client"))
+    getInvitations(
+      arn2,
+      validNino.value,
+      "NI",
+      serviceIrv,
+      "Deauthorised",
+      "9999-01-01",
+      lastUpdatedAfter, isRelationshipEnded = true, relationshipEndedBy = Some("HMRC"))
+    getInvitationsNotFound(validUtr.value, "UTR")
+    getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
+    givenAgentRefExistsFor(arn1)
+    givenAgentRefExistsFor(arn2)
+    givenAgentRefExistsFor(arn3)
+    getNAgencyNamesMap200(Map(arn1-> "abc",arn2-> "DEF", arn3-> "ghi"))
+  }
+
   //stub for when there is invitation history and each record has the same updated date but different time
   trait InvitationHistoryExistsDifferentTimes {
     getInvitations(
