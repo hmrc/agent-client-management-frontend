@@ -40,4 +40,7 @@ object AgentRequest {
   val orderingByAgencyName: Ordering[AgentRequest] = Ordering.by(_.agencyName.toLowerCase)
 
   val orderingByLastUpdated: Ordering[AgentRequest] = Ordering.by(_.lastUpdated)
+
+  def toAuthorisedAgent(ar: AgentRequest): AuthorisedAgent =
+    AuthorisedAgent(uuId = ar.uid, serviceName = ar.serviceName, agencyName = ar.agencyName, dateFrom = Some(ar.lastUpdated.toLocalDate))
 }

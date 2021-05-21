@@ -33,18 +33,19 @@ class AgentClientAuthorisationService @Inject()(
 
     val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => acaConnector.getInvitation(MtdItId(clientId.value)))
     val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
+    val storedAltItsaInvitations = invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value)), true))
     val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => acaConnector.getInvitation(Vrn(clientId.value)))
     val storedTrustInvitations = invitations(clientIdOpt.utr)(clientId => acaConnector.getInvitation(Utr(clientId.value)))
     val storedTrustNtInvitations = invitations(clientIdOpt.urn)(clientId => acaConnector.getInvitation(Urn(clientId.value)))
     val storedCgtInvitations = invitations(clientIdOpt.cgtRef)(clientId => acaConnector.getInvitation(CgtRef(clientId.value)))
 
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
-      storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedVatInvitations, storedTrustInvitations, storedTrustNtInvitations, storedCgtInvitations)).map(_.flatten)
+      storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedAltItsaInvitations, storedVatInvitations, storedTrustInvitations, storedTrustNtInvitations, storedCgtInvitations)).map(_.flatten)
       agencyNames <- if(storedInvitations.nonEmpty)
         acaConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
       agentRefs <- acaConnector.getAgentReferences(storedInvitations.map(_.arn))
-    } yield (agencyNames, storedInvitations, agentRefs)
+    } yield (agencyNames, storedInvitations.distinct, agentRefs)
 
     relationshipsWithAgencyNamesWithStoredInvitations.flatMap {
       case (agencyName, storedInvites, agentRefs) =>

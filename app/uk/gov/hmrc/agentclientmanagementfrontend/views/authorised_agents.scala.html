@@ -136,7 +136,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @config.authorisedAgents.map{ authAgent =>
+                        @config.authorisedAndPartialAuthAgents.map{ authAgent =>
                             <tr>
                                 <td style="font-weight: bold">@authAgent.agencyName</td>
                                 <td>@Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}")</td>
