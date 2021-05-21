@@ -50,7 +50,7 @@ class ClientRelationshipManagementControllerISpec
         "Making Tax Digital for VAT",
         "Manage a Capital Gains Tax on UK property account",
         "Maintain a trust or estate",
-        "Making Tax Digital for Income Tax (trial service)",
+        "Making Tax Digital for Income Tax",
         "For other tax services, read the guidance",
         "Current requests",
         "Agent",
@@ -153,6 +153,42 @@ class ClientRelationshipManagementControllerISpec
         "Remove authorisation"
       )
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
+    }
+
+    "include partial auth invitations" in {
+      getInvitations(arn1, validNino.value, "MTDITID",serviceItsa, "Partialauth", "9999-01-01", lastUpdated)
+      getInvitationsNotFound(validNino.value, "NI")
+      getAgencyNameMap200(arn1, "abc")
+      givenAgentRefExistsFor(arn1)
+      getNotFoundClientActiveAgentRelationships(serviceIrv)
+      authorisedAsClientNi(FakeRequest(),validNino.value)
+      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = false, None))
+      getInactiveClientRelationshipsEmpty()
+      getInactivePIRRelationshipsEmpty()
+
+      val response: WSResponse = await(doGetRequest(""))
+
+      response.status shouldBe 200
+
+      checkResponseBodyWithText(
+        response,
+        "Manage who can deal with HMRC for you",
+        "This page allows you to view and change agent authorisations for:",
+        "Making Tax Digital for VAT",
+        "Manage a Capital Gains Tax on UK property account",
+        "Maintain a trust or estate",
+        "Making Tax Digital for Income Tax",
+        "For other tax services, read the guidance",
+        "Authorised agents",
+        "History",
+        "Agent",
+        "Tax service",
+        "When you gave consent",
+        "Manage your Income Tax",
+        "15 January 2017",
+        "Remove authorisation",
+        "Remove authorisation from abc to Manage your Income Tax"
+      )
     }
 
     "Show tab with no authorised agents and different content" in new PendingInvitationsExist(0) with BaseTestSetUp
