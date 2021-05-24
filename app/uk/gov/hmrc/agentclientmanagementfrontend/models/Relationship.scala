@@ -27,10 +27,24 @@ sealed trait Relationship extends Product with Serializable {
   val arn: Arn
   val serviceName: String
   val dateFrom: Option[LocalDate]
+  val isAltItsa: Boolean
 }
 
 case class ItsaRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCMTDIT
+  val isAltItsa = false
+}
+
+case class AltItsaRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.HMRCMTDIT
+  val isAltItsa = true
+}
+
+object AltItsaRelationship {
+  implicit val altItsaFormat: OFormat[AltItsaRelationship] = Json.format[AltItsaRelationship]
+
+  def fromStoredInvitation(si: StoredInvitation): AltItsaRelationship =
+    AltItsaRelationship(arn = si.arn, dateFrom = Some(si.lastUpdated.toLocalDate))
 }
 
 object ItsaRelationship {
@@ -44,6 +58,7 @@ object ItsaRelationship {
 
 case class PirRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCPIR
+  val isAltItsa = false
 }
 
 object PirRelationship {
@@ -60,6 +75,7 @@ object PirRelationship {
 
 case class VatRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCMTDVAT
+  val isAltItsa = false
 }
 
 object VatRelationship {
@@ -73,6 +89,7 @@ object VatRelationship {
 
 case class TrustRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.TRUST
+  val isAltItsa = false
 }
 
 object TrustRelationship {
@@ -86,6 +103,7 @@ object TrustRelationship {
 
 case class TrustNtRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.TRUSTNT
+  val isAltItsa = false
 }
 
 object TrustNtRelationship {
@@ -100,6 +118,7 @@ object TrustNtRelationship {
 
 case class CgtRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.CGT
+  val isAltItsa = false
 }
 
 object CgtRelationship {

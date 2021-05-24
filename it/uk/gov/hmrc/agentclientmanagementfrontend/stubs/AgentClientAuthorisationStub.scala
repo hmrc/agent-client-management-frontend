@@ -96,6 +96,13 @@ trait AgentClientAuthorisationStub {
           .withStatus(404)))
   }
 
+  def getAltItsaActiveRelationshipsNotFound(clientId: String): StubMapping = {
+    stubFor(get(urlEqualTo(s"/agent-client-authorisation/clients/MTDITID/$clientId/invitations/received"))
+      .willReturn(
+        aResponse()
+          .withStatus(404)))
+  }
+
   def givenAgentRefExistsFor(arn: Arn): StubMapping = {
     stubFor(get(urlEqualTo(s"/agencies/references/arn/${arn.value}"))
       .willReturn(

@@ -43,9 +43,6 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
         Messages("client-authorised-agents-table.current.serviceSize", authRequests.size)))
   }.toSeq.sortBy(_.expiryDate).reverse
 
-  val authorisedAndPartialAuthAgents: Seq[AuthorisedAgent] =
-    agentRequests.filter(_.status == "Partialauth").map(AgentRequest.toAuthorisedAgent) ++ authorisedAgents
-
   //non suspended and non terminated
   val validNonPendingRequests: Seq[AgentRequest] = agentRequests.filter(x => x.status != "Pending" && !x.isSuspended && x.uid != "")
 
@@ -53,7 +50,7 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
 
   val validNonPendingRequestsExist: Boolean = validNonPendingRequests.nonEmpty
 
-  val authorisedAgentsExist: Boolean = authorisedAndPartialAuthAgents.nonEmpty
+  val authorisedAgentsExist: Boolean = authorisedAgents.nonEmpty
 
   val validPendingCount: Int = displayValidPendingRequests.length
 
