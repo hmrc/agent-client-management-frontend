@@ -51,6 +51,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getNotFoundClientActiveAgentRelationships(serviceCgt)
     getNotFoundClientActiveAgentRelationships(serviceTrustNT)
     getNotFoundForPIRRelationship(serviceIrv, validNino.value)
+    getAltItsaActiveRelationshipsNotFound(validNino.value)
   }
 
   //stubs for no inactive relationships
@@ -67,6 +68,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getNotFoundClientActiveAgentRelationships(serviceTrust)
     getNotFoundClientActiveAgentRelationships(serviceTrustNT)
     getNotFoundClientActiveAgentRelationships(serviceCgt)
+    getAltItsaActiveRelationshipsNotFound(validNino.value)
     getNAgencyNamesMap200(Map(arn1-> "abc",arn2-> "DEF", arn3-> "ghi"))
   }
 
@@ -79,6 +81,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(validNino.value, "MTDITID")
         getInvitationsNotFound(validNino.value, "NI")
         getInvitationsNotFound(validVrn.value, "VRN")
+        getInvitationsNotFound(validUrn.value, "URN")
 
       case 1 =>
         getInvitations(
@@ -92,6 +95,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(mtdItId.value, "MTDITID")
         getInvitationsNotFound(validNino.value, "MTDITID")
         getInvitationsNotFound(validNino.value, "NI")
+        getInvitationsNotFound(validUrn.value, "URN")
         getAgencyNameMap200(arn2, "abc")
 
       case 3 =>
@@ -118,6 +122,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validUtr.value, "UTR")
     getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
     getInvitationsNotFound(validNino.value, "MTDITID")
+    getInvitationsNotFound(validUrn.value, "URN")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)

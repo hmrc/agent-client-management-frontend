@@ -46,6 +46,8 @@ class RelationshipManagementService @Inject()(
     }
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
+    val altItsaRelationships =
+      clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, true).map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation))).getOrElse(Future successful Seq.empty)
     val vatRelationships =
       relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val trustRelationships =
@@ -60,6 +62,7 @@ class RelationshipManagementService @Inject()(
                         .sequence(
                           Seq(
                             itsaRelationships,
+                            altItsaRelationships,
                             pirRelationships,
                             vatRelationships,
                             trustRelationships,
@@ -76,7 +79,7 @@ class RelationshipManagementService @Inject()(
         def uuId: String = UUID.randomUUID().toString.replace("-", "")
 
         val relationshipWithArnCache =
-          relationships.map(r => ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom))
+          relationships.map(r => ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, r.isAltItsa))
 
         sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
           relationshipWithArnCache
@@ -121,8 +124,11 @@ class RelationshipManagementService @Inject()(
             Some(accepted.copy(
               status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}", lastUpdated = endDate.atStartOfDay()))
           )
-        case Some((Some(accepted), None)) =>
-          Some(accepted)
+        case Some((Some(accepted), None)) => {
+          if(accepted.status == "Deauthorised") Some(accepted.copy(
+            status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}"))
+          else Some(accepted)
+        }
         case e => logger.error(s"unexpected match result $e"); None
       }
     }
@@ -143,6 +149,11 @@ class RelationshipManagementService @Inject()(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
     deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
+
+  def deleteAltItsaRelationship(id: String, clientId: Nino)(
+    implicit c: HeaderCarrier,
+    ec: ExecutionContext): Future[DeleteResponse] =
+    deleteRelationship(id, clientId)(_ => Future successful true)
 
   def deletePIRelationship(id: String, nino: Nino)(
     implicit c: HeaderCarrier,
@@ -183,7 +194,7 @@ class RelationshipManagementService @Inject()(
                                           .andThen {
                                             case Success(true) =>
                                               for {
-                                                _ <- setRelationshipEnded(clientId, cache.arn, cache.service)
+                                                _ <- setRelationshipEnded(clientId, cache.arn, cache.service, cache.isAltItsa)
                                                 _ <- sessionStoreService.remove()
                                                 _ <- sessionStoreService.storeClientCache(remainingCache)
                                               } yield ()
@@ -195,13 +206,13 @@ class RelationshipManagementService @Inject()(
                        }
     } yield deleteResponse
 
-  private def setRelationshipEnded(clientId: TaxIdentifier, arn: Arn, service: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+  private def setRelationshipEnded(clientId: TaxIdentifier, arn: Arn, service: String, isAltItsa: Boolean)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
     //get the most recent invitation for the matching client/agent/service to update the IsRelationshipEnded flag
-    acaConnector.getInvitation(clientId)
+    acaConnector.getInvitation(clientId, isAltItsa)
      .map(invs => invs.filter(inv =>
        inv.arn == arn &&
        inv.service == service &&
-       inv.status == "Accepted")
+         (inv.status == "Accepted" || inv.status == "Partialauth"))
        .sortBy(_.lastUpdated)
        .reverse)
       .map(_.headOption)
@@ -217,11 +228,11 @@ class RelationshipManagementService @Inject()(
   }
 
   def getAuthorisedAgentDetails(
-    id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String)]] =
+    id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String, Boolean)]] =
     for {
       cacheOpt <- sessionStoreService.fetchClientCache
       cache = cacheOpt.flatMap(_.find(_.uuId == id))
-    } yield cache.map(cache => (cache.agencyName, cache.service))
+    } yield cache.map(cache => (cache.agencyName, cache.service, cache.isAltItsa))
 
   def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]) =
     identifierOpt match {
