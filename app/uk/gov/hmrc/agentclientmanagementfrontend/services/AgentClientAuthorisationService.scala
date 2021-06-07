@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
+
 import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.AgentClientAuthorisationConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
@@ -27,13 +29,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(
                                                  acaConnector: AgentClientAuthorisationConnector,
-                                                 relationshipManagementService: RelationshipManagementService) {
+                                                 relationshipManagementService: RelationshipManagementService)(implicit appConfig: AppConfig) {
 
   def getAgentRequests(clientType: String, clientIdOpt: ClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
     val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => acaConnector.getInvitation(MtdItId(clientId.value)))
     val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
-    val storedAltItsaInvitations = invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value)), true))
+    val storedAltItsaInvitations = if(appConfig.altItsaEnabled) invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value)), true)) else Future successful List.empty
     val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => acaConnector.getInvitation(Vrn(clientId.value)))
     val storedTrustInvitations = invitations(clientIdOpt.utr)(clientId => acaConnector.getInvitation(Utr(clientId.value)))
     val storedTrustNtInvitations = invitations(clientIdOpt.urn)(clientId => acaConnector.getInvitation(Urn(clientId.value)))

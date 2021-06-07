@@ -53,6 +53,7 @@ trait AppConfig {
   val contactBaseUrl: String
   val contactCheckSARelationshipUrl: String => String
   val mongoDbExpireAfterSeconds: Int
+  val altItsaEnabled: Boolean
 }
 
 
@@ -120,5 +121,7 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
   private def getConfIntOrFail(key: String): Int = servicesConfig.getInt(key)
 
   private def getConfBooleanOrFail(key: String): Boolean = servicesConfig.getBoolean(key)
+
+  override val altItsaEnabled: Boolean = servicesConfig.getBoolean("features.enable-alt-itsa")
 
 }

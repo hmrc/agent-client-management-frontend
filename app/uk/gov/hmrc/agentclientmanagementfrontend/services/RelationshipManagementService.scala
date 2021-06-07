@@ -17,6 +17,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import play.api.Logging
+import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
@@ -35,7 +36,7 @@ class RelationshipManagementService @Inject()(
   pirRelationshipConnector: PirRelationshipConnector,
   acaConnector: AgentClientAuthorisationConnector,
   relationshipsConnector: AgentClientRelationshipsConnector,
-  sessionStoreService: MongoDBSessionStoreService) extends Logging {
+  sessionStoreService: MongoDBSessionStoreService)(implicit appConfig: AppConfig) extends Logging {
 
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
@@ -47,7 +48,11 @@ class RelationshipManagementService @Inject()(
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val altItsaRelationships =
-      clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, true).map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation))).getOrElse(Future successful Seq.empty)
+      if(appConfig.altItsaEnabled) {
+        clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, true)
+          .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation)))
+          .getOrElse(Future successful Seq.empty)
+      } else Future successful List.empty
     val vatRelationships =
       relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val trustRelationships =
