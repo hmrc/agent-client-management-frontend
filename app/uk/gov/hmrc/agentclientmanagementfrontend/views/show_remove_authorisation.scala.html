@@ -48,6 +48,7 @@
                 '_legend -> Html(s"""<h1 class="heading-xlarge">${Messages("clientEndsRelationship.h1", agencyName)}</h1>"""),
            '_inputHint ->     Messages(s"clientEndsRelationship.description.$service", agencyName),
             '_inputHintClass -> "hint-text",
+            '_horizontal -> true,
             '_groupDivClass -> "form-group soft--ends",
             '_fieldsetAttributes -> Html("""id='confirmResponse'""")
         )
