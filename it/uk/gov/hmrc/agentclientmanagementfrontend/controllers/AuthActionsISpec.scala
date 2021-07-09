@@ -175,7 +175,7 @@ class AuthActionsISpec extends BaseISpec {
 
     "redirect to GG login page if user is not logged in" in {
       givenUnauthorisedWith("BearerTokenExpired")
-      TestController.withAuthorisedAsClient shouldBe Redirect("/bas-gateway/sign-in?continue_url=%2F&origin=agent-client-management-frontend", SEE_OTHER)
+      TestController.withAuthorisedAsClient shouldBe Redirect("http://localhost:9553/bas-gateway/sign-in?continue_url=http://localhost:9568/&origin=agent-client-management-frontend", SEE_OTHER)
     }
   }
 

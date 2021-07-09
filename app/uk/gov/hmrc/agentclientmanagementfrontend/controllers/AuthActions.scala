@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
+import controllers.Assets.Redirect
+import play.api.Logging
 import play.api.mvc.Results.Forbidden
 import play.api.mvc.{Request, Result}
-import play.api.{Logging, Mode}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
-import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Urn, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.AffinityGroup.{Individual, Organisation}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
@@ -36,10 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
 
   def forbiddenView(implicit request: Request[_]): Html
-
-  private val isDevEnv =
-    if (env.mode.equals(Mode.Test)) false
-    else config.getOptional[String]("run.mode").forall(Mode.Dev.toString.equals)
 
   protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers, Option[Utr]) => Future[Result])(
     implicit request: Request[A],
@@ -79,10 +76,16 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
 
   def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {
     case _: NoActiveSession ⇒
-      toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.path}")
+      Redirect(s"$signInUrl?continue_url=$continueUrl${request.uri}&origin=$appName")
 
     case _: UnsupportedAuthProvider ⇒
       logger.warn(s"user logged in with unsupported auth provider")
       Forbidden(forbiddenView)
   }
+
+  private def getString(key: String): String = config.underlying.getString(key)
+
+  private val signInUrl = getString("bas-gateway.url")
+  private val continueUrl = getString("login.continue")
+  private val appName = getString("appName")
 }
