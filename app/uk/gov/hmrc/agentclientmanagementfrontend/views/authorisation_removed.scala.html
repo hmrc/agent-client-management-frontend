@@ -24,7 +24,7 @@
 
 @mainTemplate(title = Messages(s"clientEndsRelationshipEnded.title"), bodyClasses = None) {
 
- <div class="transaction-banner--complete">
+ <div class="transaction-banner--complete with-govuk-success-colour">
   <h1 class="heading-xlarge">@Messages(s"clientEndsRelationshipEnded.title")</h1>
  </div>
 
@@ -52,6 +52,6 @@
    <p><a href="@appConfig.contactCheckSARelationshipUrl(utr)">@Messages("clientEndsRelationshipEnded.link")</a>}</p>
  }
 
- <a class="button margin-bottom-25" role="button" id="goToPtaButton" href="@routes.ClientRelationshipManagementController.root()">@Messages("clientEndedRelationshipEnded.button")</a>
+ <a class="button margin-bottom-20" role="button" id="goToPtaButton" href="@routes.ClientRelationshipManagementController.root()">@Messages("clientEndedRelationshipEnded.button")</a>
  <p><a href="@routes.ClientRelationshipManagementController.signOut()">@Messages("clientEndedRelationshipEnded.finish")</a></p>
 }
