@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package support
+package uk.gov.hmrc.agentclientmanagementfrontend.support
 
 import com.codahale.metrics.{Meter, MetricRegistry}
 import com.kenshoo.play.metrics.Metrics
@@ -41,6 +41,7 @@ trait MockedMetrics extends ResettingMockitoSugar with BeforeAndAfterEach {
     verify(getMeter(metricName), times(count)).mark()
 
   private def getMeter(metricName: String) = meters.get(metricName)
+
   private def addMeter(metricName: String): Meter = {
     meters.putIfAbsent(metricName, resettingMock[Meter])
     meters.get(metricName)

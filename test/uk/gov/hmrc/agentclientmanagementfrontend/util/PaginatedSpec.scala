@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package util
+package uk.gov.hmrc.agentclientmanagementfrontend.util
 
 import org.jsoup.Jsoup.parseBodyFragment
 import org.jsoup.nodes.Element
-import play.api.test.FakeRequest
 import play.api.i18n.DefaultMessagesApi
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Paginated
+import play.api.test.FakeRequest
+import uk.gov.hmrc.agentclientmanagementfrontend.support.UnitSpec
 import uk.gov.hmrc.agentclientmanagementfrontend.views
-import support.UnitSpec
-import scala.language.reflectiveCalls
+
 import scala.collection.JavaConverters._
+import scala.language.reflectiveCalls
 
 object PaginatorElement {
   def apply(e: Element): List[PaginatorElement] = {

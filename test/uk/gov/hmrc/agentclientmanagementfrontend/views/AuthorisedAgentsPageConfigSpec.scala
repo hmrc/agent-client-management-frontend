@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views
+package uk.gov.hmrc.agentclientmanagementfrontend.views
 
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -24,10 +24,9 @@ import play.api.test.FakeRequest
 import play.api.{Application, Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
-import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
+import uk.gov.hmrc.agentclientmanagementfrontend.support.UnitSpec
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import support.UnitSpec
 
 import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 

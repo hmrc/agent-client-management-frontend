@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package support
+package uk.gov.hmrc.agentclientmanagementfrontend.support
 
 import org.mockito.Mockito
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
+import org.scalatestplus.mockito.MockitoSugar
 
 import scala.reflect.Manifest
 

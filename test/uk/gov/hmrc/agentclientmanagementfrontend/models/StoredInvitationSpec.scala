@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package uk.gov.hmrc.agentclientmanagementfrontend.models
+
+import uk.gov.hmrc.agentclientmanagementfrontend.support.UnitSpec
+import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
+import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
 
 import java.net.URL
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-
-import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
-import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
-import support.UnitSpec
 
 class StoredInvitationSpec extends UnitSpec {
 
