@@ -5,6 +5,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Results._
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec

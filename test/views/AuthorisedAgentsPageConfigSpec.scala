@@ -27,7 +27,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, Authorise
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.test.UnitSpec
+import support.UnitSpec
 
 import java.time.{LocalDate, LocalDateTime, ZoneOffset}
 

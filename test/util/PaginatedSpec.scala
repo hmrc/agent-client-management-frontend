@@ -22,7 +22,7 @@ import play.api.test.FakeRequest
 import play.api.i18n.DefaultMessagesApi
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Paginated
 import uk.gov.hmrc.agentclientmanagementfrontend.views
-import uk.gov.hmrc.play.test.UnitSpec
+import support.UnitSpec
 import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
 

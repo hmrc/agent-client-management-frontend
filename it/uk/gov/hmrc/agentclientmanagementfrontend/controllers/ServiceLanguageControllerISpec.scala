@@ -2,7 +2,8 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
-import play.api.test.Helpers.{cookies, redirectLocation}
+import play.api.test.Helpers
+import play.api.test.Helpers._
 
 import scala.concurrent.duration._
 
@@ -20,7 +21,7 @@ class ServiceLanguageControllerISpec extends BaseISpec {
 
       val result = controller.switchToLanguage("english")(request)
       status(result) shouldBe 303
-      redirectLocation(result)(timeout) shouldBe Some("https://www.tax.service.gov.uk/manage-your-tax-agents/")
+      Helpers.redirectLocation(result)(timeout) shouldBe Some("https://www.tax.service.gov.uk/manage-your-tax-agents/")
 
       cookies(result)(timeout).get("PLAY_LANG").get.value shouldBe "en"
 
@@ -32,7 +33,7 @@ class ServiceLanguageControllerISpec extends BaseISpec {
 
       val result = controller.switchToLanguage("english")(request)
       status(result) shouldBe 303
-      redirectLocation(result)(timeout) shouldBe Some("/some-page")
+      Helpers.redirectLocation(result)(timeout) shouldBe Some("/some-page")
 
       cookies(result)(timeout).get("PLAY_LANG").get.value shouldBe "en"
 

@@ -23,7 +23,7 @@ import java.time.{LocalDate, LocalDateTime}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.StoredInvitation
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, MtdItId}
-import uk.gov.hmrc.play.test.UnitSpec
+import support.UnitSpec
 
 class StoredInvitationSpec extends UnitSpec {
 

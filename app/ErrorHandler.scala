@@ -15,10 +15,9 @@
  */
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger.logger
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Request, RequestHeader, Result}
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Logger, Logging}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{error_template, error_template_5xx}
@@ -36,9 +35,11 @@ class ErrorHandler @Inject() (
   val auditConnector: AuditConnector,
   errorTemplate: error_template,
   errorTemplate5xx: error_template_5xx)(implicit val config: Configuration, val env: Environment, appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
+  extends FrontendErrorHandler with AuthRedirects with ErrorAuditing with Logging {
 
   val appName: String = appConfig.appName
+
+  val theLogger: Logger = logger // exposing the logger for testing
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     auditClientError(request, statusCode, message)

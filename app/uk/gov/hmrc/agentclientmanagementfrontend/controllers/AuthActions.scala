@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import controllers.Assets.Redirect
 import play.api.Logging
-import play.api.mvc.Results.Forbidden
+import play.api.mvc.Results.{Forbidden, Redirect}
 import play.api.mvc.{Request, Result}
 import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientIdentifiers
