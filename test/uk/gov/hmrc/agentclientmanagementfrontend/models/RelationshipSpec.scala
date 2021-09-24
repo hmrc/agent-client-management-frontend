@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import java.time.LocalDateTime
-
-import java.time.LocalDate
 import play.api.libs.json.{JsSuccess, JsValue, Json}
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{ItsaRelationship, PirRelationship, VatRelationship}
+import uk.gov.hmrc.agentclientmanagementfrontend.support.UnitSpec
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
-import uk.gov.hmrc.play.test.UnitSpec
+
+import java.time.{LocalDate, LocalDateTime}
 
 
 class RelationshipSpec extends UnitSpec {

@@ -20,15 +20,16 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.JsValue
+import play.api.test.Helpers._
 import reactivemongo.api.ReadPreference
 import reactivemongo.api.commands.{LastError, WriteResult}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.repository.SessionCacheRepository
+import uk.gov.hmrc.agentclientmanagementfrontend.support.UnitSpec
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import uk.gov.hmrc.cache.model.{Cache, Id}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.DatabaseUpdate
-import uk.gov.hmrc.play.test.UnitSpec
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
