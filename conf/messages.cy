@@ -58,7 +58,7 @@ timed-out.p2=i ddefnyddio’r gwasanaeth hwn.
 # Client Content
 client-authorised-agents.title=Rheoli pwy sy’n gallu delio â CThEM ar eich rhan
 client-authorised-agents.p=Mae’r dudalen hon yn eich caniatáu i fwrw golwg dros a newid awdurdodiadau asiant ar gyfer:
-client-authorised-agents.li.1=Troi Treth yn Ddigidol ar gyfer TAW
+client-authorised-agents.li.1=TAW
 client-authorised-agents.li.2=Rheoli cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU
 client-authorised-agents.li.3=Cynnal ymddiriedolaeth neu ystâd
 client-authorised-agents.li.4=Troi Treth yn Ddigidol ar gyfer Treth Incwm
