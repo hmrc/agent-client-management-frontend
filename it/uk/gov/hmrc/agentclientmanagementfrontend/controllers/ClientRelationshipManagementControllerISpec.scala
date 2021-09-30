@@ -46,7 +46,7 @@ class ClientRelationshipManagementControllerISpec
         response,
         "Manage who can deal with HMRC for you",
         "This page allows you to view and change agent authorisations for:",
-        "Making Tax Digital for VAT",
+        "VAT",
         "Manage a Capital Gains Tax on UK property account",
         "Maintain a trust or estate",
         "Making Tax Digital for Income Tax",
@@ -145,7 +145,7 @@ class ClientRelationshipManagementControllerISpec
         "When you gave consent",
         "Action",
         "Manage your VAT",
-        "Manage your Income Tax",
+        "Manage your Making Tax Digital for Income Tax",
         "View your PAYE income record",
         "abc",
         "6 June 2017",
@@ -173,7 +173,7 @@ class ClientRelationshipManagementControllerISpec
         response,
         "Manage who can deal with HMRC for you",
         "This page allows you to view and change agent authorisations for:",
-        "Making Tax Digital for VAT",
+        "VAT",
         "Manage a Capital Gains Tax on UK property account",
         "Maintain a trust or estate",
         "Making Tax Digital for Income Tax",
@@ -183,10 +183,10 @@ class ClientRelationshipManagementControllerISpec
         "Agent",
         "Tax service",
         "When you gave consent",
-        "Manage your Income Tax",
+        "Manage your Making Tax Digital for Income Tax",
         "15 January 2017",
         "Remove authorisation",
-        "Remove authorisation from abc to Manage your Income Tax"
+        "Remove authorisation from abc to Manage your Making Tax Digital for Income Tax"
       )
     }
 
@@ -214,7 +214,7 @@ class ClientRelationshipManagementControllerISpec
         "Manage who can deal with HMRC for you",
         "Authorised agents",
         "This Agency Name",
-        "Manage your Income Tax",
+        "Manage your Making Tax Digital for Income Tax",
         "Remove authorisation"
       )
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -281,7 +281,7 @@ class ClientRelationshipManagementControllerISpec
         "abc",
         "DEF",
         "ghi",
-        "Manage your Income Tax",
+        "Manage your Making Tax Digital for Income Tax",
         "View your PAYE income record",
         "Manage your VAT",
         "You accepted on:",
@@ -605,7 +605,7 @@ class ClientRelationshipManagementControllerISpec
 
     behave like checkRemoveAuthorisationForService(
       serviceItsa,
-      deleteActiveITSARelationship(arn1.value, mtdItId.value, 204), true)
+      deleteActiveITSARelationship(arn1.value, mtdItId.value, 204), isAltItsa = true)
     val req = FakeRequest()
 
     "return 500 a runtime exception if the relationship is not found" in {
@@ -842,7 +842,7 @@ class ClientRelationshipManagementControllerISpec
         result,
         "Authorisation removed",
       "What this means",
-      "You removed your authorisation for This Agency Name to manage Making Tax Digital for Income Tax.",
+      "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
       "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
       "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
       "To check if you have a separate Self Assessment authorisation in place or to remove it",
@@ -864,7 +864,7 @@ class ClientRelationshipManagementControllerISpec
         result,
         "Authorisation removed",
         "What this means",
-        "You removed your authorisation for This Agency Name to manage Making Tax Digital for Income Tax.",
+        "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
         "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
         "You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.",
       "Check or remove active agent authorisation for Self Assessment",
@@ -886,7 +886,7 @@ class ClientRelationshipManagementControllerISpec
         result,
         "Authorisation removed",
         "What this means",
-        "You removed your authorisation for This Agency Name to manage Making Tax Digital for Income Tax.",
+        "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
         "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
         "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
         "To check if you have a separate Self Assessment authorisation in place or to remove it",
@@ -904,7 +904,7 @@ class ClientRelationshipManagementControllerISpec
     }
   }
 
-  def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => StubMapping, isAltItsa: Boolean = false) = {
+  def checkRemoveAuthorisationForService(serviceName: String, deleteRelationshipStub: => StubMapping, isAltItsa: Boolean = false): Unit = {
     implicit val req = FakeRequest()
 
     "return 200, remove the relationship if the client confirms deletion" in {
