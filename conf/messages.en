@@ -58,10 +58,10 @@ timed-out.p2=to use this service.
 # Client Content
 client-authorised-agents.title=Manage who can deal with HMRC for you
 client-authorised-agents.p=This page allows you to view and change agent authorisations for:
-client-authorised-agents.li.1=VAT
+client-authorised-agents.li.1=Manage your VAT
 client-authorised-agents.li.2=Manage a Capital Gains Tax on UK property account
 client-authorised-agents.li.3=Maintain a trust or estate
-client-authorised-agents.li.4=Making Tax Digital for Income Tax
+client-authorised-agents.li.4=Manage your Making Tax Digital for Income Tax
 client-authorised-agents.link.text=For other tax services, read the guidance
 client-authorised-agents-table-relationships.tab3.title=History
 client-authorised-agents-table-relationships.tab2.title=Authorised agents
