@@ -22,27 +22,26 @@
 
 @(agencyName: String, service: String, legacySaRelationshipUtr: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@mainTemplate(title = Messages(s"clientEndsRelationshipEnded.title"), bodyClasses = None) {
+@mainTemplate(title = Messages(s"clientEndsRelationshipEnded.title")) {
 
- <div class="transaction-banner--complete with-govuk-success-colour">
-  <h1 class="heading-xlarge">@Messages(s"clientEndsRelationshipEnded.title")</h1>
+ <div class="govuk-panel govuk-panel--confirmation">
+    <h1 class="govuk-panel__title">@Messages(s"clientEndsRelationshipEnded.title")</h1>
  </div>
 
- <h2 class="heading-medium">@Messages("clientEndsRelationshipEnded.h2")</h2>
+ <h2 class="govuk-heading-m">@Messages("clientEndsRelationshipEnded.h2")</h2>
 
  <p>@Messages("clientEndsRelationshipEnded.p1", agencyName, Messages(s"clientEndsRelationshipEnded.${service}"))</p>
-
- <p>@Messages(s"clientEndsRelationshipEnded.p2", agencyName)</p>
+ <p>@Messages("clientEndsRelationshipEnded.p2", agencyName)</p>
 
  @if(service == "HMRC-MTD-IT"){
   @legacySaRelationshipUtr.fold{
    <p>@Messages("clientEndsRelationshipEnded.p3.sa-legacy-relationship.false", agencyName)</p>
    <div class="form-group">
-    <details class="govuk-details">
+    <details class="govuk-details" data-module="govuk-details">
      <summary class="govuk-details__summary">
       <span class="summary govuk-details__summary-text">@Messages("clientEndedRelationshipEnded.self-assessment.details.header")</span>
      </summary>
-     <div class="panel panel-border-narro govuk-details__text">
+     <div class="govuk-details__text">
       <p>@Html(Messages("clientEndedRelationshipEnded.self-assessment.details.text",
        routes.ClientRelationshipManagementController.signOutAndRedirectToTaxAccountRouter()))</p>
      </div>
@@ -51,7 +50,10 @@
    <p>@Messages("clientEndsRelationshipEnded.p3.sa-legacy-relationship.true")</p>
    <p><a href="@appConfig.contactCheckSARelationshipUrl(utr)">@Messages("clientEndsRelationshipEnded.link")</a>}</p>
  }
-
- <a class="button margin-bottom-20" role="button" id="goToPtaButton" href="@routes.ClientRelationshipManagementController.root()">@Messages("clientEndedRelationshipEnded.button")</a>
- <p><a href="@routes.ClientRelationshipManagementController.signOut()">@Messages("clientEndedRelationshipEnded.finish")</a></p>
+ <p>
+   <a class="button margin-bottom-20" role="button" id="goToPtaButton" href="@routes.ClientRelationshipManagementController.root()">@Messages("clientEndedRelationshipEnded.button")</a>
+ </p>
+ <p>
+   <a href="@routes.ClientRelationshipManagementController.signOut()">@Messages("clientEndedRelationshipEnded.finish")</a>
+ </p>
 }

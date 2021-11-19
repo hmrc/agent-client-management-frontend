@@ -19,39 +19,54 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_prefix
-@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.input_radio_group_custom
-@import uk.gov.hmrc.play.views.html.helpers.ErrorSummary
-@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.html.components.{ErrorSummary, FormWithCSRF}
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
 @this(
         mainTemplate: main_template,
         errorPrefix: error_prefix,
-        inputRadioGroupCustom: input_radio_group_custom, uiForm: FormWithCSRF, errorSummary: ErrorSummary)
+        uiForm: FormWithCSRF,
+        govukRadios: GovukRadios,
+        govukErrorSummary: GovukErrorSummary)
 
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 
-@mainTemplate(title = errorPrefix(confirmForm) + Messages("clientEndsRelationship.title"), bodyClasses = None) {
-
-    <a id="backLink" href="@routes.ClientRelationshipManagementController.root()" class="link-back">@Messages("button.back")</a>
+@mainTemplate(title = errorPrefix(confirmForm) + Messages("clientEndsRelationship.title"), backLinkHref = Some(routes.ClientRelationshipManagementController.root().url)) {
 
     @if(confirmForm.hasErrors){
-        @errorSummary(Messages("error.summary.heading"), confirmForm, Seq.empty, Some("confirmForm"))
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(confirmForm))
     }
 
-
-    @uiForm(routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
-
-        @inputRadioGroupCustom(
-            confirmForm("confirmResponse"),
-            Seq(("true", Messages("clientEndsRelationship.yes")), ("false", Messages("clientEndsRelationship.no"))),
-                '_legend -> Html(s"""<h1 class="heading-xlarge">${Messages("clientEndsRelationship.h1", agencyName)}</h1>"""),
-           '_inputHint ->     Messages(s"clientEndsRelationship.description.$service", agencyName),
-            '_inputHintClass -> "hint-text",
-            '_horizontal -> true,
-            '_groupDivClass -> "form-group soft--ends",
-            '_fieldsetAttributes -> Html("""id='confirmResponse'""")
+    @uiForm(action = routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
+        @govukRadios(
+            Radios(
+                name = "confirmResponse",
+                idPrefix = Some("confirmResponse"),
+                attributes = Map("id" -> "confirmResponse"),
+                classes = "govuk-radios--inline",
+                hint = Some(Hint(content = Text(Messages(s"clientEndsRelationship.description.$service", agencyName)))),
+                fieldset = Some(Fieldset(
+                    legend = Some(Legend(
+                        content = Text(Messages("clientEndsRelationship.h1", agencyName)),
+                        isPageHeading = true,
+                        classes = "govuk-fieldset__legend--xl"
+                    ))
+                )),
+                items = Seq(
+                    RadioItem(content = Text(Messages("clientEndsRelationship.yes")), value = Some("true")),
+                    RadioItem(content = Text(Messages("clientEndsRelationship.no")), value = Some("false"))
+                )
+            )
         )
-            <button type="submit" class="button" id="buttonDeauthorise">@Messages("button.continue")</button>
+        <button type="submit" class="govuk-button" id="buttonDeauthorise">@Messages("button.continue")</button>
     }
 }

@@ -53,7 +53,7 @@ class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite with LogCapturi
 
         status(result) shouldBe NOT_FOUND
         contentType(await(result)) shouldBe Some(HTML)
-        checkIncludesText(result,"<p>If you typed the web address, check it is correct.</p>")
+        checkIncludesText(result,"If you typed the web address, check it is correct.")
         checkIncludesMessages(result, "global.error.pageNotFound404.title", "global.error.pageNotFound404.heading")
 
         logEvents.count(_.getMessage.contains(s"onClientError some error")) shouldBe 1

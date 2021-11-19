@@ -1,16 +1,20 @@
 # microservice specific routes
 
+->          /hmrc-frontend                                       hmrcfrontend.Routes
+
 GET         /                                                    @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
+
 GET         /remove-authorisation/service/:service/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.showRemoveAuthorisation(service: String, id: String)
 POST        /remove-authorisation/service/:service/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.submitRemoveAuthorisation(service: String, id: String)
 GET         /authorisation-removed                               @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.authorisationRemoved
 
 GET         /keep-alive                                          @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.keepAlive
 GET         /sign-out                                            @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.signOut
-GET         /timed-out                                            @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.timedOut
+GET         /timed-out                                           @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.timedOut
 
-GET         /tar                                                @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.signOutAndRedirectToTaxAccountRouter
+GET         /tar                                                 @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.signOutAndRedirectToTaxAccountRouter
 
 GET         /language/:lang                                      @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ServiceLanguageController.switchToLanguage(lang: String)
 
-GET         /assets/*file                                       controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                        controllers.Assets.versioned(path = "/public", file: Asset)
+
