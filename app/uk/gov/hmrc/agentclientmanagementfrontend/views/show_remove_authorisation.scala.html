@@ -29,6 +29,7 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 
 @this(
         mainTemplate: main_template,
@@ -49,9 +50,6 @@
     @uiForm(action = routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @govukRadios(
             Radios(
-                name = "confirmResponse",
-                idPrefix = Some("confirmResponse"),
-                attributes = Map("id" -> "confirmResponse"),
                 classes = "govuk-radios--inline",
                 hint = Some(Hint(content = Text(Messages(s"clientEndsRelationship.description.$service", agencyName)))),
                 fieldset = Some(Fieldset(
@@ -65,7 +63,7 @@
                     RadioItem(content = Text(Messages("clientEndsRelationship.yes")), value = Some("true")),
                     RadioItem(content = Text(Messages("clientEndsRelationship.no")), value = Some("false"))
                 )
-            )
+            ).withFormField(confirmForm("confirmResponse"))
         )
         <button type="submit" class="govuk-button" id="buttonDeauthorise">@Messages("button.continue")</button>
     }
