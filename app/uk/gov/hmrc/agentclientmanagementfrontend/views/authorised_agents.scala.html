@@ -75,7 +75,7 @@
 }
 
 @currentAuths = {
-    <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab2.title")</h2>
+    <h2 class="govuk-!-margin-top-0">@Messages("client-authorised-agents-table-relationships.tab2.title")</h2>
     @if(!config.authorisedAgentsExist) {
       <p>@Messages("client-authorised-agents-table-content.noAgentsFound")</p>
     } else {
@@ -107,7 +107,7 @@
 }
 
 @history = {
-   <h2 class="margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
+   <h2 class="govuk-!-margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
    @if(!config.validNonPendingRequestsExist) {
        <p>@Messages("client-authorised-agents-table-content.no-activity")</p>
    } else {
@@ -152,7 +152,7 @@
 
 @mainTemplate(title = Messages("client-authorised-agents.title"), wide = true){
 
-    <h1 class="govuk-heading-l margin-bottom-25">@Messages("client-authorised-agents.title")</h1>
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-5">@Messages("client-authorised-agents.title")</h1>
 
     <p>@Messages("client-authorised-agents.p")</p>
 
@@ -163,7 +163,7 @@
         <li>@Messages("client-authorised-agents.li.4")</li>
     </ul>
 
-    <p class="margin-bottom-30"><a href="https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent">@Messages("client-authorised-agents.link.text")</a></p>
+    <p class="govuk-!-margin-bottom-6"><a href="https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent">@Messages("client-authorised-agents.link.text")</a></p>
 
     @govukTabs(Tabs(
         items = tabItems
