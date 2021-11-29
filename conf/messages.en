@@ -30,6 +30,7 @@ global.error.500.sa_helpline.href=https://www.gov.uk/government/organisations/hm
 
 # Service specific messages.en
 app.name=agent-client-management
+service.name=Manage who can deal with HMRC for you
 
 # Start page
 start.title=agent-client-management

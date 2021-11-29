@@ -30,6 +30,7 @@ global.error.500.sa_helpline.href=https://www.gov.uk/government/organisations/hm
 
 # Service specific messages.en
 app.name=asiant-cleient-rheoli
+service.name=Rheoli pwy sy’n gallu delio â CThEM ar eich rhan
 
 # Start page
 start.title=asiant-cleient-rheoli
