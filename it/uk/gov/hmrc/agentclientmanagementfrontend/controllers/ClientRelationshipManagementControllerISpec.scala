@@ -46,10 +46,10 @@ class ClientRelationshipManagementControllerISpec
         response,
         "Manage who can deal with HMRC for you",
         "This page allows you to view and change agent authorisations for:",
-        "VAT",
+        "Manage your VAT",
         "Manage a Capital Gains Tax on UK property account",
         "Maintain a trust or estate",
-        "Making Tax Digital for Income Tax",
+        "Manage your Making Tax Digital for Income Tax",
         "For other tax services, read the guidance",
         "Current requests",
         "Agent",
@@ -59,7 +59,9 @@ class ClientRelationshipManagementControllerISpec
         "1 January 9999",
         "abc",
         "Respond to request",
-        "You have 3 authorisation requests you need to respond to."
+        "Respond to request ghi View your PAYE income record",
+        "Respond to request DEF Manage your Making Tax Digital for Income Tax",
+        "Respond to request abc Manage your VAT"
       )
     }
 
@@ -71,7 +73,9 @@ class ClientRelationshipManagementControllerISpec
         checkResponseBodyWithText(
           response,
           "Current requests",
-          "You have 1 authorisation request you need to respond to.")
+          "Manage your VAT",
+          "Respond to request",
+          "Respond to request abc Manage your VAT")
       }
 
     "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0) with BaseTestSetUp
@@ -101,7 +105,8 @@ class ClientRelationshipManagementControllerISpec
 
       checkResponseBodyWithText(
         result,
-        "You have 2 authorisation requests you need to respond to.") //out of 3 show only 2 in the UI due to one missing AgentRef
+        "Respond to request ghi View your PAYE income record",
+      "Respond to request DEF Manage your Making Tax Digital for Income Tax") //out of 3 show only 2 in the UI due to one missing AgentRef
     }
 
     "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(
@@ -125,7 +130,8 @@ class ClientRelationshipManagementControllerISpec
         "1 January 9999",
         "DEF",
         "Respond to request",
-        "You have 2 authorisation requests you need to respond to."
+        "Respond to request ghi View your PAYE income record",
+        "Respond to request DEF Manage your Making Tax Digital for Income Tax"
       )
     }
 

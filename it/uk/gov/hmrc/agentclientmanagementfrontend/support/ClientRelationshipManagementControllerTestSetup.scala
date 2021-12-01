@@ -82,6 +82,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(validNino.value, "NI")
         getInvitationsNotFound(validVrn.value, "VRN")
         getInvitationsNotFound(validUrn.value, "URN")
+        getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
 
       case 1 =>
         getInvitations(
@@ -96,6 +97,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(validNino.value, "MTDITID")
         getInvitationsNotFound(validNino.value, "NI")
         getInvitationsNotFound(validUrn.value, "URN")
+        getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
         getAgencyNameMap200(arn2, "abc")
 
       case 3 =>

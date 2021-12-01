@@ -65,7 +65,7 @@
             TableRow(content = HtmlContent(Html(
                 s"""<a href="${appConfig.warmUpUrl(agentReq.clientType, agentReq.uid, agentReq.agencyName)}">
                    |    <span aria-hidden="true">${Messages("client-authorised-agents-table.actions.respond")}</span>
-                   |    <span class="govuk-visually-hidden">${Messages("client-authorised-agents-table.actions.respond")} ${agentReq.agencyName} ${Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}")}</span>
+                   |    <span class="govuk-visually-hidden">${Messages("client-authorised-agents-table.actions.respond")} ${agentReq.agencyName} ${agentReq.serviceName}</span>
                    |    </a>
                    |""".stripMargin)
             )),
