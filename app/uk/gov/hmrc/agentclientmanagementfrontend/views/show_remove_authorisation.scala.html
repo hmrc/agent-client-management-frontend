@@ -51,14 +51,14 @@
         @govukRadios(
             Radios(
                 classes = "govuk-radios--inline",
-                hint = Some(Hint(content = Text(Messages(s"clientEndsRelationship.description.$service", agencyName)))),
                 fieldset = Some(Fieldset(
                     legend = Some(Legend(
                         content = Text(Messages("clientEndsRelationship.h1", agencyName)),
                         isPageHeading = true,
-                        classes = "govuk-fieldset__legend--xl"
+                        classes = "govuk-fieldset__legend--xl govuk-!-margin-bottom-8"
                     ))
                 )),
+                hint = Some(Hint(content = Text(Messages(s"clientEndsRelationship.description.$service", agencyName)))),
                 items = Seq(
                     RadioItem(content = Text(Messages("clientEndsRelationship.yes")), value = Some("true")),
                     RadioItem(content = Text(Messages("clientEndsRelationship.no")), value = Some("false"))
