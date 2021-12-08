@@ -21,6 +21,9 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.components.{header, head}
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcStandardFooter, HmrcScripts, HmrcReportTechnicalIssueHelper}
 @import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsMainContent
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPhaseBanner
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En}
 
 @this(
         head: head,
@@ -29,8 +32,10 @@
         govukBackLink: GovukBackLink,
         hmrcStandardFooter: HmrcStandardFooter,
         hmrcScripts: HmrcScripts,
-        hmrcBanner : HmrcBanner,
+        hmrcBanner: HmrcBanner,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+        govukPhaseBanner: GovukPhaseBanner,
+        standardBetaBanner: StandardBetaBanner,
         twoThirdsLayout: TwoThirdsMainContent,
 )
 
@@ -41,7 +46,8 @@
 )(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: AppConfig)
 
 @beforeContent = {
-@hmrcBanner(Banner())
+@govukPhaseBanner(standardBetaBanner(appConfig.betaFeedbackUrl))
+@hmrcBanner(Banner(language = if (messages.lang.code == "cy") Cy else En))
 @if(backLinkHref.nonEmpty){
     <nav aria-label="Back Link">
     @backLinkHref.map(url =>
