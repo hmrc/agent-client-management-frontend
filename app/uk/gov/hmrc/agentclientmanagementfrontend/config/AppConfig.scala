@@ -54,6 +54,7 @@ trait AppConfig {
   val contactCheckSARelationshipUrl: String => String
   val mongoDbExpireAfterSeconds: Int
   val altItsaEnabled: Boolean
+  val betaFeedbackUrl: String
 }
 
 
@@ -124,4 +125,5 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
 
   override val altItsaEnabled: Boolean = servicesConfig.getBoolean("features.enable-alt-itsa")
 
+  val betaFeedbackUrl: String = servicesConfig.getString("betaFeedbackUrl")
 }
