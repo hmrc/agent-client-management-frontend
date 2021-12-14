@@ -112,7 +112,7 @@ class ClientRelationshipManagementControllerISpec
     "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(
       3) with BaseTestSetUp with NoRelationshipsFound {
 
-      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("VATC"))))
+      givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("AGSV"))))
       givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
       givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
 
