@@ -14,27 +14,17 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components.{GovukLayout, GovukBackLink}
-@import uk.gov.hmrc.govukfrontend.views.html.components.{BackLink, Text}
-@import uk.gov.hmrc.hmrcfrontend.views.html.components.{HmrcBanner, Banner}
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.components.{header, head}
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcStandardFooter, HmrcScripts, HmrcReportTechnicalIssueHelper}
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.components.head
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcLayout, HmrcReportTechnicalIssueHelper}
 @import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsMainContent
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
-@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPhaseBanner
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En}
 
 @this(
         head: head,
-        header: header,
-        govukLayout: GovukLayout,
-        govukBackLink: GovukBackLink,
-        hmrcStandardFooter: HmrcStandardFooter,
-        hmrcScripts: HmrcScripts,
-        hmrcBanner: HmrcBanner,
+        hmrcLayout: HmrcLayout,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        govukPhaseBanner: GovukPhaseBanner,
         standardBetaBanner: StandardBetaBanner,
         twoThirdsLayout: TwoThirdsMainContent,
 )
@@ -42,24 +32,12 @@
 @(title: String,
   hasTimeout: Boolean = true,
   backLinkHref: Option[String] = None,
-  wide: Boolean = false
+  fullWidth: Boolean = false
 )(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: AppConfig)
-
-@beforeContent = {
-@govukPhaseBanner(standardBetaBanner(appConfig.betaFeedbackUrl))
-@hmrcBanner(Banner(language = if (messages.lang.code == "cy") Cy else En))
-@if(backLinkHref.nonEmpty){
-    <nav aria-label="Back Link">
-    @backLinkHref.map(url =>
-        govukBackLink(BackLink(href = url, content = Text(messages("button.back"))))
-    )
-    </nav>
-}
-}
 
 @mainContentWithHelpLink = {
 @mainContent
-    <div>
+    <div class="govuk-!-margin-bottom-9">
     @hmrcReportTechnicalIssueHelper()
     </div>
 }
@@ -68,13 +46,15 @@
     <script src="@controllers.routes.Assets.versioned("javascripts/agent-client-management-frontend.js")" type="text/javascript"></script>
 }
 
-@govukLayout(
-    pageTitle = Some(title),
-    headBlock = Some(head(hasTimeout)),
-    headerBlock = Some(header()),
-    scriptsBlock = Some(hmrcScripts(scriptsBlock = Some(additionalScripts))),
-    beforeContentBlock = Some(beforeContent),
-    footerBlock = Some(hmrcStandardFooter()),
-    mainContentLayout = if (wide) None else Some(twoThirdsLayout(_)),
-    assetPath = None
+@hmrcLayout(
+    pageTitle = Some(title + " " +Messages("servicename.titleSuffix")),
+    phaseBanner = Some(standardBetaBanner(appConfig.betaFeedbackUrl)),
+    isWelshTranslationAvailable = true,
+    displayHmrcBanner = true,
+    serviceUrl = None,
+    signOutUrl = None,
+    additionalHeadBlock = Some(head(hasTimeout)),
+    additionalScriptsBlock = Some(additionalScripts),
+    backLinkUrl = backLinkHref,
+    mainContentLayout = if (fullWidth) None else Some(twoThirdsLayout(_)),
 )(mainContentWithHelpLink)
