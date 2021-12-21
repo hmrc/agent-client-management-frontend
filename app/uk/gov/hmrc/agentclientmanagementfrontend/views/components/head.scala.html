@@ -18,14 +18,10 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeoutDialog
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
 
-@this(hmrcTimeoutDialog: HmrcTimeoutDialog, hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet)
-
+@this(hmrcTimeoutDialog: HmrcTimeoutDialog)
 
 @(hasTimeout: Boolean)(implicit appConfig: AppConfig, messages: Messages)
-
-@hmrcTrackingConsentSnippet()
 
 <link rel="stylesheet" type="text/css" href="@controllers.routes.Assets.versioned("stylesheets/application.css")" media="screen">
 
