@@ -17,7 +17,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend
 
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services._
-import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, Urn, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 
 import scala.concurrent.Future
@@ -33,6 +33,7 @@ package object util {
       case _: Utr    => TRUST
       case _: Urn    => TRUSTNT
       case _: CgtRef => CGT
+      case _: PptRef => PPT
       case _ =>
         throw new IllegalStateException(s"Unsupported Identifier $taxIdentifier")
     }

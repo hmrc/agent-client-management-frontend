@@ -129,3 +129,17 @@ object CgtRelationship {
       (JsPath \ "dateFrom").readNullable[LocalDate])(CgtRelationship.apply _)
 
 }
+
+case class PptRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.PPT
+  val isAltItsa = false
+}
+
+object PptRelationship {
+  implicit val relationshipWrites = Json.writes[PptRelationship]
+
+  implicit val reads: Reads[PptRelationship] =
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+      (JsPath \ "dateFrom").readNullable[LocalDate])(PptRelationship.apply _)
+
+}

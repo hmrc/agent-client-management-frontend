@@ -42,4 +42,6 @@ object Services {
 
   val IRSA = "IR-SA"
 
+  val PPT = "HMRC-PPT-ORG"
+
 }

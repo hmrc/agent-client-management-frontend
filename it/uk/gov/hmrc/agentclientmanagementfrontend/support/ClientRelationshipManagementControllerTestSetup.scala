@@ -21,6 +21,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   val validUtr = Utr("1977030537")
   val validUrn = Urn("XATRUST12345678")
   val validCgtRef = CgtRef("XMCGTP123456789")
+  val validPptRef = CgtRef("XAPPT0000012345")
   val startDate = Some(LocalDate.parse("2017-06-06"))
   val startDateString = "2017-06-06"
   val lastUpdated = "2017-01-15T13:14:00.000+08:00"
@@ -36,11 +37,12 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   val serviceTrust: String = Services.TRUST
   val serviceTrustNT: String = Services.TRUSTNT
   val serviceCgt: String = Services.CGT
+  val servicePpt: String = Services.PPT
 
   //Basic authentication stubs needed for every test
   trait BaseTestSetUp {
     val req = FakeRequest()
-    authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value)
+    authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
   }
 
   //stubs for no relationships for any service

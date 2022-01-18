@@ -61,6 +61,8 @@ class RelationshipManagementService @Inject()(
       relationships(clientIdOpt.cgtRef)(_ => relationshipsConnector.getActiveClientCgtRelationship.map(_.toSeq))
     val urnRelationships =
       relationships(clientIdOpt.urn)(_ => relationshipsConnector.getActiveClientTrustNtRelationship.map(_.toSeq))
+    val pptRelationships =
+      relationships(clientIdOpt.pptRef)(_ => relationshipsConnector.getActiveClientPptRelationship.map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
@@ -72,7 +74,9 @@ class RelationshipManagementService @Inject()(
                             vatRelationships,
                             trustRelationships,
                             urnRelationships,
-                            cgtRelationships))
+                            cgtRelationships,
+                            pptRelationships
+                          ))
                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
                       acaConnector.getAgencyNames(relationships.map(_.arn))
@@ -184,6 +188,11 @@ class RelationshipManagementService @Inject()(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
     deleteRelationship(id, cgtRef)(arn => relationshipsConnector.deleteRelationship(arn, cgtRef))
+
+  def deletePptRelationship(id: String, pptRef: PptRef)(
+    implicit c: HeaderCarrier,
+    ec: ExecutionContext): Future[DeleteResponse] =
+    deleteRelationship(id, pptRef)(arn => relationshipsConnector.deleteRelationship(arn, pptRef))
 
   private def deleteRelationship(id: String, clientId: TaxIdentifier)(
     f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =

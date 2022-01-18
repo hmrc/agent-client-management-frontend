@@ -34,7 +34,9 @@ case class SuspensionDetails(suspensionStatus: Boolean, regimes: Option[Set[Stri
       "HMRC-TERS-ORG"          -> "TRS",
       "HMRC-TERSNT-ORG"        -> "TRS",
       "HMRC-CGT-PD"            -> "CGT",
-      "PERSONAL-INCOME-RECORD" -> "PIR")
+      "PERSONAL-INCOME-RECORD" -> "PIR",
+      "HMRC-PPT-ORG"           -> "PPT"
+    )
 
   override def toString: String = suspendedRegimes.mkString(",")
   def isRegimeSuspended(service: String): Boolean = {
