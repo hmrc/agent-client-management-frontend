@@ -104,6 +104,7 @@ class ClientRelationshipManagementController @Inject()(
       case Services.TRUST      => featureFlags.rmAuthTrust
       case Services.TRUSTNT    => featureFlags.rmAuthTrustNt
       case Services.CGT        => featureFlags.rmAuthCgt
+      case Services.PPT        => featureFlags.rmAuthPpt
       case _                   => throw new Exception("Unsupported Service")
     }
 
@@ -133,6 +134,9 @@ class ClientRelationshipManagementController @Inject()(
               case Services.TRUSTNT =>
                 relationshipManagementService
                   .deleteTrustNtRelationship(id, clientIds.urn.getOrElse(throw new InsufficientEnrolments))
+              case Services.PPT =>
+                relationshipManagementService
+                  .deletePptRelationship(id, clientIds.pptRef.getOrElse(throw new InsufficientEnrolments))
               case _ => throw new Exception("Unsupported Service")
             }
           if (isActiveService(service, featureFlags)) {

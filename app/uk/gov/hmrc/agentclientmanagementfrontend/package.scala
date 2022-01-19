@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc
 
-import uk.gov.hmrc.agentmtdidentifiers.model.{CgtRef, MtdItId, Urn, Utr, Vrn}
+import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 
 package object agentclientmanagementfrontend {
@@ -31,6 +31,7 @@ package object agentclientmanagementfrontend {
         case _: Utr => "UTR"
         case _: CgtRef => "CGTPDRef"
         case _: Urn => "URN"
+        case _: PptRef => "EtmpRegistrationNumber"
       }
     }
 
@@ -41,6 +42,7 @@ package object agentclientmanagementfrontend {
         case _: Utr => "SAUTR"
         case _: CgtRef => "CGTPDRef"
         case _: Urn => "URN"
+        case _: PptRef => "EtmpRegistrationNumber"
       }
     }
 
@@ -51,6 +53,7 @@ package object agentclientmanagementfrontend {
         case _: Utr => "HMRC-TERS-ORG"
         case _: CgtRef => "HMRC-CGT-PD"
         case _: Urn => "HMRC-TERSNT-ORG"
+        case _: PptRef => "HMRC-PPT-ORG"
       }
     }
 
@@ -62,6 +65,7 @@ package object agentclientmanagementfrontend {
         case _: Utr => "Trust"
         case _: CgtRef => "CGT"
         case _: Urn => "TrustNT"
+        case _: PptRef => "PPT"
       }
     }
   }

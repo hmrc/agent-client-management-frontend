@@ -27,4 +27,5 @@ class FeatureFlags @Inject() (appConfig: AppConfig) {
   val rmAuthTrust: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-TERS-ORG")
   val rmAuthTrustNt: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-TERSNT-ORG")
   val rmAuthCgt: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-CGT-PD")
+  val rmAuthPpt: Boolean = appConfig.featuresRemoveAuthorisation("HMRC-PPT-ORG")
 }
