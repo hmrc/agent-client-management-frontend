@@ -114,7 +114,7 @@ clientEndsRelationship.description.HMRC-MTD-VAT=Os byddwch yn tynnu’ch awdurdo
 clientEndsRelationship.description.HMRC-TERS-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu cynnal ymddiriedolaeth nac ystâd ar eich rhan mwyach.
 clientEndsRelationship.description.HMRC-TERSNT-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu cynnal ymddiriedolaeth nac ystâd ar eich rhan mwyach.
 clientEndsRelationship.description.HMRC-CGT-PD=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU ar eich rhan mwyach.
-clientEndsRelationship.description.HMRC-PPT-ORG=If you remove your authorisation, {0} will no longer be able to manage your Plastic Packaging Tax on your behalf.
+clientEndsRelationship.description.HMRC-PPT-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch Treth Deunydd Pacio Plastig ar eich rhan mwyach.
 error.summary.heading=Mae problem wedi codi
 error.confirmResponse.invalid.description=Dewiswch ‘Iawn’ os hoffech dynnu’ch awdurdodiad.
 
@@ -127,7 +127,7 @@ clientEndsRelationshipEnded.HMRC-MTD-VAT=rheoli Troi Treth yn Ddigidol ar gyfer 
 clientEndsRelationshipEnded.HMRC-TERS-ORG=cynnal ymddiriedolaeth neu ystâd
 clientEndsRelationshipEnded.HMRC-TERSNT-ORG=cynnal ymddiriedolaeth neu ystâd
 clientEndsRelationshipEnded.HMRC-CGT-PD=rheoli’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU
-clientEndsRelationshipEnded.HMRC-PPT-ORG=manage your Plastic Packaging Tax
+clientEndsRelationshipEnded.HMRC-PPT-ORG=rheoli’ch Treth Deunydd Pacio Plastig
 clientEndsRelationshipEnded.p2=Os nad oeddech yn bwriadu dileu’ch awdurdodiad, gofynnwch am i {0} anfon cysylltiad newydd atoch ar gyfer cais am awdurdodiad.
 clientEndsRelationshipEnded.p3.sa-legacy-relationship.true=Mae gennych hefyd awdurdodiad asiant ar gyfer Hunanasesiad sy’n dal i fod ar waith. Mae hyn yn golygu bod gan asiant ganiatâd i fwrw golwg dros eich Hunanasesiad a’i ddiwygio. Os ydych am ddileu’r awdurdodiad hwn yn ogystal, bydd angen i chi wneud hynny ar wahân.
 clientEndsRelationshipEnded.link=Gwirio neu ddileu awdurdodiad asiant sydd ar waith ar gyfer Hunanasesiad
