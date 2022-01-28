@@ -157,44 +157,44 @@ class RelationshipManagementService @Inject()(
   def deleteITSARelationship(id: String, clientId: MtdItId)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, clientId)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
+    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
 
   def deleteAltItsaRelationship(id: String, clientId: Nino)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, clientId)(_ => Future successful true)
+    deleteRelationship(id)(arn => acaConnector.setRelationshipEnded(arn, clientId))
 
   def deletePIRelationship(id: String, nino: Nino)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, nino)(arn => pirRelationshipConnector.deleteClientRelationship(arn, nino))
+    deleteRelationship(id)(arn => pirRelationshipConnector.deleteClientRelationship(arn, nino))
 
   def deleteVATRelationship(id: String, vrn: Vrn)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, vrn)(arn => relationshipsConnector.deleteRelationship(arn, vrn))
+    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, vrn))
 
   def deleteTrustRelationship(id: String, utr: Utr)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, utr)(arn => relationshipsConnector.deleteRelationship(arn, utr))
+    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, utr))
 
   def deleteTrustNtRelationship(id: String, urn: Urn)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, urn)(arn => relationshipsConnector.deleteRelationship(arn, urn))
+    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, urn))
 
   def deleteCgtRelationship(id: String, cgtRef: CgtRef)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, cgtRef)(arn => relationshipsConnector.deleteRelationship(arn, cgtRef))
+    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, cgtRef))
 
   def deletePptRelationship(id: String, pptRef: PptRef)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id, pptRef)(arn => relationshipsConnector.deleteRelationship(arn, pptRef))
+    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, pptRef))
 
-  private def deleteRelationship(id: String, clientId: TaxIdentifier)(
+  private def deleteRelationship(id: String)(
     f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =
     for {
       clientCacheOpt: Option[Seq[ClientCache]] <- sessionStoreService.fetchClientCache
@@ -208,7 +208,6 @@ class RelationshipManagementService @Inject()(
                                           .andThen {
                                             case Success(true) =>
                                               for {
-                                                _ <- setRelationshipEnded(clientId, cache.arn, cache.service, cache.isAltItsa)
                                                 _ <- sessionStoreService.remove()
                                                 _ <- sessionStoreService.storeClientCache(remainingCache)
                                               } yield ()
@@ -220,26 +219,6 @@ class RelationshipManagementService @Inject()(
                        }
     } yield deleteResponse
 
-  private def setRelationshipEnded(clientId: TaxIdentifier, arn: Arn, service: String, isAltItsa: Boolean)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
-    //get the most recent invitation for the matching client/agent/service to update the IsRelationshipEnded flag
-    acaConnector.getInvitation(clientId, isAltItsa)
-     .map(invs => invs.filter(inv =>
-       inv.arn == arn &&
-       inv.service == service &&
-         (inv.status == "Accepted" || inv.status == "Partialauth"))
-       .sortBy(_.lastUpdated)
-       .reverse)
-      .map(_.headOption)
-      .flatMap {
-        case Some(inv) => acaConnector.setRelationshipEnded(InvitationId(inv.invitationId)).map {
-          case Some(true) => ()
-          case _ =>
-            logger.warn(s"couldn't set 'isRelationshipEnded' on the invitation: ${inv.invitationId}")
-          //should we fail here ?
-        }
-        case None => Future.successful(())
-      }
-  }
 
   def getAuthorisedAgentDetails(
     id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String, Boolean)]] =
