@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.libs.json.Json
 import uk.gov.hmrc.agentclientmanagementfrontend.models.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
-import uk.gov.hmrc.agentmtdidentifiers.model.{Arn, InvitationId}
+import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 trait AgentClientAuthorisationStub {
   me: WireMockSupport =>
@@ -173,10 +173,18 @@ trait AgentClientAuthorisationStub {
           .withBody(Json.toJson(suspensionDetails).toString())
       ))
 
-  def givenSetRelationshipEndedReturns(invitationId: InvitationId, status: Int) =
+  def givenSetRelationshipEndedReturns(arn: Arn, clientId: String, status: Int) =
     stubFor(
       put(
-        urlEqualTo(s"/agent-client-authorisation/invitations/${invitationId.value}/relationship-ended?endedBy=Client"))
+        urlEqualTo(s"/agent-client-authorisation/invitations/set-relationship-ended"))
+        .withRequestBody(
+          equalToJson(
+            s"""{
+               |"arn": "${arn.value}",
+               |"clientId": "$clientId",
+               |"service": "HMRC-MTD-IT",
+               |"endedBy": "Client"
+               |}""".stripMargin))
         .willReturn(
           aResponse()
             .withStatus(status)

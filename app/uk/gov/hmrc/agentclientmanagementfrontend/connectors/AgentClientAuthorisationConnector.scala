@@ -18,9 +18,9 @@ package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
 import java.net.URL
 import java.time.{LocalDate, LocalDateTime}
-
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
+
 import javax.inject.Inject
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, NO_CONTENT}
@@ -29,13 +29,15 @@ import play.api.libs.json._
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, StoredInvitation, SuspensionDetails, SuspensionDetailsNotFound}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, SetRelationshipEndedPayload, StoredInvitation, SuspensionDetails, SuspensionDetailsNotFound}
 import uk.gov.hmrc.agentmtdidentifiers.model._
-import uk.gov.hmrc.domain.{SimpleObjectReads, TaxIdentifier}
+import uk.gov.hmrc.domain.{Nino, SimpleObjectReads, TaxIdentifier}
 import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import play.api.http.Status._
+import uk.gov.hmrc.agentclientmanagementfrontend.util.Services.HMRCMTDIT
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
@@ -112,16 +114,17 @@ class AgentClientAuthorisationConnector @Inject()(appConfig: AppConfig,
           })
     }
 
-  def setRelationshipEnded(invitationId: InvitationId)(
+  def setRelationshipEnded(arn: Arn, clientId: Nino)(
     implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Option[Boolean]] =
+    ec: ExecutionContext): Future[Boolean] =
     monitor("ConsumedApi-Set-Relationship-Ended-PUT") {
-      val url = new URL(s"$baseUrl/agent-client-authorisation/invitations/${invitationId.value}/relationship-ended?endedBy=Client")
-      http.PUT[String, HttpResponse](url.toString, "").map { r =>
+      val url = new URL(s"$baseUrl/agent-client-authorisation/invitations/set-relationship-ended")
+      val requestBody = SetRelationshipEndedPayload(arn, clientId.value, HMRCMTDIT, Some("Client"))
+      http.PUT[SetRelationshipEndedPayload, HttpResponse](url.toString,requestBody).map { r =>
         r.status match {
-          case NO_CONTENT => Some(true)
-          case NOT_FOUND => Some(false)
-          case _ => None
+          case NO_CONTENT => true
+          case NOT_FOUND => false
+          case other => throw UpstreamErrorResponse("set relationship ended failed, status:", other)
         }
       }
     }

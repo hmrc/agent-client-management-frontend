@@ -624,14 +624,14 @@ class ClientRelationshipManagementControllerISpec
 
     behave like checkRemoveAuthorisationForService(
       serviceItsa,
-      deleteActiveITSARelationship(arn1.value, mtdItId.value, 204), isAltItsa = true)
+      givenSetRelationshipEndedReturns(arn1, validNino.value, 204), true)
     val req = FakeRequest()
 
     "return 500 a runtime exception if the relationship is not found" in {
 
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceItsa)))
-      deleteActiveITSARelationship(arn1.value, validNino.value, 404)
+      givenSetRelationshipEndedReturns(arn1, validNino.value, 404)
 
       intercept[RuntimeException] {
         await(controller
@@ -646,7 +646,7 @@ class ClientRelationshipManagementControllerISpec
     "return an exception if relationship service is unavailable" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceItsa)))
-      deleteActiveITSARelationship(arn1.value, validNino.value, 500)
+      givenSetRelationshipEndedReturns(arn1, validNino.value, 503)
 
       an[Exception] should be thrownBy await(
         controller
@@ -983,56 +983,9 @@ class ClientRelationshipManagementControllerISpec
 
     "return 200, remove the relationship if the client confirms deletion" in {
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
-      getInvitations(
-        arn1,
-        validNino.value,
-        "NI",
-        serviceIrv,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        if(isAltItsa) validNino.value else mtdItId.value,
-        if(isAltItsa) validNino.value else "MTDITID",
-        serviceItsa,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validVrn.value,
-        "VRN",
-        serviceVat,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validUtr.value,
-        "UTR",
-        serviceTrust,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validUrn.value,
-        "URN",
-        serviceTrustNT,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validCgtRef.value,
-        "CGTPDRef",
-        serviceCgt,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      givenSetRelationshipEndedReturns(InvitationId("ATDMZYN4YDLNW"), 204)
-      sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
+
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName, isAltItsa = isAltItsa)))
+
       deleteRelationshipStub
 
       val result = await(
@@ -1041,7 +994,7 @@ class ClientRelationshipManagementControllerISpec
             .withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
-      //sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
+
 
       result.session should not be empty
       result.session.get("agencyName") shouldBe Some(cache.agencyName)
@@ -1110,58 +1063,10 @@ class ClientRelationshipManagementControllerISpec
       authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
       await(sessionStoreService.storeClientCache(
         Seq(
-          cache.copy(service = serviceName),
+          cache.copy(service = serviceName, isAltItsa = isAltItsa),
           cache.copy(uuId = "dc89f36b64c94060baa3ae87d6b7ac09next", service = serviceName))))
       sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
-      getInvitations(
-        arn1,
-        validNino.value,
-        "NI",
-        serviceIrv,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        mtdItId.value,
-        "MTDITID",
-        serviceItsa,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validVrn.value,
-        "VRN",
-        serviceVat,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validUtr.value,
-        "UTR",
-        serviceTrust,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validUrn.value,
-        "URN",
-        serviceTrustNT,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      getInvitations(
-        arn1,
-        validCgtRef.value,
-        "CGTPDRef",
-        serviceCgt,
-        "Accepted",
-        "9999-01-01",
-        lastUpdatedBefore)
-      givenSetRelationshipEndedReturns(InvitationId("ATDMZYN4YDLNW"), 204)
+
       deleteRelationshipStub
 
       val result = await(
@@ -1170,8 +1075,8 @@ class ClientRelationshipManagementControllerISpec
             .withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303
-      //sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
-      //sessionStoreService.currentSession.clientCache.get.head.uuId shouldBe "dc89f36b64c94060baa3ae87d6b7ac09next"
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+      sessionStoreService.currentSession.clientCache.get.head.uuId shouldBe "dc89f36b64c94060baa3ae87d6b7ac09next"
     }
   }
 
