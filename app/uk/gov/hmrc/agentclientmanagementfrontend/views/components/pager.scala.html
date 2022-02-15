@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.util.Paginated
 
-@(model: Paginated[_])(implicit messages: Messages)
+@(model: Paginated[_])(implicit msgs: Messages)
 
 @if(!model.dataFitsOnOnePage) {
 <div class="govuk-body pager govuk-!-margin-bottom-3">

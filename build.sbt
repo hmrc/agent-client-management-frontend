@@ -13,6 +13,11 @@ lazy val scoverageSettings = {
   )
 }
 
+TwirlKeys.templateImports ++= Seq(
+  "uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template",
+  "uk.gov.hmrc.agentclientmanagementfrontend.views.html.components._",
+)
+
 lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "bootstrap-frontend-play-28" % "5.16.0",
   "uk.gov.hmrc" %% "play-frontend-hmrc"         % "1.22.0-play-28",

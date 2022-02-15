@@ -18,8 +18,8 @@
 
 @this()
 
-@(form: Form[_])(implicit messages: Messages, appConfig: AppConfig)
+@(form: Form[_])(implicit msgs: Messages, appConfig: AppConfig)
 
 @if(form.hasErrors){
-    @Messages("error.prefix")
+    @msgs("error.prefix")
 }

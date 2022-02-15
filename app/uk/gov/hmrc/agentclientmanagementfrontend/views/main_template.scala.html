@@ -33,12 +33,12 @@
   hasTimeout: Boolean = true,
   backLinkHref: Option[String] = None,
   fullWidth: Boolean = false
-)(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: AppConfig)
+)(mainContent: Html)(implicit request : Request[_], msgs: Messages, appConfig: AppConfig)
 
 @mainContentWithHelpLink = {
 @mainContent
-    <div class="govuk-!-margin-bottom-9">
-    @hmrcReportTechnicalIssueHelper()
+    <div class="govuk-!-margin-bottom-9 govuk-!-margin-top-9">
+        @hmrcReportTechnicalIssueHelper()
     </div>
 }
 
@@ -47,7 +47,7 @@
 }
 
 @hmrcLayout(
-    pageTitle = Some(title + " " +Messages("servicename.titleSuffix")),
+    pageTitle = Some(title + " " +msgs("servicename.titleSuffix")),
     phaseBanner = Some(standardBetaBanner(appConfig.betaFeedbackUrl)),
     isWelshTranslationAvailable = true,
     displayHmrcBanner = true,

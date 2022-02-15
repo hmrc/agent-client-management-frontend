@@ -14,14 +14,22 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+@this()
 
-@this(mainTemplate: main_template)
+@(key: String,
+        href:String,
+        classes: Option[String] = None,
+        rel: Option[String] = None,
+        target: Option[String] = None,
+        id: Option[String] = None,
+        attrs: Map[String, String] = Map.empty
+)(implicit msgs: Messages)
 
-@(pageTitle: String, heading: String, message: String)(implicit msgs: Messages, request: Request[_], appConfig: AppConfig)
+@cls = @{classes.getOrElse("govuk-link govuk-body")}
 
-@mainTemplate(title = pageTitle) {
-  <h1 class="govuk-heading-xl">@heading</h1>
-  <p>@Html(message)</p>
-}
+<a href="@href"
+class="@cls"
+ @if(id.nonEmpty){id="@id"}
+ @if(rel.nonEmpty){rel="@rel"}
+ @if(target.nonEmpty){target="@target"}
+ @attrs.map(a => a._1 + "=" + a._2)>@Html(msgs(key))</a>
