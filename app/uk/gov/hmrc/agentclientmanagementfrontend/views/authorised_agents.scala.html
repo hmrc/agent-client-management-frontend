@@ -36,26 +36,27 @@
 @this(
     mainTemplate: main_template,
     govukTabs: GovukTabs,
-    govukTable: GovukTable
+    govukTable: GovukTable,
+    p:p, h1:h1, h2:h2, ul:ul, a:a
 )
 
-@(config: AuthorisedAgentsPageConfig)(implicit messages: Messages, request: Request[_], appConfig: AppConfig, now: LocalDate)
+@(config: AuthorisedAgentsPageConfig)(implicit msgs: Messages, request: Request[_], appConfig: AppConfig, now: LocalDate)
 
 @pendingNo = @{
     if(config.validPendingCount == 1) {
-    Messages("client-authorised-agents-table-relationships.pendingNo.single", config.validPendingCount)
+    msgs("client-authorised-agents-table-relationships.pendingNo.single", config.validPendingCount)
     }else {
-    Messages("client-authorised-agents-table-relationships.pendingNo", config.validPendingCount)
+    msgs("client-authorised-agents-table-relationships.pendingNo", config.validPendingCount)
     }
 }
 
 @currentRequests = {
     @govukTable(Table(
         head = Some(Seq(
-            HeadCell(content = Text(Messages("client-authorised-agents-table.current.agentName"))),
-            HeadCell(content = Text(Messages("client-authorised-agents-table.current.taxService"))),
-            HeadCell(content = Text(Messages("client-authorised-agents-table.current.expiryDate"))),
-            HeadCell(content = Text(Messages("client-authorised-agents-table.current.action")))
+            HeadCell(content = Text(msgs("client-authorised-agents-table.current.agentName"))),
+            HeadCell(content = Text(msgs("client-authorised-agents-table.current.taxService"))),
+            HeadCell(content = Text(msgs("client-authorised-agents-table.current.expiryDate"))),
+            HeadCell(content = Text(msgs("client-authorised-agents-table.current.action")))
         )),
         rows = config.displayValidPendingRequests.map { agentReq =>
           Seq(
@@ -64,8 +65,8 @@
             TableRow(content = Text(config.displayDate(Some(agentReq.expiryDate)))),
             TableRow(content = HtmlContent(Html(
                 s"""<a href="${appConfig.warmUpUrl(agentReq.clientType, agentReq.uid, agentReq.agencyName)}">
-                   |    <span aria-hidden="true">${Messages("client-authorised-agents-table.actions.respond")}</span>
-                   |    <span class="govuk-visually-hidden">${Messages("client-authorised-agents-table.actions.respond")} ${agentReq.agencyName} ${agentReq.serviceName}</span>
+                   |    <span aria-hidden="true">${msgs("client-authorised-agents-table.actions.respond")}</span>
+                   |    <span class="govuk-visually-hidden">${msgs("client-authorised-agents-table.actions.respond")} ${agentReq.agencyName} ${agentReq.serviceName}</span>
                    |    </a>
                    |""".stripMargin)
             )),
@@ -75,27 +76,27 @@
 }
 
 @currentAuths = {
-    <h2 class="govuk-!-margin-top-0">@Messages("client-authorised-agents-table-relationships.tab2.title")</h2>
+    @h2("client-authorised-agents-table-relationships.tab2.title")
     @if(!config.authorisedAgentsExist) {
-      <p>@Messages("client-authorised-agents-table-content.noAgentsFound")</p>
+      @p("client-authorised-agents-table-content.noAgentsFound")
     } else {
       @govukTable(Table(
         head = Some(Seq(
-          HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.agentName"))),
-          HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.authServices"))),
-          HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.dateAuthorised"))),
-          HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.actions")))
+          HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.agentName"))),
+          HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.authServices"))),
+          HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.dateAuthorised"))),
+          HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.actions")))
         )),
         rows = config.authorisedAgents.map { authAgent =>
           Seq(
             TableRow(content = Text(authAgent.agencyName), attributes = Map("style" -> "font-weight: bold")),
-            TableRow(content = Text(Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}"))),
+            TableRow(content = Text(msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}"))),
             TableRow(content = Text(config.displayDate(authAgent.dateFrom))),
             TableRow(content = if (!appConfig.featuresRemoveAuthorisation(authAgent.serviceName)) Text("") else
               HtmlContent(
                 s"""<a href="${routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId)}">
-                   |    <span aria-hidden="true"> ${Messages("client-authorised-agents-table-row-header.unauthoriseLink")}</span>
-                   |    <span class="govuk-visually-hidden">${Messages("client-authorised-agents-table-row-header.unauthoriseLink.aria-text", authAgent.agencyName, Messages(s"client-authorised-agents-table-content.${authAgent.serviceName}"))}</span>
+                   |    <span aria-hidden="true"> ${msgs("client-authorised-agents-table-row-header.unauthoriseLink")}</span>
+                   |    <span class="govuk-visually-hidden">${msgs("client-authorised-agents-table-row-header.unauthoriseLink.aria-text", authAgent.agencyName, msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}"))}</span>
                    |</a>
                    |""".stripMargin
               )
@@ -107,29 +108,29 @@
 }
 
 @history = {
-   <h2 class="govuk-!-margin-top-0">@Messages("client-authorised-agents-table-relationships.tab3.title")</h2>
+   @h2("client-authorised-agents-table-relationships.tab3.title")
    @if(!config.validNonPendingRequestsExist) {
-       <p>@Messages("client-authorised-agents-table-content.no-activity")</p>
+       @p("client-authorised-agents-table-content.no-activity")
    } else {
      <div class="govuk-body govuk-!-margin-0">
-         @messages("pager.showing")
+         @msgs("pager.showing")
          <span style="font-weight: bold">@{config.firstItemOnPage + 1}</span>
-         @messages("pager.to")
+         @msgs("pager.to")
          <span style="font-weight: bold">@{config.lastItemOnPage}</span>
-         @messages("pager.of")
+         @msgs("pager.of")
          <span style="font-weight: bold">@{config.allItems.length}</span>
      </div>
      @govukTable(Table(
        head = Some(Seq(
-         HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.agentName"))),
-         HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.authRequested"))),
-         HeadCell(content = Text(Messages("client-authorised-agents-table-row-header.status"))),
+         HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.agentName"))),
+         HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.authRequested"))),
+         HeadCell(content = Text(msgs("client-authorised-agents-table-row-header.status"))),
        )),
        rows = config.visibleItems.sortWith(_.agencyName < _.agencyName).sorted(AgentRequest.orderingByLastUpdated).map { agentReq =>
          Seq(
            TableRow(content = Text(agentReq.agencyName), attributes = Map("style" -> "font-weight: bold")),
-           TableRow(content = Text(Messages(s"client-authorised-agents-table-content.${agentReq.serviceName}"))),
-           TableRow(content = HtmlContent(s"""${Messages(s"client-authorised-agents-table.${agentReq.status}")}
+           TableRow(content = Text(msgs(s"client-authorised-agents-table-content.${agentReq.serviceName}"))),
+           TableRow(content = HtmlContent(s"""${msgs(s"client-authorised-agents-table.${agentReq.status}")}
                                              |<span class="date-hint">${config.displayDate(Some(agentReq.lastUpdated.toLocalDate))}</span>
                                              |""".stripMargin)
            )
@@ -141,29 +142,32 @@
 }
 
 @tabItems = @{
-    val currentRequestsTab = TabItem(id = Some("currentRequests"), label = Messages("client-authorised-agents-table-relationships.tab1.title"), panel = TabPanel(content = HtmlContent(currentRequests)))
-    val currentAuthsTab    = TabItem(id = Some("currentAuths"), label = Messages("client-authorised-agents-table-relationships.tab2.title"), panel = TabPanel(content = HtmlContent(currentAuths)))
-    val historyTab         = TabItem(id = Some("history"), label = Messages("client-authorised-agents-table-relationships.tab3.title"), panel = TabPanel(content = HtmlContent(history)))
+    val currentRequestsTab = TabItem(id = Some("currentRequests"), label = msgs("client-authorised-agents-table-relationships.tab1.title"), panel = TabPanel(content = HtmlContent(currentRequests)))
+    val currentAuthsTab    = TabItem(id = Some("currentAuths"), label = msgs("client-authorised-agents-table-relationships.tab2.title"), panel = TabPanel(content = HtmlContent(currentAuths)))
+    val historyTab         = TabItem(id = Some("history"), label = msgs("client-authorised-agents-table-relationships.tab3.title"), panel = TabPanel(content = HtmlContent(history)))
     if (config.validPendingRequestsExist)
       Seq(currentRequestsTab, currentAuthsTab, historyTab)
     else
       Seq(currentAuthsTab, historyTab)
 }
 
-@mainTemplate(title = Messages("client-authorised-agents.title"), fullWidth = true){
+@mainTemplate(title = msgs("client-authorised-agents.title"), fullWidth = true){
 
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-5">@Messages("client-authorised-agents.title")</h1>
+    @h1("client-authorised-agents.title")
+    @p("client-authorised-agents.p")
+    @ul(
+        items=Seq(
+            "client-authorised-agents.li.1",
+            "client-authorised-agents.li.2",
+            "client-authorised-agents.li.3",
+            "client-authorised-agents.li.4",
+        )
+    )
 
-    <p>@Messages("client-authorised-agents.p")</p>
-
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@Messages("client-authorised-agents.li.1")</li>
-        <li>@Messages("client-authorised-agents.li.2")</li>
-        <li>@Messages("client-authorised-agents.li.3")</li>
-        <li>@Messages("client-authorised-agents.li.4")</li>
-    </ul>
-
-    <p class="govuk-!-margin-bottom-6"><a href="https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent">@Messages("client-authorised-agents.link.text")</a></p>
+    <p class="govuk-!-margin-bottom-6">
+        @a(href="https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations -as-an-agent",
+            key="client-authorised-agents.link.text")
+    </p>
 
     @govukTabs(Tabs(
         items = tabItems
