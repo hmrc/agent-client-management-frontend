@@ -29,13 +29,14 @@ import play.api.libs.json._
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, SetRelationshipEndedPayload, StoredInvitation, SuspensionDetails, SuspensionDetailsNotFound}
+import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentReference, SetRelationshipEndedPayload, StoredInvitation}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, SimpleObjectReads, TaxIdentifier}
 import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import play.api.http.Status._
+import uk.gov.hmrc.agentclientauthorisation.model.{SuspensionDetails, SuspensionDetailsNotFound}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services.HMRCMTDIT
 
 import scala.concurrent.{ExecutionContext, Future}
