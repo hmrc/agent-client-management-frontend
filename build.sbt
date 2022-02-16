@@ -9,7 +9,7 @@ lazy val scoverageSettings = {
     ScoverageKeys.coverageMinimum := 80.00,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
-    parallelExecution in Test := false
+    Test / parallelExecution := false
   )
 }
 
@@ -19,12 +19,12 @@ TwirlKeys.templateImports ++= Seq(
 )
 
 lazy val compileDeps = Seq(
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-28" % "5.16.0",
-  "uk.gov.hmrc" %% "play-frontend-hmrc"         % "1.22.0-play-28",
+  "uk.gov.hmrc" %% "bootstrap-frontend-play-28" % "5.20.0",
+  "uk.gov.hmrc" %% "play-frontend-hmrc"         % "3.4.0-play-28",
   "uk.gov.hmrc" %% "play-partials"              % "8.2.0-play-28",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring"   % "4.8.0-play-28",
-  "uk.gov.hmrc" %% "agent-mtd-identifiers"      % "0.28.0-play-27",
-  "uk.gov.hmrc" %% "mongo-caching"              % "7.0.0-play-28"
+  "uk.gov.hmrc" %% "agent-mtd-identifiers"      % "0.31.0-play-28",
+  "uk.gov.hmrc" %% "mongo-caching"              % "7.1.0-play-28"
 )
 
 def testDeps(scope: String) = Seq(
@@ -66,14 +66,13 @@ libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
     ),
     publishingSettings,
     scoverageSettings,
-    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources"
   )
   .configs(IntegrationTest)
   .settings(
-    Keys.fork in IntegrationTest := true,
+    IntegrationTest / Keys.fork := true,
     Defaults.itSettings,
-    unmanagedSourceDirectories in IntegrationTest += baseDirectory(_ / "it").value,
-    parallelExecution in IntegrationTest := false
+    IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "it").value,
+    IntegrationTest / parallelExecution := false
   )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
-

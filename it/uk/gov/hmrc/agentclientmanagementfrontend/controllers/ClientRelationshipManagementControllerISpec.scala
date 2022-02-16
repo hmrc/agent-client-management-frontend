@@ -6,7 +6,7 @@ import org.jsoup.select.Elements
 import play.api.libs.ws._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.agentclientmanagementfrontend.models.SuspensionDetails
+import uk.gov.hmrc.agentclientauthorisation.model.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup}
 import uk.gov.hmrc.agentmtdidentifiers.model._
