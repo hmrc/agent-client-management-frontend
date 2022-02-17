@@ -36,7 +36,7 @@ import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import play.api.http.Status._
-import uk.gov.hmrc.agentclientauthorisation.model.{SuspensionDetails, SuspensionDetailsNotFound}
+import uk.gov.hmrc.agentmtdidentifiers.model.{SuspensionDetails, SuspensionDetailsNotFound}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services.HMRCMTDIT
 
 import scala.concurrent.{ExecutionContext, Future}
