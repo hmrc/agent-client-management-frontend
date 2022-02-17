@@ -23,7 +23,7 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "play-frontend-hmrc"         % "3.4.0-play-28",
   "uk.gov.hmrc" %% "play-partials"              % "8.2.0-play-28",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring"   % "4.8.0-play-28",
-  "uk.gov.hmrc" %% "agent-mtd-identifiers"      % "0.31.0-play-28",
+  "uk.gov.hmrc" %% "agent-mtd-identifiers"      % "0.32.0-play-28",
   "uk.gov.hmrc" %% "mongo-caching"              % "7.1.0-play-28"
 )
 
