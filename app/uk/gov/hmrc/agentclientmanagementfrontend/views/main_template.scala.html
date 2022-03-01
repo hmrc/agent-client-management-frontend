@@ -19,14 +19,14 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcLayout, HmrcReportTechnicalIssueHelper}
 @import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsMainContent
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En}
+@import views.html.helper.CSPNonce
 
 @this(
-        head: head,
-        hmrcLayout: HmrcLayout,
-        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-        standardBetaBanner: StandardBetaBanner,
-        twoThirdsLayout: TwoThirdsMainContent,
+    head: head,
+    hmrcLayout: HmrcLayout,
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+    standardBetaBanner: StandardBetaBanner,
+    twoThirdsLayout: TwoThirdsMainContent,
 )
 
 @(title: String,
@@ -36,14 +36,14 @@
 )(mainContent: Html)(implicit request : Request[_], msgs: Messages, appConfig: AppConfig)
 
 @mainContentWithHelpLink = {
-@mainContent
+    @mainContent
     <div class="govuk-!-margin-bottom-9 govuk-!-margin-top-9">
         @hmrcReportTechnicalIssueHelper()
     </div>
 }
 
 @additionalScripts = {
-    <script src="@controllers.routes.Assets.versioned("javascripts/agent-client-management-frontend.js")"></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/agent-client-management-frontend.js")" @{CSPNonce.attr}></script>
 }
 
 @hmrcLayout(
@@ -57,4 +57,5 @@
     additionalScriptsBlock = Some(additionalScripts),
     backLinkUrl = backLinkHref,
     mainContentLayout = if (fullWidth) None else Some(twoThirdsLayout(_)),
+    nonce = CSPNonce.get
 )(mainContentWithHelpLink)
