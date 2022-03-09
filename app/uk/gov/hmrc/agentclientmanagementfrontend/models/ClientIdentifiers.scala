@@ -20,6 +20,6 @@ import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.Nino
 
 case class ClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn], utr: Option[Utr], cgtRef: Option[CgtRef], urn: Option[Urn], pptRef: Option[PptRef]) {
-  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined || utr.isDefined || cgtRef.isDefined || urn.isDefined
-  val hasOnlyNino: Boolean = mtdItId.isEmpty && nino.isDefined && vrn.isEmpty && utr.isEmpty && cgtRef.isEmpty && urn.isEmpty
+  val haveAtLeastOneFieldDefined: Boolean = mtdItId.isDefined || nino.isDefined || vrn.isDefined || utr.isDefined || cgtRef.isDefined || urn.isDefined || pptRef.isDefined
+  val hasOnlyNino: Boolean = nino.isDefined && mtdItId.isEmpty && vrn.isEmpty && utr.isEmpty && cgtRef.isEmpty && urn.isEmpty && pptRef.isEmpty
 }
