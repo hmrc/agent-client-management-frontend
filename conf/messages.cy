@@ -63,6 +63,7 @@ client-authorised-agents.li.1=Rheoli’ch TAW
 client-authorised-agents.li.2=Rheoli cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU
 client-authorised-agents.li.3=Cynnal ymddiriedolaeth neu ystâd
 client-authorised-agents.li.4=Rheoli’ch cyfrif Troi Treth yn Ddigidol ar gyfer Treth Incwm
+client-authorised-agents.li.5=Rheoli’ch Treth Deunydd Pacio Plastig
 client-authorised-agents.link.text=Ar gyfer gwasanaethau treth eraill, darllenwch yr arweiniad
 client-authorised-agents-table-relationships.tab3.title=Hanes
 client-authorised-agents-table-relationships.tab2.title=Asiantau awdurdodedig
