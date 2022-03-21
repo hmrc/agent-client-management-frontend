@@ -8,7 +8,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.agentmtdidentifiers.model.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
-import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup}
+import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup, Css}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
@@ -119,20 +119,38 @@ class ClientRelationshipManagementControllerISpec
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
-      checkResponseBodyWithText(
-        response,
-        "Manage who can deal with HMRC for you",
-        "Current requests",
-        "Agent",
-        "Tax service",
-        "You need to respond by",
-        "What you need to do",
-        "1 January 9999",
-        "DEF",
-        "Respond to request",
-        "Respond to request ghi View your PAYE income record",
-        "Respond to request DEF Manage your Making Tax Digital for Income Tax"
-      )
+      val html = Jsoup.parse(response.body)
+      println("******************************")
+      println(html)
+      //most bizarre title in world but anyways!
+      html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
+      html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
+      html.select(".govuk-tabs__list-item.govuk-tabs__list-item--selected a").text() shouldBe "Current requests"
+      html.select(".govuk-tabs__list-item.govuk-tabs__list-item--selected a").attr("href") shouldBe "#currentRequests"
+      val currentRequestsTable: Elements = html.select("table#current-requests-table")
+      private val ths: Elements = currentRequestsTable.select("thead tr th")
+      ths.get(0).text() shouldBe "Agent"
+      ths.get(1).text() shouldBe "Tax service"
+      ths.get(2).text() shouldBe "You need to respond by"
+      ths.get(3).text() shouldBe "What you need to do"
+
+      private val trs: Elements = currentRequestsTable.select("tbody tr")
+
+      trs.get(0).select("th").get(0).text() shouldBe "ghi"
+      private val row1Cells: Elements = trs.get(0).select("td")
+      row1Cells.get(0).text() shouldBe "View your PAYE income record"
+      row1Cells.get(1).text() shouldBe "1 January 9999"
+      row1Cells.get(2).select("span[aria-hidden=true]").text() shouldBe "Respond to request"
+      row1Cells.get(2).select("span.govuk-visually-hidden").text() shouldBe "Respond to request ghi View your PAYE income record"
+
+      trs.get(1).select("th").get(0).text() shouldBe "DEF"
+      private val row2Cells: Elements = trs.get(1).select("td")
+      row2Cells.get(0).text() shouldBe "Manage your Making Tax Digital for Income Tax"
+      row2Cells.get(1).text() shouldBe "1 January 9999"
+      row2Cells.get(2).select("span[aria-hidden=true]").text() shouldBe "Respond to request"
+      row2Cells.get(2).select("span.govuk-visually-hidden").text() shouldBe "Respond to request DEF Manage your Making Tax Digital for Income Tax"
+
+
     }
 
   }
