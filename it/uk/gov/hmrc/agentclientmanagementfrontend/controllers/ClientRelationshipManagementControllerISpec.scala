@@ -120,8 +120,6 @@ class ClientRelationshipManagementControllerISpec
 
       response.status shouldBe 200
       val html = Jsoup.parse(response.body)
-      println("******************************")
-      println(html)
       //most bizarre title in world but anyways!
       html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
       html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
