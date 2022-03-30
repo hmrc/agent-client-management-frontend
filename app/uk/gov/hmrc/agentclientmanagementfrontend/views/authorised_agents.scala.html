@@ -92,7 +92,7 @@
             rows = config.authorisedAgents.map { authAgent =>
                 Seq(
                     Html(authAgent.agencyName),
-                    Html(s"client-authorised-agents-table-content.${authAgent.serviceName}"),
+                    Html(msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}")),
                     Html(config.displayDate(authAgent.dateFrom)),
                     Html(
                         a(  key = "",
