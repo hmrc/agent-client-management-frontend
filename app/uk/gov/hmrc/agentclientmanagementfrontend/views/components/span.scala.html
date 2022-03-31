@@ -16,25 +16,6 @@
 
 @this()
 
-@(
-        key: String,
-        classes: Option[String] = None,
-        id: Option[String] = None,
-        attrs: Map[String, String] = Map.empty,
-)(implicit msgs: Messages)
+@(key: String, classes: Option[String] = None, id: Option[String] = None)(implicit msgs: Messages)
 
-@cls = @{
- if(classes.isDefined){
-  if(!classes.contains("govuk-visually-hidden")) {
-   classes.get.concat(" govuk-body")
-  }else{
-   classes.get
-  }
- }  else {
-  "govuk-body"
- }
-}
-
-<span class ="@cls"
- @id.map(i => s"id=${i}")
- @attrs.map(a => a._1 + "=" + a._2)>@Html(msgs(key))</span>
+<span class="@{classes.getOrElse("")}"@id.map(i =>{ s" id=${i}"})>@Html(msgs(key))</span>

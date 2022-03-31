@@ -18,22 +18,19 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
 
-@this(mainTemplate: main_template, h1: h1, p: p, a: a, span: span)
+@this(mainTemplate: main_template)
 
 @()(implicit request: Request[_], msgs: Messages, appConfig: AppConfig)
 
-@timeString = @{
+@timeString=@{
     val timeout = appConfig.timeout
-    if(timeout < 60) s"$timeout seconds" else s"${timeout / 60} minutes"
+    if(timeout < 60) s"$timeout seconds" else s"${timeout/60} minutes"
 }
 
 @mainTemplate(title = msgs("timed-out.header"), hasTimeout = false) {
 
-    @h1("timed-out.header")
-    @p(msgs("timed-out.p1", timeString))
+    <h1 class="govuk-heading-xl">@msgs("timed-out.header")</h1>
+    <p>@msgs("timed-out.p1", timeString)</p>
 
-    <p>
-        @a("timed-out.p2.link", href = routes.ClientRelationshipManagementController.signOut().url)
-        @span("timed-out.p2")
-    </p>
+    <p><a href='@routes.ClientRelationshipManagementController.signOut()'>@msgs("timed-out.p2.link")</a>&nbsp;@Html(msgs("timed-out.p2"))</p>
 }

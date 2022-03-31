@@ -14,36 +14,40 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.routes
+@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.RadioConfirm
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-@import uk.gov.hmrc.agentclientmanagementfrontend.controllers.{RadioConfirm, routes}
-@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{error_prefix, main_template}
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
-@import uk.gov.hmrc.govukfrontend.views.html.components.{ErrorSummary, FormWithCSRF, GovukErrorSummary, GovukRadios}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.{RadioItem, Radios}
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
+@import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_prefix
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorSummary
+@import uk.gov.hmrc.govukfrontend.views.html.components.{ErrorSummary, FormWithCSRF}
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.Radios
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Legend
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.Fieldset
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 
 @this(
-    mainTemplate: main_template,
-    errorPrefix: error_prefix,
-    formWithCsrf: FormWithCSRF,
-    govukRadios: GovukRadios,
-    govukErrorSummary: GovukErrorSummary,
-    submitButton: submitButton
-)
+        mainTemplate: main_template,
+        errorPrefix: error_prefix,
+        uiForm: FormWithCSRF,
+        govukRadios: GovukRadios,
+        govukErrorSummary: GovukErrorSummary)
 
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], msgs: Messages, appConfig: AppConfig)
 
 
 @mainTemplate(title = errorPrefix(confirmForm) + msgs("clientEndsRelationship.title"), backLinkHref = Some(routes.ClientRelationshipManagementController.root().url)) {
 
-    @if(confirmForm.hasErrors) {
+    @if(confirmForm.hasErrors){
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(confirmForm))
     }
 
-    @formWithCsrf(action = routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
+    @uiForm(action = routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
         @govukRadios(
             Radios(
                 classes = "govuk-radios--inline",
@@ -61,6 +65,6 @@
                 )
             ).withFormField(confirmForm("confirmResponse"))
         )
-        @submitButton(id = "buttonDeauthorise")
+        <button type="submit" class="govuk-button" id="buttonDeauthorise">@msgs("button.continue")</button>
     }
 }

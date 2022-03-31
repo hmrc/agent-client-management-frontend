@@ -17,13 +17,11 @@
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template
 
-@this(mainTemplate: main_template, p: p, h1: h1)
+@this(mainTemplate: main_template)
 
 @(pageTitle: String, heading: String, message: String)(implicit msgs: Messages, request: Request[_], appConfig: AppConfig)
 
 @mainTemplate(title = pageTitle) {
-
-    @h1(heading)
-    @p(message)
-
+  <h1 class="govuk-heading-xl">@heading</h1>
+  <p>@Html(message)</p>
 }

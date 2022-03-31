@@ -16,7 +16,6 @@ lazy val scoverageSettings = {
 TwirlKeys.templateImports ++= Seq(
   "uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template",
   "uk.gov.hmrc.agentclientmanagementfrontend.views.html.components._",
-  "uk.gov.hmrc.govukfrontend.views.html.components._",
 )
 
 lazy val compileDeps = Seq(
