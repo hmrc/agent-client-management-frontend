@@ -59,7 +59,7 @@ class ClientRelationshipManagementControllerISpec
         "1 January 9999",
         "abc",
         "Respond to request",
-        "Respond to request ghi View your PAYE income record",
+        "Respond to request ghi View your Income record",
         "Respond to request DEF Manage your Making Tax Digital for Income Tax",
         "Respond to request abc Manage your VAT"
       )
@@ -105,7 +105,7 @@ class ClientRelationshipManagementControllerISpec
 
       checkResponseBodyWithText(
         result,
-        "Respond to request ghi View your PAYE income record",
+        "Respond to request ghi View your Income record",
       "Respond to request DEF Manage your Making Tax Digital for Income Tax") //out of 3 show only 2 in the UI due to one missing AgentRef
     }
 
@@ -136,10 +136,10 @@ class ClientRelationshipManagementControllerISpec
 
       trs.get(0).select("th").get(0).text() shouldBe "ghi"
       private val row1Cells: Elements = trs.get(0).select("td")
-      row1Cells.get(0).text() shouldBe "View your PAYE income record"
+      row1Cells.get(0).text() shouldBe "View your Income record"
       row1Cells.get(1).text() shouldBe "1 January 9999"
       row1Cells.get(2).select("span[aria-hidden=true]").text() shouldBe "Respond to request"
-      row1Cells.get(2).select("span.govuk-visually-hidden").text() shouldBe "Respond to request ghi View your PAYE income record"
+      row1Cells.get(2).select("span.govuk-visually-hidden").text() shouldBe "Respond to request ghi View your Income record"
 
       trs.get(1).select("th").get(0).text() shouldBe "DEF"
       private val row2Cells: Elements = trs.get(1).select("td")
@@ -168,7 +168,7 @@ class ClientRelationshipManagementControllerISpec
         "Action",
         "Manage your VAT",
         "Manage your Making Tax Digital for Income Tax",
-        "View your PAYE income record",
+        "View your Income record",
         "abc",
         "6 June 2017",
         "Remove authorisation"
@@ -255,7 +255,7 @@ class ClientRelationshipManagementControllerISpec
         "Manage who can deal with HMRC for you",
         "Authorised agents",
         "Manage your VAT",
-        "View your PAYE income record",
+        "View your Income record",
         "6 June 2017",
         "Remove authorisation"
       )
@@ -304,7 +304,7 @@ class ClientRelationshipManagementControllerISpec
         "DEF",
         "ghi",
         "Manage your Making Tax Digital for Income Tax",
-        "View your PAYE income record",
+        "View your Income record",
         "Manage your VAT",
         "You accepted on:",
         "You declined on:",

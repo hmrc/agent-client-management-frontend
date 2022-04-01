@@ -95,7 +95,7 @@ client-authorised-agents-table.actions.respond=Ymateb i’r cais
 client-authorised-agents-table.actions.remove=<a href={0}>Tynnu awdurdodiad/a>
 client-authorised-agents-table-content.noAgentsFound=Nid ydych wedi penodi rhywun i ddelio â CThEM ar hyn o bryd.
 client-authorised-agents-table-content.no-activity=Nid oes gennych unrhyw weithgarwch blaenorol.
-client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=Bwrw golwg dros eich cofnod incwm TWE
+client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=Bwrw golwg dros eich cofnod incwm
 client-authorised-agents-table-content.HMRC-MTD-VAT=Rheoli’ch TAW
 client-authorised-agents-table-content.HMRC-MTD-IT=Anfon eich diweddariadau Treth Incwm drwy feddalwedd
 client-authorised-agents-table-content.HMRC-TERS-ORG=Cynnal ymddiriedolaeth neu ystâd
