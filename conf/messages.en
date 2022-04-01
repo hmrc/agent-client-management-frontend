@@ -95,7 +95,7 @@ client-authorised-agents-table.actions.respond=Respond to request
 client-authorised-agents-table.actions.remove=<a href={0}>Remove authorisation</a>
 client-authorised-agents-table-content.noAgentsFound=You have not appointed someone to deal with HMRC currently.
 client-authorised-agents-table-content.no-activity=You do not have any previous activity.
-client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your PAYE income record
+client-authorised-agents-table-content.PERSONAL-INCOME-RECORD=View your Income record
 client-authorised-agents-table-content.HMRC-MTD-VAT=Manage your VAT
 client-authorised-agents-table-content.HMRC-MTD-IT=Manage your Making Tax Digital for Income Tax
 client-authorised-agents-table-content.HMRC-TERS-ORG=Maintain a trust or an estate
