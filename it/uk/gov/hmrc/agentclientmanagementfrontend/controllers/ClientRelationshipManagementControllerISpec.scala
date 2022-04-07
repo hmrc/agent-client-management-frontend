@@ -42,15 +42,21 @@ class ClientRelationshipManagementControllerISpec
       val response: WSResponse = await(doGetRequest(""))
 
       response.status shouldBe 200
+      val html = Jsoup.parse(response.body)
+      //most bizarre title in world but anyways!
+      html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
+      html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
+      html.select(Css.paragraphs).get(0).text() shouldBe "This page allows you to view and change agent authorisations for:"
+      html.select(Css.ulBullet).get(0).select("li").get(0).text() shouldBe "VAT"
+      html.select(Css.ulBullet).get(0).select("li").get(1).text() shouldBe "Capital Gains Tax on UK property account"
+      html.select(Css.ulBullet).get(0).select("li").get(2).text() shouldBe "A trust or estate"
+      html.select(Css.ulBullet).get(0).select("li").get(3).text() shouldBe "Making Tax Digital for Income Tax"
+      html.select(Css.ulBullet).get(0).select("li").get(4).text() shouldBe "Plastic Packaging Tax"
+      html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
+
+
       checkResponseBodyWithText(
         response,
-        "Manage who can deal with HMRC for you",
-        "This page allows you to view and change agent authorisations for:",
-        "Manage your VAT",
-        "Manage a Capital Gains Tax on UK property account",
-        "Maintain a trust or estate",
-        "Manage your Making Tax Digital for Income Tax",
-        "For other tax services, read the guidance",
         "Current requests",
         "Agent",
         "Tax service",
@@ -73,7 +79,6 @@ class ClientRelationshipManagementControllerISpec
         checkResponseBodyWithText(
           response,
           "Current requests",
-          "Manage your VAT",
           "Respond to request",
           "Respond to request abc Manage your VAT")
       }
@@ -87,6 +92,7 @@ class ClientRelationshipManagementControllerISpec
         response,
         "Manage who can deal with HMRC for you"
       )
+
       checkResponseBodyNotWithText(
         response,
         "Current requests",
@@ -166,8 +172,8 @@ class ClientRelationshipManagementControllerISpec
         "Tax service",
         "When you gave consent",
         "Action",
-        "Manage your VAT",
-        "Manage your Making Tax Digital for Income Tax",
+        "VAT",
+        "Making Tax Digital for Income Tax",
         "View your Income record",
         "abc",
         "6 June 2017",
@@ -191,15 +197,22 @@ class ClientRelationshipManagementControllerISpec
 
       response.status shouldBe 200
 
+      val html = Jsoup.parse(response.body)
+      //most bizarre title in world but anyways!
+      html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
+      html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
+      html.select(Css.paragraphs).get(0).text() shouldBe "This page allows you to view and change agent authorisations for:"
+      html.select(Css.ulBullet).get(0).select("li").get(0).text() shouldBe "VAT"
+      html.select(Css.ulBullet).get(0).select("li").get(1).text() shouldBe "Capital Gains Tax on UK property account"
+      html.select(Css.ulBullet).get(0).select("li").get(2).text() shouldBe "A trust or estate"
+      html.select(Css.ulBullet).get(0).select("li").get(3).text() shouldBe "Making Tax Digital for Income Tax"
+      html.select(Css.ulBullet).get(0).select("li").get(4).text() shouldBe "Plastic Packaging Tax"
+      html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
+      html.select("a#other-read-guidance").text() shouldBe "For other tax services, read the guidance"
+      html.select("a#other-read-guidance").attr("href") shouldBe "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent"
+
       checkResponseBodyWithText(
         response,
-        "Manage who can deal with HMRC for you",
-        "This page allows you to view and change agent authorisations for:",
-        "VAT",
-        "Manage a Capital Gains Tax on UK property account",
-        "Maintain a trust or estate",
-        "Making Tax Digital for Income Tax",
-        "For other tax services, read the guidance",
         "Authorised agents",
         "History",
         "Agent",
@@ -236,7 +249,7 @@ class ClientRelationshipManagementControllerISpec
         "Manage who can deal with HMRC for you",
         "Authorised agents",
         "This Agency Name",
-        "Manage your Making Tax Digital for Income Tax",
+        "Making Tax Digital for Income Tax",
         "Remove authorisation"
       )
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -254,7 +267,7 @@ class ClientRelationshipManagementControllerISpec
         response,
         "Manage who can deal with HMRC for you",
         "Authorised agents",
-        "Manage your VAT",
+        "VAT",
         "View your Income record",
         "6 June 2017",
         "Remove authorisation"
@@ -303,9 +316,9 @@ class ClientRelationshipManagementControllerISpec
         "abc",
         "DEF",
         "ghi",
-        "Manage your Making Tax Digital for Income Tax",
+        "Making Tax Digital for Income Tax",
         "View your Income record",
-        "Manage your VAT",
+        "VAT",
         "You accepted on:",
         "You declined on:",
         "The request expired on:",
