@@ -7,6 +7,7 @@ object Css {
   val H1 = "main h1"
   val PRE_H1 = "main .govuk-caption-l"
   val paragraphs = "main p"
+  val ulBullet = "main .govuk-list.govuk-list--bullet"
   def errorSummaryForField(id: String): String ={
     s".govuk-error-summary__body li a[href=#${id}]"
   }

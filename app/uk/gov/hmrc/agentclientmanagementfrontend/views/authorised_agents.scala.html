@@ -176,11 +176,12 @@
 
     @h1("client-authorised-agents.title")
     @p("client-authorised-agents.p")
-    @ul(items = (1 to 5).map(i => s"client-authorised-agents.li.$i"))
+    @ul(items = (1 to 6).map(i => s"client-authorised-agents.li.$i"))
 
     <p class="govuk-!-margin-bottom-6">
     @a(href = "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent",
-        key = "client-authorised-agents.link.text")
+        key = "client-authorised-agents.link.text",
+        id = Some("other-read-guidance") )
     </p>
 
     @govukTabs(Tabs(
