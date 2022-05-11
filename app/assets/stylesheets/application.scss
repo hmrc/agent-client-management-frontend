@@ -24,3 +24,14 @@ h3 {
   @extend .govuk-heading-s;
 }
 
+ul.pager-items{
+  list-style-type: none;
+  float: right;
+  overflow: hidden;
+  margin-top: -10px;
+
+  li{
+    margin-left: 15px;
+    float: left;
+  }
+}
