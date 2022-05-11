@@ -19,23 +19,15 @@
 @(model: Paginated[_])(implicit msgs: Messages)
 
 @if(!model.dataFitsOnOnePage) {
-<div class="govuk-body pager govuk-!-margin-bottom-3">
-    <div class="pager-controls">
-        <ul class="pager-items">
-            @for(pageNumber <- model.pageRange) {
-                @linkToPage(pageNumber)
-            }
-        </ul>
-    </div>
-</div>
-}
-
-@linkToPage(pageNumber: Int) = {
-    @if(pageNumber == model.currentPage) {
-        <li class="active pager-number govuk-link">@{pageNumber}</li>
-    } else {
-        <li class="pager-number govuk-link">
-            <a class="govuk-link" href="@{model.urlForPage(pageNumber)}">@{pageNumber}</a>
-        </li>
+    <ul class="pager-items govuk-body" >
+    @for(pageNumber <- model.pageRange) {
+        @if(pageNumber == model.currentPage) {
+            <li class="active pager-number govuk-link">@{pageNumber}</li>
+        } else {
+            <li class="pager-number govuk-link">
+                <a class="govuk-link" href="@{model.urlForPage(pageNumber)}">@{pageNumber}</a>
+            </li>
+        }
     }
+    </ul>
 }
