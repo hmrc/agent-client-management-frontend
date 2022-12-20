@@ -38,7 +38,12 @@ class MongoDBSessionStoreServiceSpec extends UnitSpec
   with CleanMongoCollectionSupport
   with IntegrationPatience {
 
-  override lazy val app = GuiceApplicationBuilder().configure("mongodb.uri" -> mongoUri ).build()
+  override lazy val app = GuiceApplicationBuilder()
+    .configure(
+      "mongodb.uri" -> mongoUri,
+      "metrics.enabled"  -> false,
+      "auditing.enabled" -> false
+    ).build()
 
   implicit lazy val appConfig = app.injector.instanceOf[AppConfig]
   val mongoSessionCacheRepository = new SessionCacheRepository(mongoComponent, new CurrentTimestampSupport)
