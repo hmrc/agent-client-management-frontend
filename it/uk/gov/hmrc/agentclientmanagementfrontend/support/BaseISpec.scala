@@ -99,6 +99,12 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
     expectedSubstrings.foreach(s => bodyOf(result) should include(s))
   }
 
+  protected def checkHtmlResultNotWithBodyText(result: Result, expectedSubstrings: String*): Unit = {
+    contentType(result) shouldBe Some("text/html")
+    charset(result) shouldBe Some("utf-8")
+    expectedSubstrings.foreach(s => bodyOf(result) should not include(s))
+  }
+
   protected def checkResponseBodyWithText(response: WSResponse, expectedText: String*): Unit = {
     for(text <- expectedText) {
       response.body.contains(text) shouldBe true

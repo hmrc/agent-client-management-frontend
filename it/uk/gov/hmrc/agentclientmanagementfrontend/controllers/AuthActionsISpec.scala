@@ -11,7 +11,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.error_template
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, SessionKeys}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -26,7 +26,7 @@ class AuthActionsISpec extends BaseISpec {
 
     override def config: Configuration = app.configuration
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer XYZ")))
     implicit val request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     val errorTemplate = app.injector.instanceOf[error_template]

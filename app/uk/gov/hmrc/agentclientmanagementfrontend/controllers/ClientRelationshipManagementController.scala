@@ -143,7 +143,7 @@ class ClientRelationshipManagementController @Inject()(
             validateRemoveAuthorisationForm(id) {
               response.map {
                 case DeleteResponse(true, agencyName, service) =>
-                  Redirect(routes.ClientRelationshipManagementController.authorisationRemoved())
+                  Redirect(routes.ClientRelationshipManagementController.authorisationRemoved)
                     .addingToSession(("agencyName", agencyName), ("service", service))
                 case _ => throw new RuntimeException("relationship deletion failed")
               }
@@ -192,7 +192,7 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   private def startNewSession: Future[Result] =
-    Future.successful(Redirect(routes.ClientRelationshipManagementController.root()).withNewSession)
+    Future.successful(Redirect(routes.ClientRelationshipManagementController.root).withNewSession)
 
   private def validateRemoveAuthorisationForm(id: String)(serviceCall: => Future[Result])(
     implicit request: Request[AnyContent]): Future[Result] =
@@ -212,7 +212,7 @@ class ClientRelationshipManagementController @Inject()(
       )
 
   private def redirectToRoot =
-    Redirect(routes.ClientRelationshipManagementController.root())
+    Redirect(routes.ClientRelationshipManagementController.root)
 
   override def forbiddenView(implicit request: Request[_]): Html = errorTemplateView(
     Messages("global.error.403.title"),

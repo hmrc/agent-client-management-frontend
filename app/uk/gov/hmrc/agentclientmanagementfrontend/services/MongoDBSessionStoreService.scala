@@ -19,7 +19,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.repository.{SessionCache, SessionCacheRepository}
-import uk.gov.hmrc.cache.repository.CacheRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +28,7 @@ class MongoDBSessionStoreService @Inject()(sessionCache: SessionCacheRepository)
 
   final val cache = new SessionCache[Seq[ClientCache]] {
     override val sessionName: String = "clientCache"
-    override val cacheRepository: CacheRepository = sessionCache
+    override val cacheRepository: SessionCacheRepository = sessionCache
   }
 
   def fetchClientCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ClientCache]]] = {
