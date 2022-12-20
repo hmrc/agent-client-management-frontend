@@ -42,7 +42,8 @@ class MongoDBSessionStoreServiceSpec extends UnitSpec
     .configure(
       "mongodb.uri" -> mongoUri,
       "metrics.enabled"  -> false,
-      "auditing.enabled" -> false
+      "auditing.enabled" -> false,
+      "metrics.jvm" -> false
     ).build()
 
   implicit lazy val appConfig = app.injector.instanceOf[AppConfig]

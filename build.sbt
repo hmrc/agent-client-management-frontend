@@ -41,9 +41,10 @@ libraryDependencies ++= AppDependencies.compileDeps ++ AppDependencies.testDeps(
   )
   .configs(IntegrationTest)
   .settings(
-    IntegrationTest / Keys.fork := false,
+    IntegrationTest / Keys.fork := true,
     Defaults.itSettings,
     IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "it").value,
-    IntegrationTest / parallelExecution := false
+    IntegrationTest / parallelExecution := false,
+    Test / parallelExecution := false
   )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
