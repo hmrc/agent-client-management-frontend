@@ -3,17 +3,15 @@ package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
-import play.api.libs.ws._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup, Css}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier, SessionId, SessionKeys}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId, SessionKeys}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class ClientRelationshipManagementControllerISpec
     extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
@@ -27,19 +25,15 @@ class ClientRelationshipManagementControllerISpec
 
   private lazy val controller: ClientRelationshipManagementController =
     app.injector.instanceOf[ClientRelationshipManagementController]
-  val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
-  private implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")), authorization = Some(Authorization("Bearer XYZ")))
-  val urlJustWithPrefix = s"http://localhost:$port/manage-your-tax-agents"
-  val doGetRequest: String => Future[WSResponse] = (endOfUrl: String) =>
-    wsClient.url(s"$urlJustWithPrefix$endOfUrl").withFollowRedirects(false).get()
+  private implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
 
   def fakeRequest(method: String = GET) = FakeRequest(method, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
   "Current requests tab" should {
     "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(3)
       with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound  {
 
-      val response = controller.root()(fakeRequest())         //: WSResponse = await(doGetRequest(""))
+      val response = controller.root()(fakeRequest())
 
      status(response) shouldBe 200
       val html = Jsoup.parse(contentAsString(response.futureValue))
@@ -1105,9 +1099,9 @@ class ClientRelationshipManagementControllerISpec
 
   "timedOut" should {
     "display the timed out page" in {
-      val response: WSResponse = await(doGetRequest("/timed-out"))
-      response.status shouldBe 403
-      checkResponseBodyWithText(response, "You have been signed out", "so we have signed you out to keep your account secure.")
+      val response = await(controller.timedOut(FakeRequest()))
+      status(response) shouldBe 403
+      checkHtmlResultWithBodyText(response, "You have been signed out", "so we have signed you out to keep your account secure.")
     }
   }
 }
