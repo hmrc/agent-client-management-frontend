@@ -32,6 +32,7 @@
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesApi}
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -41,6 +42,12 @@ import uk.gov.hmrc.agentclientmanagementfrontend.support.{LogCapturing, UnitSpec
 import scala.concurrent.Future
 
 class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite with LogCapturing {
+
+  override lazy val app = GuiceApplicationBuilder().configure(
+    "metrics.enabled" -> false,
+    "metrics.jvm" -> false,
+    "auditing.enabled" -> false
+  ).build()
 
   val handler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]

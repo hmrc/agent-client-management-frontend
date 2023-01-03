@@ -1,6 +1,5 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
-import java.time.LocalDate
 import play.api.libs.ws.WSClient
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -11,8 +10,9 @@ import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpec
@@ -32,9 +32,9 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
 
   val urlJustWithPrefix = s"http://localhost:$port/manage-your-tax-agents"
-  val doGetRequest = (endOfUrl: String) => wsClient.url(s"$urlJustWithPrefix$endOfUrl").get()
+  val doGetRequest = (endOfUrl: String) => wsClient.url(s"$urlJustWithPrefix$endOfUrl").withHttpHeaders(SessionKeys.authToken -> "Bearer XYZ").get()
 
-  val req = FakeRequest()
+  def req(method: String = GET) = FakeRequest(method, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
   val mtdItId = MtdItId("ABCDEF123456789")
   val validArn = Arn("FARN0001132")
   val validNino = Nino("AE123456A")
@@ -60,7 +60,7 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
 
   "manageTaxAgents, works as normal except projections of remove authorisation links for false service flag" should {
     "200, do not show remove authorisation links, other than that works normal" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
+      authorisedAsClientAll(req(), validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
       getClientActiveAgentRelationships(serviceItsa, validArn.value, startDateString)
       getActivePIRRelationship(validArn.copy(value = "FARN0001131"), serviceIrv, validNino.value, fromCesa = false)
       getClientActiveAgentRelationships(serviceVat, validArn.copy(value = "FARN0001133").value, startDateString)
@@ -89,11 +89,12 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
 
     def getRemoveAuthorisationPage(service: String) = {
       s"return BadRequest for service: $service when flag for service is false" in {
-        authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
+        authorisedAsClientAll(req(), validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
 
-        val result = await(doGetRequest(s"/remove-authorisation/service/$service/id/${cache.uuId}"))
+        val result = await(
+          controller.showRemoveAuthorisation(service, cache.uuId)(req()))
 
-        result.status shouldBe 400
+        status(result) shouldBe 400
       }
     }
   }
@@ -104,10 +105,9 @@ class ClientRelationshipManagementControllerWithFalseFlagsISpec extends BaseISpe
 
     def postRemoveAuthorisationForm(service: String) = {
       s"return BadRequest for attempting to remove relationship when flag for service: $service is false" in {
-        authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
 
         sessionStoreService.storeClientCache(Seq(cache))
-        val result = await(controller.submitRemoveAuthorisation(service, cache.uuId)(authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+        val result = await(controller.submitRemoveAuthorisation(service, cache.uuId)(authorisedAsClientAll(req(POST), validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
 
         status(result) shouldBe 400
       }

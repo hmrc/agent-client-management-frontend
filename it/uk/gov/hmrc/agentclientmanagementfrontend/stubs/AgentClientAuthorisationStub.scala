@@ -158,7 +158,7 @@ trait AgentClientAuthorisationStub {
   def getAgencyNamesMap400(invalidArn: String): StubMapping = {
     stubFor(post(urlEqualTo(s"/agent-client-authorisation/client/agency-names"))
       .withHeader("Content-Type", containing("application/json"))
-      .withRequestBody(equalTo(s"""["$invalidArn"]"""))
+      .withRequestBody(equalToJson(s"""["$invalidArn"]"""))
       .willReturn(
         aResponse()
           .withStatus(400)

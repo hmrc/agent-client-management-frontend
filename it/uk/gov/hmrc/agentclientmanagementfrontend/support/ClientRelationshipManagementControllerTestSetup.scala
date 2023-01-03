@@ -2,12 +2,14 @@ package uk.gov.hmrc.agentclientmanagementfrontend.support
 
 import java.time.LocalDate
 import play.api.test.FakeRequest
+import play.api.test.Helpers.GET
 import uk.gov.hmrc.agentmtdidentifiers.model.SuspensionDetails
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.SessionKeys
 
 trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
   with AgentClientAuthorisationStub {
@@ -21,7 +23,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
   val validUtr = Utr("1977030537")
   val validUrn = Urn("XATRUST12345678")
   val validCgtRef = CgtRef("XMCGTP123456789")
-  val validPptRef = CgtRef("XAPPT0000012345")
+  val validPptRef = PptRef("XAPPT0000012345")
   val startDate = Some(LocalDate.parse("2017-06-06"))
   val startDateString = "2017-06-06"
   val lastUpdated = "2017-01-15T13:14:00.000+08:00"
@@ -41,8 +43,9 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
 
   //Basic authentication stubs needed for every test
   trait BaseTestSetUp {
-    val req = FakeRequest()
-    authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
+    def req(method: String = GET) = FakeRequest(method, "/")
+      .withSession(SessionKeys.authToken -> "Bearer XYZ")
+    authorisedAsClientAll(req(), validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value)
   }
 
   //stubs for no relationships for any service
@@ -85,6 +88,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(validVrn.value, "VRN")
         getInvitationsNotFound(validUrn.value, "URN")
         getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
+        getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
 
       case 1 =>
         getInvitations(

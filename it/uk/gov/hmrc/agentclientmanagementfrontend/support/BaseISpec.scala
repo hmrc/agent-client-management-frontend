@@ -56,6 +56,7 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "features.enable-agent-suspension" -> true,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
+        "bas-gateway.url" ->  s"http://localhost:$wireMockPort/bas-gateway/sign-in",
         "auditing.consumer.baseUri.host" -> wireMockHost,
         "auditing.consumer.baseUri.port" -> wireMockPort).overrides(new TestGuiceModule)
   }
@@ -97,6 +98,12 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")
     expectedSubstrings.foreach(s => bodyOf(result) should include(s))
+  }
+
+  protected def checkHtmlResultNotWithBodyText(result: Result, expectedSubstrings: String*): Unit = {
+    contentType(result) shouldBe Some("text/html")
+    charset(result) shouldBe Some("utf-8")
+    expectedSubstrings.foreach(s => bodyOf(result) should not include(s))
   }
 
   protected def checkResponseBodyWithText(response: WSResponse, expectedText: String*): Unit = {

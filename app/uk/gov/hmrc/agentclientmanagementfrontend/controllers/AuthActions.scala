@@ -40,7 +40,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
   protected def withAuthorisedAsClient[A](body: (String, ClientIdentifiers, Option[Utr]) => Future[Result])(
     implicit request: Request[A],
     hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Result] =
+    ec: ExecutionContext): Future[Result] = {
     authorised(AuthProviders(GovernmentGateway))
       .retrieve(affinityGroup and allEnrolments) {
         case affinityG ~ allEnrols =>
@@ -73,6 +73,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
           }
       }
       .recover(handleFailure)
+  }
 
   def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {
     case _: NoActiveSession ⇒
