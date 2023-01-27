@@ -57,9 +57,9 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
   def displayDate(date: Option[LocalDate]): String = DisplayDateUtils.displayDateForLang(date)
 
   //Pagination details
-  val pageState = AuthorisedAgentsPageState.fromRequest(request)
+  val pageState: AuthorisedAgentsPageState = AuthorisedAgentsPageState.fromRequest(request)
   val allItems: Seq[AgentRequest] = validNonPendingRequests
-  val itemsPerPage: Int = appConfig.itemsperpage
+  val itemsPerPage: Int = appConfig.itemsPerPage
   val requestedPage: Int = pageState.page
   val urlForPage: Int => String = pageState.urlForPaginatedPage(request.path)
 }
