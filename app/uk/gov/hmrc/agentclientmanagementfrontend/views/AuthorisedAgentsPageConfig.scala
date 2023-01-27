@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,9 +57,9 @@ case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], ag
   def displayDate(date: Option[LocalDate]): String = DisplayDateUtils.displayDateForLang(date)
 
   //Pagination details
-  val pageState = AuthorisedAgentsPageState.fromRequest(request)
+  val pageState: AuthorisedAgentsPageState = AuthorisedAgentsPageState.fromRequest(request)
   val allItems: Seq[AgentRequest] = validNonPendingRequests
-  val itemsPerPage: Int = appConfig.itemsperpage
+  val itemsPerPage: Int = appConfig.itemsPerPage
   val requestedPage: Int = pageState.page
   val urlForPage: Int => String = pageState.urlForPaginatedPage(request.path)
 }

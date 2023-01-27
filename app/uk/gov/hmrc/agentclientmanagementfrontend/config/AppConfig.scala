@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 @ImplementedBy(classOf[FrontendAppConfig])
 trait AppConfig {
 
+  val appName: String
   val authBaseUrl: String
   val agentFiRelationshipBaseUrl: String
   val sessionCacheBaseUrl: String
@@ -34,26 +35,24 @@ trait AppConfig {
   val sessionCacheDomain: String
   val contactFrontendBaseUrl: String
   val agentInvitationsFrontendBaseUrl: String
-  val appName: String
   def warmUpUrl(clientType: String, uid: String, agencyName: String): String
   val contactFrontendUrl: String
   val contactFrontendAjaxUrl: String
   val contactFrontendNonJsUrl: String
-  def featuresRemoveAuthorisation(service: String): Boolean
   val loggerDateFormat: String
   val timeout: Int
   val countdown: Int
-  val enableAgentSuspension: Boolean
-  val languageToggle: Boolean
   val languageMap: Map[String, Lang]
   val routeToSwitchLanguage: String => Call
-  val itemsperpage:Int
+  val itemsPerPage:Int
   val taxAccountRouterBaseUrl: String
   val taxAccountRouterSignInUrl: String
   val contactBaseUrl: String
   val contactCheckSARelationshipUrl: String => String
   val mongoDbExpireAfterSeconds: Int
   val altItsaEnabled: Boolean
+  val languageToggle: Boolean
+  def featuresRemoveAuthorisation(service: String): Boolean
   val betaFeedbackUrl: String
 }
 
@@ -88,17 +87,11 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
   override val contactFrontendNonJsUrl: String =
     s"${contactFrontendUrl}nonjs?service=$appName"
 
-  override def featuresRemoveAuthorisation(service: String): Boolean = getConfBooleanOrFail(s"features.remove-authorisation.$service")
-
   lazy val loggerDateFormat: String = getString("logger.json.dateformat")
 
   override val timeout: Int = getConfIntOrFail("timeoutDialog.timeout-seconds")
 
   override val countdown: Int = getConfIntOrFail("timeoutDialog.timeout-countdown-seconds")
-
-  override val enableAgentSuspension: Boolean = getConfBooleanOrFail("features.enable-agent-suspension")
-
-  override val languageToggle: Boolean = getConfBooleanOrFail("features.enable-welsh-toggle")
 
   override val languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
@@ -107,7 +100,7 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
 
   override val routeToSwitchLanguage: String => Call = (lang: String) => routes.ServiceLanguageController.switchToLanguage(lang)
 
-  lazy val itemsperpage = servicesConfig.getInt("pagination.itemsperpage")
+  lazy val itemsPerPage: Int = servicesConfig.getInt("pagination.itemsperpage")
 
   override val taxAccountRouterBaseUrl: String = getString("microservice.services.tax-account-router.external-url")
 
@@ -123,7 +116,11 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
 
   private def getConfBooleanOrFail(key: String): Boolean = servicesConfig.getBoolean(key)
 
-  override val altItsaEnabled: Boolean = servicesConfig.getBoolean("features.enable-alt-itsa")
-
   val betaFeedbackUrl: String = servicesConfig.getString("betaFeedbackUrl")
+
+  // Feature flags
+  override val altItsaEnabled: Boolean = servicesConfig.getBoolean("features.enable-alt-itsa")
+  override val languageToggle: Boolean = getConfBooleanOrFail("features.enable-welsh-toggle")
+  override def featuresRemoveAuthorisation(service: String): Boolean = getConfBooleanOrFail(s"features.remove-authorisation.$service")
+
 }

@@ -53,7 +53,6 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "features.remove-authorisation.HMRC-MTD-VAT" -> featureRemoveAuthorisationVat,
         "features.remove-authorisation.HMRC-TERS-ORG" -> featureRemoveAuthorisationTrust,
         "features.remove-authorisation.HMRC-TERSNT-ORG" -> featureRemoveAuthorisationTrustNT,
-        "features.enable-agent-suspension" -> true,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "bas-gateway.url" ->  s"http://localhost:$wireMockPort/bas-gateway/sign-in",
