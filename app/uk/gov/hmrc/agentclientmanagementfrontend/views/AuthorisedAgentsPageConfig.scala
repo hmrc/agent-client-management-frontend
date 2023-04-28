@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.views
 
-import java.net.URLEncoder.encode
-import java.time.LocalDate
-
 import play.api.i18n.Messages
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.Request
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models.{AgentRequest, AuthorisedAgent}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.{DisplayDateUtils, Paginated}
 
+import java.net.URLEncoder.encode
+import java.time.LocalDate
 import scala.util.Try
 
 case class AuthorisedAgentsPageConfig(authorisedAgents: Seq[AuthorisedAgent], agentRequests:Seq[AgentRequest])

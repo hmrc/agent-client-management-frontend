@@ -11,29 +11,24 @@ lazy val root = (project in file("."))
   .settings(
     name := "agent-client-management-frontend",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.10",
     majorVersion := 0,
     scalacOptions ++= Seq(
-      "-Xfatal-warnings",
-      "-Xlint:-missing-interpolator,_",
-      "-Yno-adapted-args",
-      "-deprecation",
+      "-Werror",
+      "-Wdead-code",
       "-feature",
-      "-unchecked",
       "-language:implicitConversions",
-      "-P:silencer:pathFilters=views;routes;TestStorage"),
+      "-Xlint",
+      "-Wconf:src=target/.*:s", // silence warnings from compiled files
+      "-Wconf:src=*html:w", // silence html warnings as they are wrong
+      "-Wconf:cat=deprecation:s",
+      "-Wconf:cat=unused-privates:s",
+      "-Wconf:msg=match may not be exhaustive:is", // summarize warnings about non-exhaustive pattern matching
+    ),
     PlayKeys.playDefaultPort := 9568,
-    resolvers ++= Seq(
-      Resolver.typesafeRepo("releases"),
-      "HMRC-open-artefacts-maven" at "https://open.artefacts.tax.service.gov.uk/maven2",
-      Resolver.url("HMRC-open-artefacts-ivy", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns),
-    ),
     libraryDependencies ++= AppDependencies.compileDeps ++ AppDependencies.testDeps("test") ++ AppDependencies.testDeps("it"),
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.7" cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % "1.7.7" % Provided cross CrossVersion.full
-    ),
-    publishingSettings,
+    //fix for scoverage compile errors for scala 2.13.10
+    libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always),
     CodeCoverageSettings.scoverageSettings,
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources"
   )
