@@ -7,7 +7,7 @@ object AppDependencies {
 
   lazy val compileDeps = Seq(
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-28" % bootstrapVersion,
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "5.5.0-play-28",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "7.5.0-play-28",
     "uk.gov.hmrc"       %% "play-partials"              % "8.3.0-play-28",
     "uk.gov.hmrc"       %% "agent-kenshoo-monitoring"   % "5.3.0",
     "uk.gov.hmrc"       %% "agent-mtd-identifiers"      % "1.2.0",

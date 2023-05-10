@@ -1,4 +1,5 @@
-servicename.titleSuffix=– Rheoli pwy sy’n gallu delio â CThEM ar eich rhan – GOV.UK
+service.name=Rheoli pwy sy’n gallu delio â CThEM ar eich rhan
+service.name.titleSuffix=– Rheoli pwy sy’n gallu delio â CThEM ar eich rhan – GOV.UK
 
 # Error messages.en for digital services
 global.error.badRequest400.title=Cais annilys – 400
