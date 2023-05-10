@@ -1,13 +1,23 @@
 # agent-client-management Frontend
-
-[ ![Download](https://api.bintray.com/packages/hmrc/releases/agent-client-management-frontend/images/download.svg) ](https://bintray.com/hmrc/releases/agent-client-management-frontend/_latestVersion)
+aka "Manage who can deal with HMRC for you" or "Manage your tax agents" (MYTA)
 
 # What the service does
-AS A Client who has one or more active agent authorisations for MTD services
-I WANT to be able to remove an authorisation for a specific agent and service
-SO THAT the agent can no longer access my data / act on my behalf with HMRC for that service
+Provides a client side view of agent authorisations, accessed from a link in BTA or PTA.
 
-Finds the logged in client's invitations and relationships, currently for the following serices: ITSA, PIR and VAT
+They can:
+- view their history of past relationships and any active ones
+- remove an active authorisation for a specific agent and MTD service
+- go to agent-invitations to accept/decline pending invitations
+
+This allows the client to manage their agent(s) access to client data, and consent to act on their behalf with HMRC for a given MTD service.
+
+Currently this service supports the following services:
+- ITSA, including alternative ITSA (client does not need to be registered for ITSA)
+- Personal Income Record
+- MTD VAT
+- Capital Gains Tax on UK property account
+- Trusts or Estates (taxable and non-taxable)
+- Plastic Packaging Tax
 
 ## Running the tests
 

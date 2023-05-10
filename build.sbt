@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
     name := "agent-client-management-frontend",
     organization := "uk.gov.hmrc",
     scalaVersion := "2.13.10",
-    majorVersion := 0,
+    majorVersion := 1,
     scalacOptions ++= Seq(
       "-Werror",
       "-Wdead-code",
