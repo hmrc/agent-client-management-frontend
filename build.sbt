@@ -1,5 +1,3 @@
-import uk.gov.hmrc.SbtAutoBuildPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 TwirlKeys.templateImports ++= Seq(
   "uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template",
@@ -26,7 +24,7 @@ lazy val root = (project in file("."))
       "-Wconf:msg=match may not be exhaustive:is", // summarize warnings about non-exhaustive pattern matching
     ),
     PlayKeys.playDefaultPort := 9568,
-    libraryDependencies ++= AppDependencies.compileDeps ++ AppDependencies.testDeps("test") ++ AppDependencies.testDeps("it"),
+    libraryDependencies ++= AppDependencies.compileDeps ++ AppDependencies.test,
     //fix for scoverage compile errors for scala 2.13.10
     libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always),
     CodeCoverageSettings.scoverageSettings,
