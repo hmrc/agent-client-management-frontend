@@ -1,6 +1,9 @@
 # agent-client-management Frontend
 aka "Manage who can deal with HMRC for you" or "Manage your tax agents" (MYTA)
 
+[![Build Status](https://travis-ci.org/hmrc/agent-client-management-frontend.svg)](https://travis-ci.org/hmrc/agent-client-management-frontend) 
+
+
 # What the service does
 Provides a client side view of agent authorisations, accessed from a link in BTA or PTA.
 
