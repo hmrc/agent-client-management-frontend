@@ -16,17 +16,16 @@
 
 @import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 @import uk.gov.hmrc.agentclientmanagementfrontend.views.html.components.head
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcLayout, HmrcReportTechnicalIssueHelper}
-@import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsMainContent
-@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcStandardPage, HmrcReportTechnicalIssueHelper}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.CSPNonce
 
 @this(
     head: head,
-    hmrcLayout: HmrcLayout,
-    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    standardBetaBanner: StandardBetaBanner,
-    twoThirdsLayout: TwoThirdsMainContent,
+    hmrcStandardPage: HmrcStandardPage,
+    fullWidthMainContent: fullWidthMainContentLayout,
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
 )
 
 @(title: String,
@@ -46,16 +45,20 @@
     <script src="@controllers.routes.Assets.versioned("javascripts/agent-client-management-frontend.js")" @{CSPNonce.attr}></script>
 }
 
-@hmrcLayout(
-    pageTitle = Some(title + " " +msgs("servicename.titleSuffix")),
-    phaseBanner = Some(standardBetaBanner(appConfig.betaFeedbackUrl)),
+@hmrcStandardPage(HmrcStandardPageParams(
+    serviceURLs = ServiceURLs(
+        serviceUrl = None,
+        signOutUrl = None
+    ),
+    banners = Banners(displayHmrcBanner = true),
+    templateOverrides = TemplateOverrides(
+        additionalHeadBlock = Some(head(hasTimeout)),
+        additionalScriptsBlock = Some(additionalScripts),
+        mainContentLayout = if(fullWidth) Some(fullWidthMainContent(_)) else None
+    ),
+    serviceName = Some(msgs("service.name")),
+    pageTitle = Some(title + " " +msgs("service.name.titleSuffix")),
     isWelshTranslationAvailable = true,
-    displayHmrcBanner = true,
-    serviceUrl = None,
-    signOutUrl = None,
-    additionalHeadBlock = Some(head(hasTimeout)),
-    additionalScriptsBlock = Some(additionalScripts),
-    backLinkUrl = backLinkHref,
-    mainContentLayout = if (fullWidth) None else Some(twoThirdsLayout(_)),
-    nonce = CSPNonce.get
-)(mainContentWithHelpLink)
+    backLink = if(backLinkHref.isDefined) Some(BackLink(href = backLinkHref.get)) else None
+))(mainContentWithHelpLink)
+
