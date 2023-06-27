@@ -32,6 +32,7 @@ package object agentclientmanagementfrontend {
         case _: CgtRef => "CGTPDRef"
         case _: Urn => "URN"
         case _: PptRef => "EtmpRegistrationNumber"
+        case _: CbcId => "cbcId"
       }
     }
 
@@ -43,17 +44,7 @@ package object agentclientmanagementfrontend {
         case _: CgtRef => "CGTPDRef"
         case _: Urn => "URN"
         case _: PptRef => "EtmpRegistrationNumber"
-      }
-    }
-
-    def getServiceKey: String = {
-      taxId match {
-        case _: MtdItId => "HMRC-MTD-IT"
-        case _: Vrn => "HMRC-MTD-VAT"
-        case _: Utr => "HMRC-TERS-ORG"
-        case _: CgtRef => "HMRC-CGT-PD"
-        case _: Urn => "HMRC-TERSNT-ORG"
-        case _: PptRef => "HMRC-PPT-ORG"
+        case _: CbcId => "cbcId"
       }
     }
 
@@ -66,6 +57,7 @@ package object agentclientmanagementfrontend {
         case _: CgtRef => "CGT"
         case _: Urn => "TrustNT"
         case _: PptRef => "PPT"
+        case _: CbcId => "CBC"
       }
     }
   }

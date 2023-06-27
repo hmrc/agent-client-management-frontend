@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentclientmanagementfrontend.support.WireMockSupport
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG}
 
 trait AgentClientRelationshipsStub {
   me: WireMockSupport =>
@@ -38,6 +39,14 @@ trait AgentClientRelationshipsStub {
 
   def deleteActivePptRelationship(arn: String, clientId: String, httpStatus: Int = 204): StubMapping = {
     stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$arn/service/HMRC-PPT-ORG/client/EtmpRegistrationNumber/$clientId"))
+      .willReturn(
+        aResponse()
+          .withStatus(httpStatus)))
+  }
+
+  def deleteActiveCbcRelationship(arn: String, clientId: String, isUKUser: Boolean, httpStatus: Int = 204): StubMapping = {
+    val service = if(isUKUser) HMRCCBCORG else HMRCCBCNONUKORG
+    stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$arn/service/$service/client/cbcId/$clientId"))
       .willReturn(
         aResponse()
           .withStatus(httpStatus)))

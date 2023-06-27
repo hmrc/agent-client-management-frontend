@@ -54,8 +54,10 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
           val urn = clientId("HMRC-TERSNT-ORG", "URN").map(Urn(_))
           val cgtRef = clientId("HMRC-CGT-PD", "CGTPDRef").map(CgtRef(_))
           val pptRef = clientId("HMRC-PPT-ORG", "EtmpRegistrationNumber").map(PptRef(_))
+          val cbcUkRef = clientId("HMRC-CBC-ORG", "cbcId").map(CbcId(_))
+          val cbcNonUkRef = clientId("HMRC-CBC-NONUK-ORG", "cbcId").map(CbcId(_))
 
-          val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr, cgtRef, urn, pptRef)
+          val clientIds = ClientIdentifiers(mtdItId, nino, vrn, utr, cgtRef, urn, pptRef, cbcUkRef, cbcNonUkRef)
 
           val legacySaUtr = clientId("IR-SA", "UTR").map(Utr(_))
 

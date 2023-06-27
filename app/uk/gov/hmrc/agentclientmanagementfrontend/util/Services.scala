@@ -44,4 +44,7 @@ object Services {
 
   val PPT = "HMRC-PPT-ORG"
 
+  val HMRCCBCORG = "HMRC-CBC-ORG"
+  val HMRCCBCNONUKORG = "HMRC-CBC-NONUK-ORG"
+
 }

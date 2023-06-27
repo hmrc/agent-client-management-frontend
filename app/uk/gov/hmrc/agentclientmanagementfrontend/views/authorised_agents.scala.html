@@ -96,19 +96,17 @@
                     Html(config.displayDate(authAgent.dateFrom)),
                     Html(
                         a(  key = "",
-                            href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId).url,
+                            href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.uuId).url,
                             html = Some(
                                 Html(
-                                    if(!appConfig.featuresRemoveAuthorisation(authAgent.serviceName)) "" else{
                                         a(  key = "",
-                                            href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.serviceName, authAgent.uuId).url,
+                                            href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.uuId).url,
                                             html = Some(Html(
                                             span("client-authorised-agents-table-row-header.unauthoriseLink", attrs = Map("aria-hidden" -> "true")) + "" +
                                                 span(key = msgs("client-authorised-agents-table-row-header.unauthoriseLink.aria-text", authAgent.agencyName, msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}")),
                                                     classes = Some("govuk-visually-hidden")
                                                 )
                                         ))).toString
-                                    }
                                 )
                             )
                         ).toString
@@ -176,7 +174,7 @@
 
     @h1("client-authorised-agents.title")
     @p("client-authorised-agents.p")
-    @ul(items = (1 to 6).map(i => s"client-authorised-agents.li.$i"))
+    @ul(items = (1 to 7).map(i => s"client-authorised-agents.li.$i"))
 
     <p class="govuk-!-margin-bottom-6">
     @a(href = "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent",
