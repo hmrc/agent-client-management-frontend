@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.connectors
 
-import java.time.LocalDate
-
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.Inject
 import play.api.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
@@ -28,10 +25,13 @@ import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG}
 import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 
+import java.time.LocalDate
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
@@ -41,8 +41,8 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
 
   val baseUrl = appConfig.agentClientRelationshipsBaseUrl
 
-  def deleteRelationship(arn: Arn, clientId: TaxIdentifier)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/${clientId.getServiceKey}/client/${clientId.getIdTypeForAcr}/${clientId.value}"
+  def deleteRelationship(arn: Arn, clientId: TaxIdentifier, service: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    val deleteEndpoint = s"$baseUrl/agent-client-relationships/agent/${arn.value}/service/$service/client/${clientId.getIdTypeForAcr}/${clientId.value}"
     monitor(s"ConsumedAPI-AgentClientRelationship-${clientId.getGrafanaId}-DELETE") {
       http.DELETE[HttpResponse](deleteEndpoint).map(_.status == 204)
     }
@@ -173,6 +173,34 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
             case OK =>
               val json = response.json
               (json \ "arn").asOpt[Arn].map(arn => PptRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+            case NOT_FOUND =>
+              None
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
+        }
+    }
+  }
+
+  def getActiveClientCbcRelationship(isUkUser: Boolean)(
+    implicit c: HeaderCarrier,
+    ec: ExecutionContext): Future[Option[Relationship]] = {
+
+    val (enrolmentTag, cbcVariant) =
+      if (isUkUser) (HMRCCBCORG, CbcUKRelationship.apply _) else (HMRCCBCNONUKORG, CbcNonUKRelationship.apply _)
+
+    val url =
+      s"$baseUrl/agent-client-relationships/client/relationships/service/$enrolmentTag"
+    monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-$enrolmentTag-GET") {
+      http
+        .GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK =>
+              val json = response.json
+              (json \ "arn").asOpt[Arn].map(arn => cbcVariant(arn,(json \ "dateFrom").asOpt[LocalDate]))
             case NOT_FOUND =>
               None
             case s =>

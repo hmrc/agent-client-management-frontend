@@ -20,12 +20,14 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.CSPNonce
+@import uk.gov.hmrc.govukfrontend.views.html.components.TwoThirdsMainContent
 
 @this(
     head: head,
     hmrcStandardPage: HmrcStandardPage,
     fullWidthMainContent: fullWidthMainContentLayout,
-    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+    twoThirdsMainContent: TwoThirdsMainContent
 )
 
 @(title: String,
@@ -54,7 +56,7 @@
     templateOverrides = TemplateOverrides(
         additionalHeadBlock = Some(head(hasTimeout)),
         additionalScriptsBlock = Some(additionalScripts),
-        mainContentLayout = if(fullWidth) Some(fullWidthMainContent(_)) else None
+        mainContentLayout = if(fullWidth) Some(fullWidthMainContent(_)) else Some(twoThirdsMainContent(_))
     ),
     serviceName = Some(msgs("service.name")),
     pageTitle = Some(title + " " +msgs("service.name.titleSuffix")),

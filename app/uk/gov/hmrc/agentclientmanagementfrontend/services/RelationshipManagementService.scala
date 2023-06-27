@@ -17,10 +17,10 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import play.api.Logging
-import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
+import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -36,7 +36,7 @@ class RelationshipManagementService @Inject()(
   pirRelationshipConnector: PirRelationshipConnector,
   acaConnector: AgentClientAuthorisationConnector,
   relationshipsConnector: AgentClientRelationshipsConnector,
-  sessionStoreService: MongoDBSessionStoreService)(implicit appConfig: AppConfig) extends Logging {
+  sessionStoreService: MongoDBSessionStoreService) extends Logging {
 
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
@@ -48,11 +48,9 @@ class RelationshipManagementService @Inject()(
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val altItsaRelationships =
-      if(appConfig.altItsaEnabled) {
         clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, true)
           .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation)))
           .getOrElse(Future successful Seq.empty)
-      } else Future successful List.empty
     val vatRelationships =
       relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val trustRelationships =
@@ -63,6 +61,10 @@ class RelationshipManagementService @Inject()(
       relationships(clientIdOpt.urn)(_ => relationshipsConnector.getActiveClientTrustNtRelationship.map(_.toSeq))
     val pptRelationships =
       relationships(clientIdOpt.pptRef)(_ => relationshipsConnector.getActiveClientPptRelationship.map(_.toSeq))
+      val cbcUKRelationships =
+        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(true).map(_.toSeq))
+    val cbcNonUKRelationship =
+      relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(false).map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
@@ -75,7 +77,9 @@ class RelationshipManagementService @Inject()(
                             trustRelationships,
                             urnRelationships,
                             cgtRelationships,
-                            pptRelationships
+                            pptRelationships,
+                            cbcUKRelationships,
+                            cbcNonUKRelationship
                           ))
                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
@@ -154,10 +158,13 @@ class RelationshipManagementService @Inject()(
   }
 
 
-  def deleteITSARelationship(id: String, clientId: MtdItId)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, clientId))
+  def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
+                                                                               ec: ExecutionContext): Future[DeleteResponse] = {
+    clientIdentifiers.getIdentifierForService(service) match {
+      case None => throw new InsufficientEnrolments
+      case Some(clientId) => deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, clientId, service))
+    }
+  }
 
   def deleteAltItsaRelationship(id: String, clientId: Nino)(
     implicit c: HeaderCarrier,
@@ -168,31 +175,6 @@ class RelationshipManagementService @Inject()(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[DeleteResponse] =
     deleteRelationship(id)(arn => pirRelationshipConnector.deleteClientRelationship(arn, nino))
-
-  def deleteVATRelationship(id: String, vrn: Vrn)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, vrn))
-
-  def deleteTrustRelationship(id: String, utr: Utr)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, utr))
-
-  def deleteTrustNtRelationship(id: String, urn: Urn)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, urn))
-
-  def deleteCgtRelationship(id: String, cgtRef: CgtRef)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, cgtRef))
-
-  def deletePptRelationship(id: String, pptRef: PptRef)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
-    deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, pptRef))
 
   private def deleteRelationship(id: String)(
     f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =

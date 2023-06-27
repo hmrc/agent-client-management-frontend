@@ -53,7 +53,6 @@ object RadioConfirm {
 @Singleton
 class ClientRelationshipManagementController @Inject()(
   override val messagesApi: MessagesApi,
-  featureFlags: FeatureFlags,
   val env: Environment,
   pirRelationshipConnector: PirRelationshipConnector,
   relationshipManagementService: RelationshipManagementService,
@@ -85,61 +84,33 @@ class ClientRelationshipManagementController @Inject()(
     }
   }
 
-  def showRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
+  def showRemoveAuthorisation(id: String): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _, _) =>
-      if (isActiveService(service, featureFlags)) {
         relationshipManagementService.getAuthorisedAgentDetails(id).map {
-          case Some((agencyName, _, _)) => Ok(showRemoveAuthView(RadioConfirm.confirmRadioForm, agencyName, service, id))
+          case Some((agencyName, service, _)) => Ok(showRemoveAuthView(RadioConfirm.confirmRadioForm, agencyName, service, id))
           case _                     => redirectToRoot
         }
-      } else Future.successful(BadRequest)
     }
   }
 
-  private def isActiveService(service: String, featureFlags: FeatureFlags): Boolean =
-    service match {
-      case Services.HMRCPIR    => featureFlags.rmAuthIRV
-      case Services.HMRCMTDIT  => featureFlags.rmAuthITSA
-      case Services.HMRCMTDVAT => featureFlags.rmAuthVAT
-      case Services.TRUST      => featureFlags.rmAuthTrust
-      case Services.TRUSTNT    => featureFlags.rmAuthTrustNt
-      case Services.CGT        => featureFlags.rmAuthCgt
-      case Services.PPT        => featureFlags.rmAuthPpt
-      case _                   => throw new Exception("Unsupported Service")
-    }
-
-  def submitRemoveAuthorisation(service: String, id: String): Action[AnyContent] = Action.async { implicit request =>
+  def submitRemoveAuthorisation(id: String): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, clientIds, _) =>
       relationshipManagementService.getAuthorisedAgentDetails(id).flatMap {
-        case Some((agencyName, _, isAltItsa)) => {
+        case Some((_, service, isAltItsa)) =>
           def response =
             service match {
               case Services.HMRCMTDIT if isAltItsa =>
                 relationshipManagementService.deleteAltItsaRelationship(id, clientIds.nino.getOrElse(throw new InsufficientEnrolments))
-                case Services.HMRCMTDIT =>
-                relationshipManagementService
-                  .deleteITSARelationship(id, clientIds.mtdItId.getOrElse(throw new InsufficientEnrolments))
+
               case Services.HMRCPIR =>
                 relationshipManagementService
                   .deletePIRelationship(id, clientIds.nino.getOrElse(throw new InsufficientEnrolments))
-              case Services.HMRCMTDVAT =>
+
+              case _ =>
                 relationshipManagementService
-                  .deleteVATRelationship(id, clientIds.vrn.getOrElse(throw new InsufficientEnrolments))
-              case Services.TRUST =>
-                relationshipManagementService
-                  .deleteTrustRelationship(id, clientIds.utr.getOrElse(throw new InsufficientEnrolments))
-              case Services.CGT =>
-                relationshipManagementService
-                  .deleteCgtRelationship(id, clientIds.cgtRef.getOrElse(throw new InsufficientEnrolments))
-              case Services.TRUSTNT =>
-                relationshipManagementService
-                  .deleteTrustNtRelationship(id, clientIds.urn.getOrElse(throw new InsufficientEnrolments))
-              case Services.PPT =>
-                relationshipManagementService
-                  .deletePptRelationship(id, clientIds.pptRef.getOrElse(throw new InsufficientEnrolments))
-              case _ => throw new Exception("Unsupported Service")
+                  .deleteRelationship(id, clientIds, service)
             }
-          if (isActiveService(service, featureFlags)) {
+
             validateRemoveAuthorisationForm(id) {
               response.map {
                 case DeleteResponse(true, agencyName, service) =>
@@ -148,9 +119,6 @@ class ClientRelationshipManagementController @Inject()(
                 case _ => throw new RuntimeException("relationship deletion failed")
               }
             }
-          } else
-            Future.successful(BadRequest)
-        }
         case _                     => Future successful redirectToRoot
       }
     }
@@ -159,7 +127,7 @@ class ClientRelationshipManagementController @Inject()(
   def authorisationRemoved: Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _, maybeLegacySaUtr) =>
       (request.session.get("agencyName"), request.session.get("service")) match {
-        case (Some(agencyName), Some(service)) => {
+        case (Some(agencyName), Some(service)) =>
           service match {
             case "HMRC-MTD-IT" => maybeLegacySaUtr.fold(Future successful(
               Ok(authorisationsRemoved(agencyName, service, None)))){
@@ -169,7 +137,6 @@ class ClientRelationshipManagementController @Inject()(
             }
             case _    => Future successful Ok(authorisationsRemoved(agencyName, service, None))
           }
-        }
         case _                                 => Future.successful(redirectToRoot)
       }
     }

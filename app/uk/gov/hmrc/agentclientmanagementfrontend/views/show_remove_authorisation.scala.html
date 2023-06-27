@@ -43,7 +43,7 @@
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(confirmForm))
     }
 
-    @formWithCsrf(action = routes.ClientRelationshipManagementController.submitRemoveAuthorisation(service, id)) {
+    @formWithCsrf(action = routes.ClientRelationshipManagementController.submitRemoveAuthorisation(id)) {
         @govukRadios(
             Radios(
                 classes = "govuk-radios--inline",
