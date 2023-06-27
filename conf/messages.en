@@ -31,7 +31,6 @@ global.error.500.sa_helpline.href=https://www.gov.uk/government/organisations/hm
 
 # Service specific messages.en
 app.name=agent-client-management
-service.name=Manage who can deal with HMRC for you
 
 # Start page
 start.title=agent-client-management
@@ -66,6 +65,7 @@ client-authorised-agents.li.3=A trust or estate
 client-authorised-agents.li.4=Making Tax Digital for Income Tax
 client-authorised-agents.li.5=Plastic Packaging Tax
 client-authorised-agents.li.6=Income record viewer
+client-authorised-agents.li.7=Country by country
 client-authorised-agents.link.text=For other tax services, read the guidance
 client-authorised-agents-table-relationships.tab3.title=History
 client-authorised-agents-table-relationships.tab2.title=Authorised agents
@@ -118,6 +118,9 @@ clientEndsRelationship.description.HMRC-TERS-ORG=If you remove your authorisatio
 clientEndsRelationship.description.HMRC-TERSNT-ORG=If you remove your authorisation, {0} will no longer be able to maintain a trust or an estate on your behalf.
 clientEndsRelationship.description.HMRC-CGT-PD=If you remove your authorisation, {0} will no longer be able to manage your Capital Gains Tax on UK property account on your behalf.
 clientEndsRelationship.description.HMRC-PPT-ORG=If you remove your authorisation, {0} will no longer be able to manage your Plastic Packaging Tax on your behalf.
+clientEndsRelationship.description.HMRC-CBC-ORG=If you remove your authorisation, {0} will no longer be able to manage your Country by country on your behalf.
+clientEndsRelationship.description.HMRC-CBC-NONUK-ORG=If you remove your authorisation, {0} will no longer be able to manage your Country by country on your behalf.
+
 error.summary.heading=There is a problem
 error.confirmResponse.invalid.description=Select yes if you want to remove your authorisation.
 

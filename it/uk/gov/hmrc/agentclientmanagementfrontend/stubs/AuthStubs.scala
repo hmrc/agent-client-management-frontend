@@ -16,14 +16,17 @@ trait AuthStubs {
   def authorisedAsClientMtdItIdWithIrSa[A](request: FakeRequest[A], mtdItId: String, utr: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId), Enrolment("IR-SA", "UTR", utr)), isAgent = false)
   def authorisedAsClientNi[A](request: FakeRequest[A], nino: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino)), isAgent = false )
   def authorisedAsClientVat[A](request: FakeRequest[A], vrn: String): FakeRequest[A] = authenticated(request, Set(Enrolment("HMRC-MTD-VAT", "VRN", vrn)), isAgent = false )
-  def authorisedAsClientAll[A](request: FakeRequest[A], nino: String, mtdItId: String, vrn:String, utr: String, urn: String, cgtRef: String, pptRef: String): FakeRequest[A] =
-    authenticated(request, Set(Enrolment("HMRC-NI", "NINO", nino),
+  def authorisedAsClientAll[A](request: FakeRequest[A], nino: String, mtdItId: String, vrn:String, utr: String, urn: String, cgtRef: String, pptRef: String, cbcUKRef: String, cbcNonUKRef: String): FakeRequest[A] =
+    authenticated(request, Set(
+      Enrolment("HMRC-NI", "NINO", nino),
       Enrolment("HMRC-MTD-IT", "MTDITID", mtdItId),
       Enrolment("HMRC-MTD-VAT", "VRN", vrn),
       Enrolment("HMRC-TERS-ORG", "SAUTR", utr),
       Enrolment("HMRC-CGT-PD", "CGTPDRef", cgtRef),
       Enrolment("HMRC-TERSNT-ORG", "URN", urn),
-      Enrolment("HMRC-PPT-ORG", "EtmpRegistrationNumber", pptRef)
+      Enrolment("HMRC-PPT-ORG", "EtmpRegistrationNumber", pptRef),
+      Enrolment("HMRC-CBC-ORG", "cbcId", cbcUKRef),
+      Enrolment("HMRC-CBC-NONUK-ORG", "cbcId", cbcNonUKRef)
     ), isAgent = false)
 
   def authenticated[A](request: FakeRequest[A], enrolment: Set[Enrolment], isAgent: Boolean): FakeRequest[A] = {

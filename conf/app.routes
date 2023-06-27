@@ -4,8 +4,8 @@
 
 GET         /                                                    @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
 
-GET         /remove-authorisation/service/:service/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.showRemoveAuthorisation(service: String, id: String)
-POST        /remove-authorisation/service/:service/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.submitRemoveAuthorisation(service: String, id: String)
+GET         /remove-authorisation/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.showRemoveAuthorisation(id: String)
+POST        /remove-authorisation/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.submitRemoveAuthorisation(id: String)
 GET         /authorisation-removed                               @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.authorisationRemoved
 
 GET         /keep-alive                                          @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.keepAlive

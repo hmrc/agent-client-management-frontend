@@ -23,16 +23,6 @@ import scala.collection.immutable
 
 class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSupport with AuthStubs with MetricsTestSupport {
 
-  def featureRemoveAuthorisationPir = false
-
-  def featureRemoveAuthorisationITSA = false
-
-  def featureRemoveAuthorisationVat = false
-
-  def featureRemoveAuthorisationTrust = false
-
-  def featureRemoveAuthorisationTrustNT = false
-
   override implicit lazy val app: Application = appBuilder.build()
 
   protected def appBuilder: GuiceApplicationBuilder = {
@@ -45,19 +35,10 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
         "microservice.services.agent-client-relationships.port" -> wireMockPort,
         "microservice.services.agent-client-authorisation.host" -> wireMockHost,
         "microservice.services.agent-client-authorisation.port" -> wireMockPort,
-        "microservice.services.cachable.session-cache.host" -> wireMockHost,
-        "microservice.services.cachable.session-cache.port" -> wireMockPort,
-        "microservice.services.cachable.session-cache.domain" -> "someDomain",
-        "features.remove-authorisation.PERSONAL-INCOME-RECORD" -> featureRemoveAuthorisationPir,
-        "features.remove-authorisation.HMRC-MTD-IT" -> featureRemoveAuthorisationITSA,
-        "features.remove-authorisation.HMRC-MTD-VAT" -> featureRemoveAuthorisationVat,
-        "features.remove-authorisation.HMRC-TERS-ORG" -> featureRemoveAuthorisationTrust,
-        "features.remove-authorisation.HMRC-TERSNT-ORG" -> featureRemoveAuthorisationTrustNT,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
-        "bas-gateway.url" ->  s"http://localhost:$wireMockPort/bas-gateway/sign-in",
-        "auditing.consumer.baseUri.host" -> wireMockHost,
-        "auditing.consumer.baseUri.port" -> wireMockPort).overrides(new TestGuiceModule)
+        "bas-gateway.url" ->  s"http://localhost:$wireMockPort/bas-gateway/sign-in"
+        ).overrides(new TestGuiceModule)
   }
 
   private class TestGuiceModule extends AbstractModule {

@@ -16,34 +16,43 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
-import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
-
-import javax.inject.Inject
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.AgentClientAuthorisationConnector
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject()(
                                                  acaConnector: AgentClientAuthorisationConnector,
-                                                 relationshipManagementService: RelationshipManagementService)(implicit appConfig: AppConfig) {
+                                                 relationshipManagementService: RelationshipManagementService) {
 
   def getAgentRequests(clientType: String, clientIdOpt: ClientIdentifiers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[AgentRequest]] = {
 
     val storedItsaInvitations = invitations(clientIdOpt.mtdItId)(clientId => acaConnector.getInvitation(MtdItId(clientId.value)))
     val storedIrvInvitations = invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value))))
-    val storedAltItsaInvitations = if(appConfig.altItsaEnabled) invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value)), true)) else Future successful List.empty
+    val storedAltItsaInvitations = invitations(clientIdOpt.nino)(clientId => acaConnector.getInvitation(relationshipManagementService.removeNinoSpaces(Nino(clientId.value)), true))
     val storedVatInvitations = invitations(clientIdOpt.vrn)(clientId => acaConnector.getInvitation(Vrn(clientId.value)))
     val storedTrustInvitations = invitations(clientIdOpt.utr)(clientId => acaConnector.getInvitation(Utr(clientId.value)))
     val storedTrustNtInvitations = invitations(clientIdOpt.urn)(clientId => acaConnector.getInvitation(Urn(clientId.value)))
     val storedCgtInvitations = invitations(clientIdOpt.cgtRef)(clientId => acaConnector.getInvitation(CgtRef(clientId.value)))
     val storedPptInvitations = invitations(clientIdOpt.pptRef)(clientId => acaConnector.getInvitation(PptRef(clientId.value)))
+    val storedCbcInvitations = invitations(clientIdOpt.cbcUkRef //won't have both but maybe one.
+      .orElse(clientIdOpt.cbcNonUkRef))(clientId => acaConnector.getInvitation(CbcId(clientId.value)))
 
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
-      storedInvitations <- Future.sequence(Seq(storedItsaInvitations, storedIrvInvitations, storedAltItsaInvitations, storedVatInvitations, storedTrustInvitations, storedTrustNtInvitations, storedCgtInvitations, storedPptInvitations)).map(_.flatten)
+      storedInvitations <- Future.sequence(Seq(
+        storedItsaInvitations,
+        storedIrvInvitations,
+        storedAltItsaInvitations,
+        storedVatInvitations,
+        storedTrustInvitations,
+        storedTrustNtInvitations,
+        storedCgtInvitations,
+        storedPptInvitations,
+        storedCbcInvitations)).map(_.flatten)
       agencyNames <- if(storedInvitations.nonEmpty)
         acaConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])

@@ -31,7 +31,6 @@ global.error.500.sa_helpline.href=https://www.gov.uk/government/organisations/hm
 
 # Service specific messages.en
 app.name=asiant-cleient-rheoli
-service.name=Rheoli pwy sy’n gallu delio â CThEM ar eich rhan
 
 # Start page
 start.title=asiant-cleient-rheoli
@@ -66,6 +65,7 @@ client-authorised-agents.li.3=Cynnal ymddiriedolaeth neu ystâd
 client-authorised-agents.li.4=Troi Treth yn Ddigidol ar gyfer Treth Incwm
 client-authorised-agents.li.5=Treth Deunydd Pacio Plastig
 client-authorised-agents.li.6=Gwyliwr cofnod incwm
+client-authorised-agents.li.7=Country by country
 client-authorised-agents.link.text=Ar gyfer gwasanaethau treth eraill, darllenwch yr arweiniad
 client-authorised-agents-table-relationships.tab3.title=Hanes
 client-authorised-agents-table-relationships.tab2.title=Asiantau awdurdodedig
@@ -118,6 +118,9 @@ clientEndsRelationship.description.HMRC-TERS-ORG=Os byddwch yn tynnu’ch awdurd
 clientEndsRelationship.description.HMRC-TERSNT-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu cynnal ymddiriedolaeth nac ystâd ar eich rhan mwyach.
 clientEndsRelationship.description.HMRC-CGT-PD=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU ar eich rhan mwyach.
 clientEndsRelationship.description.HMRC-PPT-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch Treth Deunydd Pacio Plastig ar eich rhan mwyach.
+clientEndsRelationship.description.HMRC-CBC-ORG=If you remove your authorisation, {0} will no longer be able to manage your Country by country on your behalf.
+clientEndsRelationship.description.HMRC-CBC-NONUK-ORG=If you remove your authorisation, {0} will no longer be able to manage your Country by country on your behalf.
+
 error.summary.heading=Mae problem wedi codi
 error.confirmResponse.invalid.description=Dewiswch ‘Iawn’ os hoffech dynnu’ch awdurdodiad.
 
