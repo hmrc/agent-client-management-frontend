@@ -121,7 +121,7 @@ class RelationshipManagementService @Inject()(
   The Deauthorised status was introduced in 2020(?) and since MYTA does not have a time limit in the History tab,
   we can't rely solely on this status to determine deauthorised relationships.
    */
-  def matchAndRefineStatus(agentRequests: List[AgentRequest], inactive: List[Inactive]): List[AgentRequest] = {
+  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): List[AgentRequest] = {
 
     val acceptedStatuses = Seq("Accepted", "Deauthorised")
 
@@ -158,8 +158,9 @@ class RelationshipManagementService @Inject()(
       agentRequests
       .filter(acceptedRequests)
       .sorted(AgentRequest.orderingByLastUpdated)
+        .toList
 
-    matchingFn(List.empty, hasBeenAccepted, inactive.sortBy(_.dateTo)) ::: agentRequests.filterNot(acceptedRequests)
+    matchingFn(List.empty, hasBeenAccepted, inactive.sortBy(_.dateTo).toList) ::: agentRequests.toList.filterNot(acceptedRequests)
   }
 
   def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
