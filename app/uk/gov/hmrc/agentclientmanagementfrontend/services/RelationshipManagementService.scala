@@ -126,7 +126,7 @@ class RelationshipManagementService @Inject()(
     val acceptedStatuses = Seq("Accepted", "Deauthorised")
 
     def normalizeServiceName(ar: AgentRequest): AgentRequest = ar.serviceName match {
-      case HMRCCBCORG | HMRCCBCNONUKORG => ar.copy(serviceName = HMRCCBCORG)
+      case HMRCCBCNONUKORG => ar.copy(serviceName = HMRCCBCORG)
       case _ => ar
     }
 
