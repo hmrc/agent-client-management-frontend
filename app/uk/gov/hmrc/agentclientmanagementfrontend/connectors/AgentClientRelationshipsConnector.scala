@@ -25,7 +25,7 @@ import uk.gov.hmrc.agentclientmanagementfrontend.TaxIdentifierOps
 import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
-import uk.gov.hmrc.agentmtdidentifiers.model.Service.HMRCCBCORG
+import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG}
 import uk.gov.hmrc.domain.TaxIdentifier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
@@ -184,20 +184,23 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
     }
   }
 
-  def getActiveClientCbcRelationship(
+  def getActiveClientCbcRelationship(isUkUser: Boolean)(
     implicit c: HeaderCarrier,
     ec: ExecutionContext): Future[Option[Relationship]] = {
 
+    val (enrolmentTag, cbcVariant) =
+      if (isUkUser) (HMRCCBCORG, CbcUKRelationship.apply _) else (HMRCCBCNONUKORG, CbcNonUKRelationship.apply _)
+
     val url =
-      s"$baseUrl/agent-client-relationships/client/relationships/service/$HMRCCBCORG"
-    monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-$HMRCCBCORG-GET") {
+      s"$baseUrl/agent-client-relationships/client/relationships/service/$enrolmentTag"
+    monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-$enrolmentTag-GET") {
       http
         .GET[HttpResponse](url)
         .map { response =>
           response.status match {
             case OK =>
               val json = response.json
-              (json \ "arn").asOpt[Arn].map(arn => CbcRelationship(arn,(json \ "dateFrom").asOpt[LocalDate]))
+              (json \ "arn").asOpt[Arn].map(arn => cbcVariant(arn,(json \ "dateFrom").asOpt[LocalDate]))
             case NOT_FOUND =>
               None
             case s =>

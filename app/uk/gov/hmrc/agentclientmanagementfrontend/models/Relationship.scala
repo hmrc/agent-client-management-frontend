@@ -144,16 +144,30 @@ object PptRelationship {
 
 }
 
-case class CbcRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+case class CbcUKRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCCBCORG
   val isAltItsa = false
 }
 
-object CbcRelationship {
-  implicit val relationshipWrites = Json.writes[CbcRelationship]
+object CbcUKRelationship {
+  implicit val relationshipWrites = Json.writes[CbcUKRelationship]
 
-  implicit val reads: Reads[CbcRelationship] =
+  implicit val reads: Reads[CbcUKRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
-      (JsPath \ "dateFrom").readNullable[LocalDate])(CbcRelationship.apply _)
+      (JsPath \ "dateFrom").readNullable[LocalDate])(CbcUKRelationship.apply _)
+
+}
+
+case class CbcNonUKRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.HMRCCBCNONUKORG
+  val isAltItsa = false
+}
+
+object CbcNonUKRelationship {
+  implicit val relationshipWrites = Json.writes[CbcNonUKRelationship]
+
+  implicit val reads: Reads[CbcNonUKRelationship] =
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+      (JsPath \ "dateFrom").readNullable[LocalDate])(CbcNonUKRelationship.apply _)
 
 }

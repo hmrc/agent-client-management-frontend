@@ -62,8 +62,10 @@ class RelationshipManagementService @Inject()(
       relationships(clientIdOpt.urn)(_ => relationshipsConnector.getActiveClientTrustNtRelationship.map(_.toSeq))
     val pptRelationships =
       relationships(clientIdOpt.pptRef)(_ => relationshipsConnector.getActiveClientPptRelationship.map(_.toSeq))
-      val cbcRelationships =
-        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship.map(_.toSeq))
+      val cbcUKRelationships =
+        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(true).map(_.toSeq))
+     val cbcNonUKRelationships =
+       relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(false).map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
@@ -77,7 +79,8 @@ class RelationshipManagementService @Inject()(
                             urnRelationships,
                             cgtRelationships,
                             pptRelationships,
-                            cbcRelationships
+                            cbcUKRelationships,
+                            cbcNonUKRelationships
                           ))
                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
