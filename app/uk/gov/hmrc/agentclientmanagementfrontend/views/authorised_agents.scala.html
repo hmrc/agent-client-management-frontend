@@ -174,7 +174,7 @@
 
     @h1("client-authorised-agents.title")
     @p("client-authorised-agents.p")
-    @ul(items = (1 to 7).map(i => s"client-authorised-agents.li.$i"))
+    @ul(items = (1 to (if (appConfig.enableCbc) 7 else 6)).map(i => s"client-authorised-agents.li.$i"))
 
     <p class="govuk-!-margin-bottom-6">
     @a(href = "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent",

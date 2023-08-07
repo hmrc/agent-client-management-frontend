@@ -48,6 +48,7 @@ trait AppConfig {
   val mongoDbExpireAfterSeconds: Int
   val languageToggle: Boolean
   val betaFeedbackUrl: String
+  val enableCbc: Boolean
 }
 
 
@@ -105,4 +106,6 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
   val betaFeedbackUrl: String = servicesConfig.getString("betaFeedbackUrl")
 
   override val languageToggle: Boolean = getConfBooleanOrFail("features.enable-welsh-toggle")
+
+  override val enableCbc: Boolean = getConfBooleanOrFail("features.enable-cbc")
 }
