@@ -42,7 +42,7 @@ class ClientRelationshipManagementControllerISpec
       html.select(Css.ulBullet).get(0).select("li").get(3).text() shouldBe "Making Tax Digital for Income Tax"
       html.select(Css.ulBullet).get(0).select("li").get(4).text() shouldBe "Plastic Packaging Tax"
       html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
-      html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country by country"
+      html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country-by-country reports"
 
 
       checkHtmlResultWithBodyText(
@@ -203,7 +203,7 @@ class ClientRelationshipManagementControllerISpec
       html.select(Css.ulBullet).get(0).select("li").get(3).text() shouldBe "Making Tax Digital for Income Tax"
       html.select(Css.ulBullet).get(0).select("li").get(4).text() shouldBe "Plastic Packaging Tax"
       html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
-      html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country by country"
+      html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country-by-country reports"
       html.select("a#other-read-guidance").text() shouldBe "For other tax services, read the guidance"
       html.select("a#other-read-guidance").attr("href") shouldBe "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent"
 
@@ -574,7 +574,7 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Country by country on your behalf.") shouldBe true
+      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your country-by-country reports on your behalf.") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
@@ -584,7 +584,7 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Country by country on your behalf.") shouldBe true
+      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your country-by-country reports on your behalf.") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
