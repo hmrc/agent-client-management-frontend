@@ -71,7 +71,7 @@ class ClientRelationshipManagementController @Inject()(
     with I18nSupport
     with AuthActions {
 
-  def root(source: Option[String], returnUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def root(source: Option[String], returnURL: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
     withAuthorisedAsClient { (clientType, clientIds, _) =>
@@ -83,7 +83,7 @@ class ClientRelationshipManagementController @Inject()(
       } yield Ok(
         authorisedAgentsView(
           AuthorisedAgentsPageConfig(authRequests, refined))
-      ).addingBackLinkInfoToSession(source, returnUrl)
+      ).addingBackLinkInfoToSession(source, returnURL)
     }
   }
 
@@ -193,8 +193,8 @@ class ClientRelationshipManagementController @Inject()(
   implicit class ResultWithSessionUpdate(result: Result) {
     def addingBackLinkInfoToSession(
                                     source: Option[String],
-                                    returnUrl: Option[String])(implicit request: Request[_]): Result = {
-      (source, returnUrl) match {
+                                    returnURL: Option[String])(implicit request: Request[_]): Result = {
+      (source, returnURL) match {
         case (Some(src), Some(rtn)) if src.matches("[B|P]TA") =>
           Redirect(
             routes.ClientRelationshipManagementController.root(None, None)

@@ -91,7 +91,7 @@ class ClientRelationshipManagementControllerISpec
         "What you need to do")
     }
 
-    "Redirect to self when request contains query params source and returnUrl and source is PTA" in
+    "Redirect to self when request contains query params source and returnURL and source is PTA" in
       new PendingInvitationsExist(0)
       with BaseTestSetUp
       with NoRelationshipsFound
@@ -103,7 +103,7 @@ class ClientRelationshipManagementControllerISpec
         status(response) shouldBe SEE_OTHER
     }
 
-    "Redirect to self when request contains query params source and returnUrl and source is BTA" in
+    "Redirect to self when request contains query params source and returnURL and source is BTA" in
       new PendingInvitationsExist(0)
         with BaseTestSetUp
         with NoRelationshipsFound
@@ -115,7 +115,7 @@ class ClientRelationshipManagementControllerISpec
         status(response) shouldBe SEE_OTHER
       }
 
-    "Not show backLink when request contains query params source and returnUrl and source is not BTA or PTA" in
+    "Not show backLink when request contains query params source and returnURL and source is not BTA or PTA" in
       new PendingInvitationsExist(0)
         with BaseTestSetUp
         with NoRelationshipsFound
@@ -147,7 +147,7 @@ class ClientRelationshipManagementControllerISpec
         html.select(Css.backLink).first() shouldBe null
       }
 
-    "Show backLink when play session contains source and returnUrl data" in
+    "Show backLink when play session contains source and returnURL data" in
       new PendingInvitationsExist(0)
         with BaseTestSetUp
         with NoRelationshipsFound
