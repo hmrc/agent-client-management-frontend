@@ -71,7 +71,6 @@ class ClientRelationshipManagementController @Inject()(
     with I18nSupport
     with AuthActions {
 
-  case class BackLinkData(source: String, returnUrl: String)
   def root(source: Option[String], returnUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
