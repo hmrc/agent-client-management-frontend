@@ -37,7 +37,7 @@
 @(confirmForm: Form[RadioConfirm], agencyName: String, service: String, id: String)(implicit request: Request[_], msgs: Messages, appConfig: AppConfig)
 
 
-@mainTemplate(title = errorPrefix(confirmForm) + msgs("clientEndsRelationship.title"), backLink = Some(BackLink(href = routes.ClientRelationshipManagementController.root(None, None).url)) ) {
+@mainTemplate(title = errorPrefix(confirmForm) + msgs("clientEndsRelationship.title"), backLink = Some(BackLink.withDefaultText(href = routes.ClientRelationshipManagementController.root(None, None).url))) {
 
     @if(confirmForm.hasErrors) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(confirmForm))
