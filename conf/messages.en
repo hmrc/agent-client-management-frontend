@@ -41,6 +41,8 @@ start.helpdesklink.text2=if you need help.
 
 button.continue=Continue
 button.back=Back
+button.back-to-BTA=Back to business tax account
+button.back-to-PTA=Back to personal tax account
 
 #session time out
 timeout-dialog.title=You are about to be signed out

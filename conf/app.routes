@@ -2,7 +2,7 @@
 
 ->          /hmrc-frontend                                       hmrcfrontend.Routes
 
-GET         /                                                    @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root
+GET         /                                                    @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.root(source: Option[String] ?= None, returnURL: Option[RedirectUrl] ?= None)
 
 GET         /remove-authorisation/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.showRemoveAuthorisation(id: String)
 POST        /remove-authorisation/id/:id        @uk.gov.hmrc.agentclientmanagementfrontend.controllers.ClientRelationshipManagementController.submitRemoveAuthorisation(id: String)

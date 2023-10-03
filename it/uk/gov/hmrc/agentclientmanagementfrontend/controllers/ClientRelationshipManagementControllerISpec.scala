@@ -11,6 +11,7 @@ import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCOR
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId, SessionKeys}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -28,7 +29,7 @@ class ClientRelationshipManagementControllerISpec
     "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(3)
       with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound  {
 
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
      status(response) shouldBe 200
       val html = Jsoup.parse(contentAsString(response.futureValue))
@@ -63,7 +64,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Show tab with different message when number of pending invitations is 1" in
       new PendingInvitationsExist(1) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
-        val response = controller.root()(fakeRequest())
+        val response = controller.root(None, None)(fakeRequest())
 
         status(response) shouldBe 200
         checkHtmlResultWithBodyText(
@@ -75,7 +76,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0) with BaseTestSetUp
     with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -91,11 +92,83 @@ class ClientRelationshipManagementControllerISpec
         "What you need to do")
     }
 
+    "Redirect to self when request contains query params source and returnURL and source is PTA" in
+      new PendingInvitationsExist(0)
+      with BaseTestSetUp
+      with NoRelationshipsFound
+        with NoSuspensions
+        with NoInactiveRelationshipsFound {
+
+        val response = controller.root(Some("PTA"), Some(RedirectUrl("/somewhere")))(fakeRequest())
+
+        status(response) shouldBe SEE_OTHER
+    }
+
+    "Redirect to self when request contains query params source and returnURL and source is BTA" in
+      new PendingInvitationsExist(0)
+        with BaseTestSetUp
+        with NoRelationshipsFound
+        with NoSuspensions
+        with NoInactiveRelationshipsFound {
+
+        val response = controller.root(Some("BTA"), Some(RedirectUrl("/somewhere")))(fakeRequest())
+
+        status(response) shouldBe SEE_OTHER
+      }
+
+    "Not show backLink when request contains query params source and returnURL and source is not BTA or PTA" in
+      new PendingInvitationsExist(0)
+        with BaseTestSetUp
+        with NoRelationshipsFound
+        with NoSuspensions
+        with NoInactiveRelationshipsFound {
+
+        val response = controller.root(Some("something"), Some(RedirectUrl("/somewhere")))(fakeRequest())
+
+        status(response) shouldBe OK
+
+        val html = Jsoup.parse(contentAsString(response.futureValue))
+
+        html.select(Css.backLink).first() shouldBe null
+      }
+
+    "Not show backLink when request contains only 1 query param" in
+      new PendingInvitationsExist(0)
+        with BaseTestSetUp
+        with NoRelationshipsFound
+        with NoSuspensions
+        with NoInactiveRelationshipsFound {
+
+        val response = controller.root(Some("PTA"), None)(fakeRequest())
+
+        status(response) shouldBe OK
+
+        val html = Jsoup.parse(contentAsString(response.futureValue))
+
+        html.select(Css.backLink).first() shouldBe null
+      }
+
+    "Show backLink when play session contains source and returnURL data" in
+      new PendingInvitationsExist(0)
+        with BaseTestSetUp
+        with NoRelationshipsFound
+        with NoSuspensions
+        with NoInactiveRelationshipsFound {
+
+        val response = controller.root(None, None)(fakeRequest().withSession(("myta_src", "PTA"), ("myta_rtn", "/somewhere")))
+
+        status(response) shouldBe OK
+
+        val html = Jsoup.parse(contentAsString(response.futureValue))
+
+        html.select(Css.backLink).text() shouldBe "Back to personal tax account"
+      }
+
     "Ignore invitation when there is no agent reference found for an Arn" in new PendingInvitationsExist(3)
     with BaseTestSetUp with NoSuspensions with NoRelationshipsFound with  NoInactiveRelationshipsFound {
       givenAgentRefNotFoundFor(arn1)
 
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
 
@@ -112,7 +185,7 @@ class ClientRelationshipManagementControllerISpec
       givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
       givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
 
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
       val html = Jsoup.parse(contentAsString(response.futureValue))
@@ -151,7 +224,7 @@ class ClientRelationshipManagementControllerISpec
 
   "Authorised agents tab" should {
     "show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -188,7 +261,7 @@ class ClientRelationshipManagementControllerISpec
 
       givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = false, None))
 
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
      status(response) shouldBe 200
 
@@ -223,7 +296,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Show tab with no authorised agents and different content" in new PendingInvitationsExist(0) with BaseTestSetUp
     with NoRelationshipsFound with NoInactiveRelationshipsFound  {
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -247,7 +320,7 @@ class ClientRelationshipManagementControllerISpec
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getAltItsaActiveRelationshipsNotFound(validNino.value)
 
-      val response = controller.root()(fakeRequest())
+      val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -266,7 +339,7 @@ class ClientRelationshipManagementControllerISpec
       givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
       givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
 
-      val response = controller.root()(req())
+      val response = controller.root(None, None)(req())
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -298,7 +371,7 @@ class ClientRelationshipManagementControllerISpec
       getAltItsaActiveRelationshipsNotFound(validNino.value)
       getAgencyNamesMap400("someInvalidArn")
 
-      an[Exception] should be thrownBy await(controller.root()(req()))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req()))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -316,7 +389,7 @@ class ClientRelationshipManagementControllerISpec
       getAltItsaActiveRelationshipsNotFound(validNino.value)
       getAgencyNamesMap400("")
 
-      an[Exception] should be thrownBy await(controller.root()(req()))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req()))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -327,7 +400,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Show tab for a client with all services and different response scenarios in date order" in new BaseTestSetUp
       with NoRelationshipsFound with InvitationHistoryExistsDifferentDates with NoSuspensions with NoInactiveRelationshipsFound {
-      val response = await(controller.root()(req()))
+      val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -355,7 +428,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Show tab for a client with all services and different response scenarios in time order when dates are the same" in
       new BaseTestSetUp with NoRelationshipsFound with InvitationHistoryExistsDifferentTimes with NoSuspensions with NoInactiveRelationshipsFound {
-        val response = await(controller.root()(req()))
+        val response = await(controller.root(None, None)(req()))
 
         status(response) shouldBe 200
 
@@ -367,7 +440,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in new BaseTestSetUp
       with NoRelationshipsFound with NoInactiveRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions  {
-      val response = await(controller.root()(req()))
+      val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
 
@@ -378,7 +451,7 @@ class ClientRelationshipManagementControllerISpec
 
     "Show tab for a client with all services and different response scenarios in time order when dates are the same with pagination" in
       new BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound with InvitationsForPagination {
-        val response = await(controller.root()(req()))
+        val response = await(controller.root(None, None)(req()))
 
         status(response) shouldBe 200
 
@@ -392,7 +465,7 @@ class ClientRelationshipManagementControllerISpec
 
 
     "Show tab for a client with no relationship history" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
-      val response = await(controller.root()(req()))
+      val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(response, "History", "You do not have any previous activity.")
@@ -402,7 +475,7 @@ class ClientRelationshipManagementControllerISpec
     "Show tab for a client with no relationship history and has only a Nino enrolment" in new PendingInvitationsExist(0) with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val req = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
       authorisedAsClientNi(req,validNino.value)
-      val response = await(controller.root()(req))
+      val response = await(controller.root(None, None)(req))
 
         status(response) shouldBe 200
       checkHtmlResultWithBodyText(response, "History", "You do not have any previous activity.")
@@ -414,7 +487,7 @@ class ClientRelationshipManagementControllerISpec
       get400ClientActiveAgentRelationships(serviceItsa)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
 
-      an[Exception] should be thrownBy await(controller.root()(req))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -424,7 +497,7 @@ class ClientRelationshipManagementControllerISpec
       get500ClientActiveAgentRelationships(serviceItsa)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
 
-      an[Exception] should be thrownBy await(controller.root()(req))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -434,7 +507,7 @@ class ClientRelationshipManagementControllerISpec
       get503ClientActiveAgentRelationships(serviceItsa)
       getInvitationsNotFound(mtdItId.value, "MTDITID")
 
-      an[Exception] should be thrownBy await(controller.root()(req))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -444,7 +517,7 @@ class ClientRelationshipManagementControllerISpec
       get500ForPIRRelationship(serviceIrv, validNino.value)
       getInvitationsNotFound(validNino.value, "NI")
 
-      an[Exception] should be thrownBy await(controller.root()(req))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -454,7 +527,7 @@ class ClientRelationshipManagementControllerISpec
       get503ForPIRRelationship(serviceIrv, validNino.value)
       getInvitationsNotFound(validNino.value, "NI")
 
-      an[Exception] should be thrownBy await(controller.root()(req))
+      an[Exception] should be thrownBy await(controller.root(None, None)(req))
 
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
@@ -465,7 +538,7 @@ class ClientRelationshipManagementControllerISpec
       getInactivePIRRelationships(arn2)
       getInactiveClientRelationshipsExist(arn3, arn1)
 
-      val response = await(controller.root()(req()))
+      val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
 
@@ -482,7 +555,7 @@ class ClientRelationshipManagementControllerISpec
       getInactivePIRRelationships(arn2)
       getInactiveClientRelationshipsExist(arn3, arn1)
 
-      val response = await(controller.root()(req()))
+      val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
 
@@ -796,7 +869,7 @@ class ClientRelationshipManagementControllerISpec
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 
@@ -850,7 +923,7 @@ class ClientRelationshipManagementControllerISpec
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 
@@ -904,7 +977,7 @@ class ClientRelationshipManagementControllerISpec
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 
@@ -957,7 +1030,7 @@ class ClientRelationshipManagementControllerISpec
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 
@@ -1010,7 +1083,7 @@ class ClientRelationshipManagementControllerISpec
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 
@@ -1063,7 +1136,7 @@ class ClientRelationshipManagementControllerISpec
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 
@@ -1138,7 +1211,7 @@ class ClientRelationshipManagementControllerISpec
         controller.authorisationRemoved(
           request))
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root.url)
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
   }
 

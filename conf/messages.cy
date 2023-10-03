@@ -41,6 +41,8 @@ start.helpdesklink.text2=os oes angen help arnoch.
 
 button.continue=Yn eich blaen
 button.back=Yn ôl
+button.back-to-BTA=Yn ôl i’r cyfrif treth busnes
+button.back-to-PTA=Yn ôl i’r cyfrif treth personol
 
 #session time out
 timeout-dialog.title=Rydych ar fin cael eich allgofnodi
