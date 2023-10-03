@@ -11,6 +11,7 @@ import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCOR
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId, SessionKeys}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -98,7 +99,7 @@ class ClientRelationshipManagementControllerISpec
         with NoSuspensions
         with NoInactiveRelationshipsFound {
 
-        val response = controller.root(Some("PTA"), Some("/somewhere"))(fakeRequest())
+        val response = controller.root(Some("PTA"), Some(RedirectUrl("/somewhere")))(fakeRequest())
 
         status(response) shouldBe SEE_OTHER
     }
@@ -110,7 +111,7 @@ class ClientRelationshipManagementControllerISpec
         with NoSuspensions
         with NoInactiveRelationshipsFound {
 
-        val response = controller.root(Some("BTA"), Some("/somewhere"))(fakeRequest())
+        val response = controller.root(Some("BTA"), Some(RedirectUrl("/somewhere")))(fakeRequest())
 
         status(response) shouldBe SEE_OTHER
       }
@@ -122,7 +123,7 @@ class ClientRelationshipManagementControllerISpec
         with NoSuspensions
         with NoInactiveRelationshipsFound {
 
-        val response = controller.root(Some("something"), Some("/somewhere"))(fakeRequest())
+        val response = controller.root(Some("something"), Some(RedirectUrl("/somewhere")))(fakeRequest())
 
         status(response) shouldBe OK
 

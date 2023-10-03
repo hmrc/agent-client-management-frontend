@@ -1,4 +1,6 @@
 
+import play.sbt.routes.RoutesKeys
+
 TwirlKeys.templateImports ++= Seq(
   "uk.gov.hmrc.agentclientmanagementfrontend.views.html.main_template",
   "uk.gov.hmrc.agentclientmanagementfrontend.views.html.components._",
@@ -37,5 +39,8 @@ lazy val root = (project in file("."))
     IntegrationTest / unmanagedSourceDirectories += baseDirectory(_ / "it").value,
     IntegrationTest / parallelExecution := false,
     Test / parallelExecution := false
+  )
+  .settings(
+    RoutesKeys.routesImport += "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
   )
   .enablePlugins(PlayScala, SbtDistributablesPlugin)

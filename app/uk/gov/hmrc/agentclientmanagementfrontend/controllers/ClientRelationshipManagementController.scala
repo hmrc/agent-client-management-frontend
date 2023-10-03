@@ -30,6 +30,8 @@ import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentclientmanagementfrontend.views.AuthorisedAgentsPageConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html._
 import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientEnrolments}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import java.time.LocalDate
@@ -71,7 +73,7 @@ class ClientRelationshipManagementController @Inject()(
     with I18nSupport
     with AuthActions {
 
-  def root(source: Option[String], returnURL: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def root(source: Option[String], returnURL: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
     withAuthorisedAsClient { (clientType, clientIds, _) =>
@@ -193,12 +195,12 @@ class ClientRelationshipManagementController @Inject()(
   implicit class ResultWithSessionUpdate(result: Result) {
     def addingBackLinkInfoToSession(
                                     source: Option[String],
-                                    returnURL: Option[String])(implicit request: Request[_]): Result = {
+                                    returnURL: Option[RedirectUrl])(implicit request: Request[_]): Result = {
       (source, returnURL) match {
         case (Some(src), Some(rtn)) if src.matches("[B|P]TA") =>
           Redirect(
             routes.ClientRelationshipManagementController.root(None, None)
-          ).addingToSession(("myta_src", src), ("myta_rtn", rtn))
+          ).addingToSession(("myta_src", src), ("myta_rtn", rtn.get(OnlyRelative).url))
         case _ => result
       }
     }
