@@ -71,7 +71,8 @@ class ClientRelationshipManagementController @Inject()(
     with I18nSupport
     with AuthActions {
 
-  def root(): Action[AnyContent] = Action.async { implicit request =>
+  case class BackLinkData(source: String, returnUrl: String)
+  def root(source: Option[String], returnUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
     implicit val dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
     withAuthorisedAsClient { (clientType, clientIds, _) =>
@@ -80,7 +81,10 @@ class ClientRelationshipManagementController @Inject()(
         authRequests  <- relationshipManagementService.getAuthorisedAgents(clientIds)
         deAuthed <- relationshipManagementService.getDeAuthorisedAgents(clientIds)
         refined   = relationshipManagementService.matchAndRefineStatus(agentRequests, deAuthed)
-      } yield Ok(authorisedAgentsView(AuthorisedAgentsPageConfig(authRequests, refined)))
+      } yield Ok(
+        authorisedAgentsView(
+          AuthorisedAgentsPageConfig(authRequests, refined))
+      ).addingBackLinkInfoToSession(source, returnUrl)
     }
   }
 
@@ -159,7 +163,7 @@ class ClientRelationshipManagementController @Inject()(
   }
 
   private def startNewSession: Future[Result] =
-    Future.successful(Redirect(routes.ClientRelationshipManagementController.root).withNewSession)
+    Future.successful(Redirect(routes.ClientRelationshipManagementController.root(None, None)).withNewSession)
 
   private def validateRemoveAuthorisationForm(id: String)(serviceCall: => Future[Result])(
     implicit request: Request[AnyContent]): Future[Result] =
@@ -179,11 +183,25 @@ class ClientRelationshipManagementController @Inject()(
       )
 
   private def redirectToRoot =
-    Redirect(routes.ClientRelationshipManagementController.root)
+    Redirect(routes.ClientRelationshipManagementController.root(None, None))
 
   override def forbiddenView(implicit request: Request[_]): Html = errorTemplateView(
     Messages("global.error.403.title"),
     Messages("global.error.403.heading"),
     Messages("global.error.403.message")
   )
+
+  implicit class ResultWithSessionUpdate(result: Result) {
+    def addingBackLinkInfoToSession(
+                                    source: Option[String],
+                                    returnUrl: Option[String])(implicit request: Request[_]): Result = {
+      (source, returnUrl) match {
+        case (Some(src), Some(rtn)) if src.matches("[B|P]TA") =>
+          Redirect(
+            routes.ClientRelationshipManagementController.root(None, None)
+          ).addingToSession(("myta_src", src), ("myta_rtn", rtn))
+        case _ => result
+      }
+    }
+  }
 }

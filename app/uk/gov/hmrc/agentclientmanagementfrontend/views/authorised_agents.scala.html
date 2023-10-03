@@ -37,6 +37,16 @@
 
 @(config: AuthorisedAgentsPageConfig)(implicit msgs: Messages, request: Request[_], appConfig: AppConfig, now: LocalDate)
 
+
+@maybeBackLink = @{
+    for {
+      src <- request.session.get("myta_src")
+      rtn <- request.session.get("myta_rtn")
+    } yield BackLink(href = rtn, content = Text(Messages(s"button.back-to-$src")))
+}
+
+
+
 @pendingNo = @{
     if(config.validPendingCount == 1) {
         msgs("client-authorised-agents-table-relationships.pendingNo.single", config.validPendingCount)
@@ -170,11 +180,13 @@
         Seq(currentAuthsTab, historyTab)
 }
 
-@mainTemplate(title = msgs("client-authorised-agents.title"), fullWidth = true) {
+@mainTemplate(title = msgs("client-authorised-agents.title"), fullWidth = true, backLink = maybeBackLink) {
+
 
     @h1("client-authorised-agents.title")
     @p("client-authorised-agents.p")
     @ul(items = (1 to (if (appConfig.enableCbc) 7 else 6)).map(i => s"client-authorised-agents.li.$i"))
+
 
     <p class="govuk-!-margin-bottom-6">
     @a(href = "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent",

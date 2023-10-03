@@ -41,6 +41,8 @@ start.helpdesklink.text2=os oes angen help arnoch.
 
 button.continue=Yn eich blaen
 button.back=Yn ôl
+button.back-to-BTA=Back to business tax account
+button.back-to-PTA=Back to personal tax account
 
 #session time out
 timeout-dialog.title=Rydych ar fin cael eich allgofnodi

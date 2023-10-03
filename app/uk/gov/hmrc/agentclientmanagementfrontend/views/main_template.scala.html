@@ -32,7 +32,7 @@
 
 @(title: String,
   hasTimeout: Boolean = true,
-  backLinkHref: Option[String] = None,
+  backLink: Option[BackLink] = None,
   fullWidth: Boolean = false
 )(mainContent: Html)(implicit request : Request[_], msgs: Messages, appConfig: AppConfig)
 
@@ -61,6 +61,6 @@
     serviceName = Some(msgs("service.name")),
     pageTitle = Some(title + " " +msgs("service.name.titleSuffix")),
     isWelshTranslationAvailable = true,
-    backLink = if(backLinkHref.isDefined) Some(BackLink(href = backLinkHref.get)) else None
+    backLink = backLink
 ))(mainContentWithHelpLink)
 
