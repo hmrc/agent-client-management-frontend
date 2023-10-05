@@ -19,7 +19,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import play.api.Logging
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
-import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
@@ -49,7 +48,7 @@ class RelationshipManagementService @Inject()(
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val altItsaRelationships =
-        clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, true)
+        clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, ninoForItsa = true)
           .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation)))
           .getOrElse(Future successful Seq.empty)
     val vatRelationships =
@@ -63,9 +62,9 @@ class RelationshipManagementService @Inject()(
     val pptRelationships =
       relationships(clientIdOpt.pptRef)(_ => relationshipsConnector.getActiveClientPptRelationship.map(_.toSeq))
       val cbcUKRelationships =
-        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(true).map(_.toSeq))
+        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = true).map(_.toSeq))
      val cbcNonUKRelationships =
-       relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(false).map(_.toSeq))
+       relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = false).map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
@@ -124,46 +123,33 @@ class RelationshipManagementService @Inject()(
   The Deauthorised status was introduced in 2020(?) and since MYTA does not have a time limit in the History tab,
   we can't rely solely on this status to determine deauthorised relationships.
    */
-  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): List[AgentRequest] = {
+  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] = {
 
-    val acceptedStatuses = Seq("Accepted", "Deauthorised")
+    val accepted = Seq("Accepted", "Deauthorised")
 
-    def normalizeServiceName(ar: AgentRequest): AgentRequest = ar.serviceName match {
-      case HMRCCBCNONUKORG => ar.copy(serviceName = HMRCCBCORG)
-      case _ => ar
-    }
-
-    def matchingFn(accum: List[AgentRequest], remainingAgentReq: List[AgentRequest], remainingInactive: List[Inactive]): List[AgentRequest] = {
-      remainingAgentReq match {
-        case Nil => accum
-        case agentReq :: tl =>
-          remainingInactive
-            .find(
-              inactive =>
-                inactive.arn  == agentReq.arn &&
-                  inactive.serviceName == normalizeServiceName(agentReq).serviceName &&
-                  inactive.dateTo.exists(!_.isBefore(agentReq.lastUpdated.toLocalDate))
-            ) match {
-          case Some(inactive) => matchingFn(
-            agentReq.copy( //
-              status = s"AcceptedThenCancelledBy${agentReq.relationshipEndedBy.getOrElse("Agent")}",
-              lastUpdated = inactive.dateTo.getOrElse(throw new RuntimeException("inactive relationship without dateTo"))
-                .atStartOfDay()
-            ) :: accum, tl, remainingInactive.filterNot(_ == inactive))
-          case None => matchingFn( agentReq :: accum, tl, remainingInactive )
-        }
+    def updateStatus(ar: AgentRequest)(requests: Seq[AgentRequest], inactives: Seq[Inactive]): Option[AgentRequest] = {
+      requests.reverse.map(Some(_)).zipAll(inactives.reverse.map(Some(_)), None, None).find(_._1.contains(ar)) match {
+        case Some((Some(accepted), Some(inactive))) =>
+          inactive.dateTo.fold(Some(accepted))(endDate =>
+            Some(accepted.copy(
+              status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}", lastUpdated = endDate.atStartOfDay()))
+          )
+        case Some((Some(accepted), None)) =>
+          if(accepted.status == "Deauthorised") Some(accepted.copy(
+            status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}"))
+          else Some(accepted)
+        case e => logger.error(s"unexpected match result $e"); None
       }
     }
 
-    def acceptedRequests(agentRequest: AgentRequest) = acceptedStatuses.contains(agentRequest.status)
+    def acceptedRequests(agentRequest: AgentRequest) = accepted.contains(agentRequest.status)
 
-    val hasBeenAccepted =
-      agentRequests
-      .filter(acceptedRequests)
-      .sorted(AgentRequest.orderingByLastUpdated)
-        .toList
-
-    matchingFn(List.empty, hasBeenAccepted, inactive.sortBy(_.dateTo).toList) ::: agentRequests.toList.filterNot(acceptedRequests)
+    agentRequests.filter(acceptedRequests).sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
+      case (arn, ar) => ar.groupBy(_.serviceName).flatMap {
+        case (service, ar) =>
+          ar.map(updateStatus(_)(ar, inactive.filter(x => x.serviceName == service && x.arn == arn)))
+      }
+    }.toSeq.flatten ++ agentRequests.filterNot(acceptedRequests)
   }
 
   def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
@@ -217,13 +203,13 @@ class RelationshipManagementService @Inject()(
       cache = cacheOpt.flatMap(_.find(_.uuId == id))
     } yield cache.map(cache => (cache.agencyName, cache.service, cache.isAltItsa))
 
-  def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]) =
+  def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]): Future[Seq[Relationship]] =
     identifierOpt match {
       case Some(identifier) => f(identifier)
       case None             => Future.successful(Seq.empty)
     }
 
-  def inactiveRelationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]) =
+  def inactiveRelationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]): Future[Seq[PirInactiveRelationship]] =
     identifierOpt match {
       case Some(identifier) => f(identifier)
       case None => Future.successful(Seq.empty)
