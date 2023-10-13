@@ -19,6 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import play.api.Logging
 import uk.gov.hmrc.agentclientmanagementfrontend.connectors.{AgentClientAuthorisationConnector, AgentClientRelationshipsConnector, PirRelationshipConnector}
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
+import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
@@ -41,16 +42,16 @@ class RelationshipManagementService @Inject()(
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
   def getAuthorisedAgents(
-    clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+                           clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
     val pirRelationships = relationships(clientIdOpt.nino) {
       case nino: Nino => pirRelationshipConnector.getClientRelationships(removeNinoSpaces(nino))
     }
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val altItsaRelationships =
-        clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, ninoForItsa = true)
+      clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, ninoForItsa = true)
           .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation)))
-          .getOrElse(Future successful Seq.empty)
+        .getOrElse(Future successful Seq.empty)
     val vatRelationships =
       relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val trustRelationships =
@@ -61,30 +62,30 @@ class RelationshipManagementService @Inject()(
       relationships(clientIdOpt.urn)(_ => relationshipsConnector.getActiveClientTrustNtRelationship.map(_.toSeq))
     val pptRelationships =
       relationships(clientIdOpt.pptRef)(_ => relationshipsConnector.getActiveClientPptRelationship.map(_.toSeq))
-      val cbcUKRelationships =
-        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = true).map(_.toSeq))
-     val cbcNonUKRelationships =
-       relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = false).map(_.toSeq))
+    val cbcUKRelationships =
+      relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = true).map(_.toSeq))
+    val cbcNonUKRelationships =
+      relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = false).map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
-                        .sequence(
-                          Seq(
-                            itsaRelationships,
-                            altItsaRelationships,
-                            pirRelationships,
-                            vatRelationships,
-                            trustRelationships,
-                            urnRelationships,
-                            cgtRelationships,
-                            pptRelationships,
-                            cbcUKRelationships,
-                            cbcNonUKRelationships
-                          ))
-                        .map(_.flatten)
+        .sequence(
+          Seq(
+            itsaRelationships,
+            altItsaRelationships,
+            pirRelationships,
+            vatRelationships,
+            trustRelationships,
+            urnRelationships,
+            cgtRelationships,
+            pptRelationships,
+            cbcUKRelationships,
+            cbcNonUKRelationships
+          ))
+        .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
-                      acaConnector.getAgencyNames(relationships.map(_.arn))
-                    else Future.successful(Map.empty[Arn, String])
+        acaConnector.getAgencyNames(relationships.map(_.arn))
+      else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 
     relationshipWithAgencyNames.flatMap {
@@ -112,44 +113,54 @@ class RelationshipManagementService @Inject()(
       case _: Nino => pirRelationshipConnector.getInactiveClientRelationships()
     }
     val otherInactiveRelationships =
-    if(clientIdOpt.hasOnlyNino) Future successful(Seq.empty)
-    else relationshipsConnector.getInactiveClientRelationships
-    for{
+      if (clientIdOpt.hasOnlyNino) Future successful (Seq.empty)
+      else relationshipsConnector.getInactiveClientRelationships
+    for {
       pir <- pirInactiveRelationships
       other <- otherInactiveRelationships
     } yield pir ++ other
   }
+
   /*
   The Deauthorised status was introduced in 2020(?) and since MYTA does not have a time limit in the History tab,
   we can't rely solely on this status to determine deauthorised relationships.
    */
   def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] = {
 
-    val accepted = Seq("Accepted", "Deauthorised")
+    val acceptedStatuses = List("Accepted", "Deauthorised")
 
-    def updateStatus(ar: AgentRequest)(requests: Seq[AgentRequest], inactives: Seq[Inactive]): Option[AgentRequest] = {
-      requests.reverse.map(Some(_)).zipAll(inactives.reverse.map(Some(_)), None, None).find(_._1.contains(ar)) match {
-        case Some((Some(accepted), Some(inactive))) =>
-          inactive.dateTo.fold(Some(accepted))(endDate =>
-            Some(accepted.copy(
-              status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}", lastUpdated = endDate.atStartOfDay()))
-          )
-        case Some((Some(accepted), None)) =>
-          if(accepted.status == "Deauthorised") Some(accepted.copy(
-            status = s"AcceptedThenCancelledBy${accepted.relationshipEndedBy.getOrElse("Agent")}"))
-          else Some(accepted)
-        case e => logger.error(s"unexpected match result $e"); None
-      }
-    }
+      def normalisedServiceName(service: String): String =
+        if (service == HMRCCBCNONUKORG) HMRCCBCORG else service
 
-    def acceptedRequests(agentRequest: AgentRequest) = accepted.contains(agentRequest.status)
-
-    agentRequests.filter(acceptedRequests).sorted(AgentRequest.orderingByLastUpdated).groupBy(_.arn).flatMap {
-      case (arn, ar) => ar.groupBy(_.serviceName).flatMap {
-        case (service, ar) =>
-          ar.map(updateStatus(_)(ar, inactive.filter(x => x.serviceName == service && x.arn == arn)))
-      }
-    }.toSeq.flatten ++ agentRequests.filterNot(acceptedRequests)
+    agentRequests
+      .groupBy(_.arn)
+      .flatMap {
+        case (arn, agentRequests) =>
+          agentRequests
+          .groupBy(_.serviceName)
+          .flatMap {
+            case (service, agentRequests) =>
+              agentRequests
+                .filter(x => acceptedStatuses.contains(x.status))
+                .map(Option.apply)
+                .zipAll(
+                  inactive
+                  .filter(x => x.arn == arn && x.serviceName == normalisedServiceName(service))
+                  .map(Option.apply), None, None)
+                .flatMap {
+                  case (Some(ar), Some(in)) =>
+                    Option.apply(ar
+                      .copy(
+                        status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
+                        lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
+                      ))
+                  case (Some(ar), None) => Option.apply(ar)
+                  case _ =>
+                    logger.warn("inactive record not matched with an authorisation request!")
+                    None
+                }
+          }
+      }.toSeq ++ agentRequests.filterNot(x => acceptedStatuses.contains(x.status))
   }
 
   def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
