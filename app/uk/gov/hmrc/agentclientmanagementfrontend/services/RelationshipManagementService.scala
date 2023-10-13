@@ -42,16 +42,16 @@ class RelationshipManagementService @Inject()(
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
   def getAuthorisedAgents(
-    clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+                           clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
     val pirRelationships = relationships(clientIdOpt.nino) {
       case nino: Nino => pirRelationshipConnector.getClientRelationships(removeNinoSpaces(nino))
     }
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val altItsaRelationships =
-        clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, true)
+      clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, ninoForItsa = true)
           .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation)))
-          .getOrElse(Future successful Seq.empty)
+        .getOrElse(Future successful Seq.empty)
     val vatRelationships =
       relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
     val trustRelationships =
@@ -62,30 +62,30 @@ class RelationshipManagementService @Inject()(
       relationships(clientIdOpt.urn)(_ => relationshipsConnector.getActiveClientTrustNtRelationship.map(_.toSeq))
     val pptRelationships =
       relationships(clientIdOpt.pptRef)(_ => relationshipsConnector.getActiveClientPptRelationship.map(_.toSeq))
-      val cbcUKRelationships =
-        relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(true).map(_.toSeq))
-     val cbcNonUKRelationships =
-       relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(false).map(_.toSeq))
+    val cbcUKRelationships =
+      relationships(clientIdOpt.cbcUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = true).map(_.toSeq))
+    val cbcNonUKRelationships =
+      relationships(clientIdOpt.cbcNonUkRef)(_ => relationshipsConnector.getActiveClientCbcRelationship(isUkUser = false).map(_.toSeq))
 
     val relationshipWithAgencyNames = for {
       relationships <- Future
-                        .sequence(
-                          Seq(
-                            itsaRelationships,
-                            altItsaRelationships,
-                            pirRelationships,
-                            vatRelationships,
-                            trustRelationships,
-                            urnRelationships,
-                            cgtRelationships,
-                            pptRelationships,
-                            cbcUKRelationships,
-                            cbcNonUKRelationships
-                          ))
-                        .map(_.flatten)
+        .sequence(
+          Seq(
+            itsaRelationships,
+            altItsaRelationships,
+            pirRelationships,
+            vatRelationships,
+            trustRelationships,
+            urnRelationships,
+            cgtRelationships,
+            pptRelationships,
+            cbcUKRelationships,
+            cbcNonUKRelationships
+          ))
+        .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
-                      acaConnector.getAgencyNames(relationships.map(_.arn))
-                    else Future.successful(Map.empty[Arn, String])
+        acaConnector.getAgencyNames(relationships.map(_.arn))
+      else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 
     relationshipWithAgencyNames.flatMap {
@@ -113,57 +113,54 @@ class RelationshipManagementService @Inject()(
       case _: Nino => pirRelationshipConnector.getInactiveClientRelationships()
     }
     val otherInactiveRelationships =
-    if(clientIdOpt.hasOnlyNino) Future successful(Seq.empty)
-    else relationshipsConnector.getInactiveClientRelationships
-    for{
+      if (clientIdOpt.hasOnlyNino) Future successful (Seq.empty)
+      else relationshipsConnector.getInactiveClientRelationships
+    for {
       pir <- pirInactiveRelationships
       other <- otherInactiveRelationships
     } yield pir ++ other
   }
+
   /*
   The Deauthorised status was introduced in 2020(?) and since MYTA does not have a time limit in the History tab,
   we can't rely solely on this status to determine deauthorised relationships.
    */
-  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): List[AgentRequest] = {
+  def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] = {
 
-    val acceptedStatuses = Seq("Accepted", "Deauthorised")
+    val acceptedStatuses = List("Accepted", "Deauthorised")
 
-    def normalizeServiceName(ar: AgentRequest): AgentRequest = ar.serviceName match {
-      case HMRCCBCNONUKORG => ar.copy(serviceName = HMRCCBCORG)
-      case _ => ar
-    }
+      def normalisedServiceName(service: String): String =
+        if (service == HMRCCBCNONUKORG) HMRCCBCORG else service
 
-    def matchingFn(accum: List[AgentRequest], remainingAgentReq: List[AgentRequest], remainingInactive: List[Inactive]): List[AgentRequest] = {
-      remainingAgentReq match {
-        case Nil => accum
-        case agentReq :: tl =>
-          remainingInactive
-            .find(
-              inactive =>
-                inactive.arn  == agentReq.arn &&
-                  inactive.serviceName == normalizeServiceName(agentReq).serviceName &&
-                  inactive.dateTo.exists(!_.isBefore(agentReq.lastUpdated.toLocalDate))
-            ) match {
-          case Some(inactive) => matchingFn(
-            agentReq.copy( //
-              status = s"AcceptedThenCancelledBy${agentReq.relationshipEndedBy.getOrElse("Agent")}",
-              lastUpdated = inactive.dateTo.getOrElse(throw new RuntimeException("inactive relationship without dateTo"))
-                .atStartOfDay()
-            ) :: accum, tl, remainingInactive.filterNot(_ == inactive))
-          case None => matchingFn( agentReq :: accum, tl, remainingInactive )
-        }
-      }
-    }
-
-    def acceptedRequests(agentRequest: AgentRequest) = acceptedStatuses.contains(agentRequest.status)
-
-    val hasBeenAccepted =
-      agentRequests
-      .filter(acceptedRequests)
-      .sorted(AgentRequest.orderingByLastUpdated)
-        .toList
-
-    matchingFn(List.empty, hasBeenAccepted, inactive.sortBy(_.dateTo).toList) ::: agentRequests.toList.filterNot(acceptedRequests)
+    agentRequests
+      .groupBy(_.arn)
+      .flatMap {
+        case (arn, agentRequests) =>
+          agentRequests
+          .groupBy(_.serviceName)
+          .flatMap {
+            case (service, agentRequests) =>
+              agentRequests
+                .filter(x => acceptedStatuses.contains(x.status))
+                .map(Option.apply)
+                .zipAll(
+                  inactive
+                  .filter(x => x.arn == arn && x.serviceName == normalisedServiceName(service))
+                  .map(Option.apply), None, None)
+                .flatMap {
+                  case (Some(ar), Some(in)) =>
+                    Option.apply(ar
+                      .copy(
+                        status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
+                        lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
+                      ))
+                  case (Some(ar), None) => Option.apply(ar)
+                  case _ =>
+                    logger.warn("inactive record not matched with an authorisation request!")
+                    None
+                }
+          }
+      }.toSeq ++ agentRequests.filterNot(x => acceptedStatuses.contains(x.status))
   }
 
   def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
@@ -217,13 +214,13 @@ class RelationshipManagementService @Inject()(
       cache = cacheOpt.flatMap(_.find(_.uuId == id))
     } yield cache.map(cache => (cache.agencyName, cache.service, cache.isAltItsa))
 
-  def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]) =
+  def relationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[Relationship]]): Future[Seq[Relationship]] =
     identifierOpt match {
       case Some(identifier) => f(identifier)
       case None             => Future.successful(Seq.empty)
     }
 
-  def inactiveRelationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]) =
+  def inactiveRelationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]): Future[Seq[PirInactiveRelationship]] =
     identifierOpt match {
       case Some(identifier) => f(identifier)
       case None => Future.successful(Seq.empty)

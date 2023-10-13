@@ -174,6 +174,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
       "9999-01-01",
       lastUpdatedAfter)
     getInvitationsNotFound(validUtr.value, "UTR")
+    getInvitationsNotFound(validUrn.value, "URN")
     getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
@@ -204,6 +205,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
       "9999-01-01",
       lastUpdatedAfter, isRelationshipEnded = true, relationshipEndedBy = Some("HMRC"))
     getInvitationsNotFound(validUtr.value, "UTR")
+    getInvitationsNotFound(validUrn.value, "URN")
     getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
