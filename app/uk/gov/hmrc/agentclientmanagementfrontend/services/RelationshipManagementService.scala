@@ -132,36 +132,37 @@ class RelationshipManagementService @Inject()(
       def normalisedServiceName(service: String): String =
         if (service == HMRCCBCNONUKORG) HMRCCBCORG else service
 
-    agentRequests
-      .groupBy(_.arn)
-      .flatMap {
-        case (arn, agentRequests) =>
-          agentRequests
-          .groupBy(_.serviceName)
-          .flatMap {
-            case (service, agentRequests) =>
-              agentRequests
-                .filter(x => acceptedStatuses.contains(x.status))
-                .map(Option.apply)
-                .zipAll(
-                  inactive
-                  .filter(x => x.arn == arn && x.serviceName == normalisedServiceName(service))
-                  .map(Option.apply), None, None)
-                .flatMap {
-                  case (Some(ar), Some(in)) =>
-                    Option.apply(ar
-                      .copy(
-                        status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
-                        lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
-                      ))
-                  case (Some(ar), None) => Option.apply(ar)
-                  case _ =>
-                    logger.warn("inactive record not matched with an authorisation request!")
-                    None
-                }
-          }
-      }.toSeq ++ agentRequests.filterNot(x => acceptedStatuses.contains(x.status))
-  }
+            agentRequests
+              .groupBy(_.arn)
+              .flatMap {
+                case (arn, agentRequests) =>
+                  agentRequests
+                    .groupBy(_.serviceName)
+                    .flatMap {
+                      case (service, agentRequests) =>
+                        agentRequests
+                          .filter(x => acceptedStatuses.contains(x.status))
+                          .sortBy(_.lastUpdated)
+                          .map(Option.apply)
+                          .zipAll(
+                            inactive
+                              .filter(x => x.arn == arn && x.serviceName == normalisedServiceName(service))
+                              .map(Option.apply), None, None)
+                          .flatMap {
+                            case (Some(ar), Some(in)) =>
+                              Option.apply(ar
+                                .copy(
+                                  status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
+                                  lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
+                                ))
+                            case (Some(ar), None) => Option.apply(ar)
+                            case _ =>
+                              logger.warn("inactive record not matched with an authorisation request!")
+                              None
+                          }
+                    }
+              }.toSeq ++ agentRequests.filterNot(x => acceptedStatuses.contains(x.status))
+    }
 
   def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
                                                                                ec: ExecutionContext): Future[DeleteResponse] = {
