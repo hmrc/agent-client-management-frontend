@@ -138,6 +138,7 @@ clientEndsRelationshipEnded.HMRC-TERS-ORG=maintain a trust or an estate
 clientEndsRelationshipEnded.HMRC-TERSNT-ORG=maintain a trust or an estate
 clientEndsRelationshipEnded.HMRC-CGT-PD=manage your Capital Gains Tax on UK property account
 clientEndsRelationshipEnded.HMRC-PPT-ORG=manage your Plastic Packaging Tax
+clientEndsRelationshipEnded.HMRC-CBC-ORG=You are no longer authorised by {0} to manage their country-by-country reports
 clientEndsRelationshipEnded.p2=If you did not mean to remove your authorisation, ask {0} to send you a new authorisation request link.
 clientEndsRelationshipEnded.p3.sa-legacy-relationship.true=You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.
 clientEndsRelationshipEnded.link=Check or remove active agent authorisation for Self Assessment
