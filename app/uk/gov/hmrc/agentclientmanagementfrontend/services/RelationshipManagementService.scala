@@ -127,12 +127,16 @@ class RelationshipManagementService @Inject()(
    */
   def matchAndRefineStatus(agentRequests: Seq[AgentRequest], inactive: Seq[Inactive]): Seq[AgentRequest] = {
 
-    val acceptedStatuses = List("Accepted", "Deauthorised")
+    val Accepted = "Accepted"
+    val Deauthorised = "Deauthorised"
+
+    def acceptedOrDeauthorised(ar: AgentRequest) = ar.status == Accepted || ar.status == Deauthorised
 
       def normalisedServiceName(service: String): String =
         if (service == HMRCCBCNONUKORG) HMRCCBCORG else service
 
-            agentRequests
+              agentRequests
+              .filter(acceptedOrDeauthorised)
               .groupBy(_.arn)
               .flatMap {
                 case (arn, agentRequests) =>
@@ -141,7 +145,6 @@ class RelationshipManagementService @Inject()(
                     .flatMap {
                       case (service, agentRequests) =>
                         agentRequests
-                          .filter(x => acceptedStatuses.contains(x.status))
                           .sortBy(_.lastUpdated)
                           .map(Option.apply)
                           .zipAll(
@@ -155,13 +158,19 @@ class RelationshipManagementService @Inject()(
                                   status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
                                   lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
                                 ))
+                            case (Some(ar), None) if ar.status == Deauthorised =>
+                              Option.apply(ar
+                                .copy(
+                                  status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
+                                  lastUpdated = ar.lastUpdated
+                                ))
                             case (Some(ar), None) => Option.apply(ar)
                             case _ =>
                               logger.warn("inactive record not matched with an authorisation request!")
                               None
                           }
                     }
-              }.toSeq ++ agentRequests.filterNot(x => acceptedStatuses.contains(x.status))
+              }.toSeq ++ agentRequests.filterNot(acceptedOrDeauthorised)
     }
 
   def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
