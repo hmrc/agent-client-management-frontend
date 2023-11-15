@@ -7,7 +7,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.agentclientmanagementfrontend.stubs._
 import uk.gov.hmrc.agentclientmanagementfrontend.support.{BaseISpec, ClientRelationshipManagementControllerTestSetup, Css}
-import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG, HMRCCGTPD, HMRCMTDIT, HMRCMTDVAT, HMRCPIR, HMRCPPTORG, HMRCTERSNTORG, HMRCTERSORG}
+import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG, HMRCCGTPD, HMRCMTDIT, HMRCMTDVAT, HMRCPILLAR2ORG, HMRCPIR, HMRCPPTORG, HMRCTERSNTORG, HMRCTERSORG}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.auth.core.InsufficientEnrolments
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId, SessionKeys}
@@ -44,6 +44,7 @@ class ClientRelationshipManagementControllerISpec
       html.select(Css.ulBullet).get(0).select("li").get(4).text() shouldBe "Plastic Packaging Tax"
       html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
       html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country-by-country reports"
+      html.select(Css.ulBullet).get(0).select("li").get(7).text() shouldBe "Report Pillar 2 top-up taxes"
 
 
       checkHtmlResultWithBodyText(
@@ -317,6 +318,7 @@ class ClientRelationshipManagementControllerISpec
       getNotFoundClientActiveAgentRelationships(servicePpt)
       getNotFoundClientActiveAgentRelationships(serviceCbcUK)
       getNotFoundClientActiveAgentRelationships(serviceCbcNonUK)
+      getNotFoundClientActiveAgentRelationships(servicePlr)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getAltItsaActiveRelationshipsNotFound(validNino.value)
 
@@ -367,6 +369,7 @@ class ClientRelationshipManagementControllerISpec
       getNotFoundClientActiveAgentRelationships(servicePpt)
       getNotFoundClientActiveAgentRelationships(serviceCbcUK)
       getNotFoundClientActiveAgentRelationships(serviceCbcNonUK)
+      getNotFoundClientActiveAgentRelationships(servicePlr)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getAltItsaActiveRelationshipsNotFound(validNino.value)
       getAgencyNamesMap400("someInvalidArn")
@@ -385,6 +388,7 @@ class ClientRelationshipManagementControllerISpec
       getNotFoundClientActiveAgentRelationships(servicePpt)
       getNotFoundClientActiveAgentRelationships(serviceCbcUK)
       getNotFoundClientActiveAgentRelationships(serviceCbcNonUK)
+      getNotFoundClientActiveAgentRelationships(servicePlr)
       getNotFoundForPIRRelationship(serviceIrv, validNino.value)
       getAltItsaActiveRelationshipsNotFound(validNino.value)
       getAgencyNamesMap400("")
@@ -661,6 +665,16 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
+    "return 200 OK and show remove authorisation page for PLR" in new BaseTestSetUp {
+      sessionStoreService.storeClientCache(Seq(cache(HMRCPILLAR2ORG)))
+
+      val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
+
+      status(result) shouldBe 200
+      contentAsString(result).contains("This Agency Name will not be able to manage your Pillar 2 top-up taxes.") shouldBe true
+      sessionStoreService.currentSession.clientCache.isDefined shouldBe true
+    }
+
     "redirect to /root when an invalid id is passed" in new BaseTestSetUp  {
       sessionStoreService.storeClientCache(Seq(cache))
 
@@ -684,7 +698,7 @@ class ClientRelationshipManagementControllerISpec
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if PIR Relationship is not found" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value, validPlrId.value)
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceIrv)))
       deleteActivePIRRelationship(arn1.value, validNino.value, 404)
 
@@ -700,7 +714,8 @@ class ClientRelationshipManagementControllerISpec
             validCgtRef.value,
             validPptRef.value,
             validCbcUKRef.value,
-            validCbcNonUKRef.value) withFormUrlEncodedBody ("confirmResponse" -> "true")))
+            validCbcNonUKRef.value,
+            validPlrId.value) withFormUrlEncodedBody ("confirmResponse" -> "true")))
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -1219,7 +1234,7 @@ class ClientRelationshipManagementControllerISpec
     implicit val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 200, remove the relationship if the client confirms deletion" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value)
+      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value, validPlrId.value)
 
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName, isAltItsa = isAltItsa)))
 
@@ -1227,7 +1242,7 @@ class ClientRelationshipManagementControllerISpec
 
       val result = await(
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value)
+          authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value, validPlrId.value)
             .withFormUrlEncodedBody("confirmResponse" -> "true")))
 
       status(result) shouldBe 303

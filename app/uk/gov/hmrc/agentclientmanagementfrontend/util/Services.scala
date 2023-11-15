@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.util
 
+//TODO WG - why do we have object Services here - should we be using from our lib ???
 object Services {
 
   val HMRCMTDIT = "HMRC-MTD-IT"
@@ -46,5 +47,7 @@ object Services {
 
   val HMRCCBCORG = "HMRC-CBC-ORG"
   val HMRCCBCNONUKORG = "HMRC-CBC-NONUK-ORG"
+
+  val HMRCPILLAR2ORG = "HMRC-PILLAR2-ORG"
 
 }
