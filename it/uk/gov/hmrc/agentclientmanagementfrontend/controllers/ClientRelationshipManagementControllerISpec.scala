@@ -278,6 +278,7 @@ class ClientRelationshipManagementControllerISpec
       html.select(Css.ulBullet).get(0).select("li").get(4).text() shouldBe "Plastic Packaging Tax"
       html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
       html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country-by-country reports"
+      html.select(Css.ulBullet).get(0).select("li").get(7).text() shouldBe "Report Pillar 2 top-up taxes"
       html.select("a#other-read-guidance").text() shouldBe "For other tax services, read the guidance"
       html.select("a#other-read-guidance").attr("href") shouldBe "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent"
 
