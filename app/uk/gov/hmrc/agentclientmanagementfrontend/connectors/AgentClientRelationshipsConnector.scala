@@ -212,4 +212,24 @@ class AgentClientRelationshipsConnector @Inject()(appConfig: AppConfig,
     }
   }
 
+  def getActiveClientPlrRelationship(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[PlrRelationship]] = {
+    val url = s"$baseUrl/agent-client-relationships/client/relationships/service/HMRC-PILLAR2-ORG"
+    monitor(s"ConsumedAPI-GetActiveRelationship-AgentClientRelationship-HMRC-PILLAR2-ORG-GET") {
+      http.GET[HttpResponse](url)
+        .map { response =>
+          response.status match {
+            case OK =>
+              val json = response.json
+              (json \ "arn").asOpt[Arn].map(arn => PlrRelationship(arn, (json \ "dateFrom").asOpt[LocalDate]))
+            case NOT_FOUND =>
+              None
+            case s =>
+              val message = s"Unexpected response: $s from: $url body: ${response.body}"
+              logger.error(message)
+              throw UpstreamErrorResponse(message, s)
+          }
+        }
+    }
+  }
+
 }

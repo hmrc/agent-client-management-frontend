@@ -33,6 +33,7 @@ package object agentclientmanagementfrontend {
         case _: Urn => "URN"
         case _: PptRef => "EtmpRegistrationNumber"
         case _: CbcId => "cbcId"
+        case _: PlrId => "plrId"
       }
     }
 
@@ -45,6 +46,7 @@ package object agentclientmanagementfrontend {
         case _: Urn => "URN"
         case _: PptRef => "EtmpRegistrationNumber"
         case _: CbcId => "cbcId"
+        case _: PlrId => "plrId"
       }
     }
 
@@ -58,6 +60,7 @@ package object agentclientmanagementfrontend {
         case _: Urn => "TrustNT"
         case _: PptRef => "PPT"
         case _: CbcId => "CBC"
+        case _: PlrId => "plrId"
       }
     }
   }

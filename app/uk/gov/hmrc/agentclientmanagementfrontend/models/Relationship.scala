@@ -171,3 +171,18 @@ object CbcNonUKRelationship {
       (JsPath \ "dateFrom").readNullable[LocalDate])(CbcNonUKRelationship.apply _)
 
 }
+
+
+case class PlrRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
+  val serviceName = Services.HMRCPILLAR2ORG
+  val isAltItsa = false
+}
+
+object PlrRelationship {
+  implicit val relationshipWrites = Json.writes[PlrRelationship]
+
+  implicit val reads: Reads[PlrRelationship] =
+    ((JsPath \ "agentReferenceNumber").read[Arn] and
+      (JsPath \ "dateFrom").readNullable[LocalDate])(PlrRelationship.apply _)
+
+}

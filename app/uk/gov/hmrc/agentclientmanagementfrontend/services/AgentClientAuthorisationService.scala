@@ -41,6 +41,7 @@ class AgentClientAuthorisationService @Inject()(
     val storedPptInvitations = invitations(clientIdOpt.pptRef)(clientId => acaConnector.getInvitation(PptRef(clientId.value)))
     val storedCbcInvitations = invitations(clientIdOpt.cbcUkRef //won't have both but maybe one.
       .orElse(clientIdOpt.cbcNonUkRef))(clientId => acaConnector.getInvitation(CbcId(clientId.value)))
+    val storedPlrInvitations = invitations(clientIdOpt.plrId)(clientId => acaConnector.getInvitation(PlrId(clientId.value)))
 
     val relationshipsWithAgencyNamesWithStoredInvitations = for {
       storedInvitations <- Future.sequence(Seq(
@@ -52,7 +53,8 @@ class AgentClientAuthorisationService @Inject()(
         storedTrustNtInvitations,
         storedCgtInvitations,
         storedPptInvitations,
-        storedCbcInvitations)).map(_.flatten)
+        storedCbcInvitations,
+        storedPlrInvitations)).map(_.flatten)
       agencyNames <- if(storedInvitations.nonEmpty)
         acaConnector.getAgencyNames(storedInvitations.map(_.arn).distinct)
       else Future.successful(Map.empty[Arn, String])
