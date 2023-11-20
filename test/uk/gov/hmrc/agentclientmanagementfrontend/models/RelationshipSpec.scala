@@ -47,6 +47,15 @@ class RelationshipSpec extends UnitSpec {
     """.stripMargin
   )
 
+  val APlrjson: JsValue = Json.parse(
+    """
+      |{
+      |"agentReferenceNumber":"TARN0001",
+      |"dateFrom":"2017-06-06"
+      |}
+    """.stripMargin
+  )
+
   "ItsaRelationships reads method" should {
     "successfully read the json and convert it to ItsaRelationship type" in {
       ACRjson.validate[ItsaRelationship](ItsaRelationship.reads) shouldBe
@@ -63,6 +72,13 @@ class RelationshipSpec extends UnitSpec {
     "successfully read the json and convert it to PirRelationship type" in {
       AFIRjson.validate[PirRelationship](PirRelationship.reads) shouldBe
       JsSuccess(PirRelationship(Arn("TARN0001"), Some(LocalDate.parse("2017-06-06"))))
+    }
+  }
+
+  "PlrRelationship reads method" should {
+    "successfully read the json and convert it to PlrRelationship type" in {
+      ACRjson.validate[PlrRelationship](PlrRelationship.reads) shouldBe
+        JsSuccess(PlrRelationship(Arn("TARN0001"), Some(LocalDate.parse("2017-06-06"))))
     }
   }
 
