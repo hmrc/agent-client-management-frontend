@@ -19,7 +19,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.models
 import uk.gov.hmrc.agentmtdidentifiers.model.Service.{HMRCCBCNONUKORG, HMRCCBCORG, HMRCCGTPD, HMRCMTDIT, HMRCMTDVAT, HMRCPILLAR2ORG, HMRCPIR, HMRCPPTORG, HMRCTERSNTORG, HMRCTERSORG}
 import uk.gov.hmrc.agentmtdidentifiers.model._
 import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
-//TODO WG - replace class with list
 case class ClientIdentifiers(mtdItId: Option[MtdItId], nino:Option[Nino], vrn:Option[Vrn], utr: Option[Utr],
                              cgtRef: Option[CgtRef], urn: Option[Urn], pptRef: Option[PptRef], cbcUkRef: Option[CbcId],
                              cbcNonUkRef: Option[CbcId], plrId: Option[PlrId]) {

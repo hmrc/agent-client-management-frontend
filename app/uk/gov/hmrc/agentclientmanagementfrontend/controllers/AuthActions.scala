@@ -47,7 +47,6 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects with Logging {
           def clientId(serviceName: String, identifierKey: String): Option[String] =
             allEnrols.getEnrolment(serviceName).flatMap(_.getIdentifier(identifierKey).map(_.value))
 
-          //TODO WG - try to refactor that code
           val mtdItId = clientId("HMRC-MTD-IT", "MTDITID").map(MtdItId(_))
           val nino = clientId("HMRC-NI", "NINO").map(Nino(_))
           val vrn = clientId("HMRC-MTD-VAT", "VRN").map(Vrn(_))

@@ -22,8 +22,7 @@ import uk.gov.hmrc.domain.{Nino, TaxIdentifier}
 package object agentclientmanagementfrontend {
 
   implicit class TaxIdentifierOps(taxId: TaxIdentifier) {
-//TODO WG - take it from ClientIdType
-    //TODO WG - why do we have same 3 functions !!! have a look
+
     def getIdTypeForAca: String = {
       taxId match {
         case _: MtdItId => "MTDITID"
@@ -34,7 +33,7 @@ package object agentclientmanagementfrontend {
         case _: Urn => "URN"
         case _: PptRef => "EtmpRegistrationNumber"
         case _: CbcId => "cbcId"
-        case _: PlrId => "PLRID"
+        case _: PlrId => "plrId"
       }
     }
 
@@ -47,7 +46,7 @@ package object agentclientmanagementfrontend {
         case _: Urn => "URN"
         case _: PptRef => "EtmpRegistrationNumber"
         case _: CbcId => "cbcId"
-        case _: PlrId => "PLRID"
+        case _: PlrId => "plrId"
       }
     }
 
@@ -61,7 +60,7 @@ package object agentclientmanagementfrontend {
         case _: Urn => "TrustNT"
         case _: PptRef => "PPT"
         case _: CbcId => "CBC"
-        case _: PlrId => "PLRID"
+        case _: PlrId => "plrId"
       }
     }
   }

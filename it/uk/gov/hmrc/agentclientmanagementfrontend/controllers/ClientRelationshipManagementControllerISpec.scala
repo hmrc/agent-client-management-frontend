@@ -1156,6 +1156,59 @@ class ClientRelationshipManagementControllerISpec
     }
   }
 
+  "removeAuthorisations for Pillar 2" should {
+
+    behave like checkRemoveAuthorisationForService(
+      servicePlr,
+      deleteActivePlrRelationship(arn1.value, validPlrId.value, 204))
+    val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
+
+    "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
+
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = servicePlr)))
+      deleteActivePlrRelationship(arn1.value, validPlrId.value,404)
+
+      an[Exception] should be thrownBy await(
+        controller
+          .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
+            req(POST)
+              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
+    "return an exception if relationship service is unavailable" in new BaseTestSetUp  {
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = servicePlr)))
+      deleteActivePlrRelationship(arn1.value, validPlrId.value,  500)
+
+      an[Exception] should be thrownBy await(
+        controller
+          .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
+            req(POST)
+              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+
+      sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
+    }
+
+    "throw InsufficientEnrolments when Enrolment for chosen service is not found for logged in user" in {
+      sessionStoreService.storeClientCache(Seq(cache.copy(service = servicePlr)))
+      an[InsufficientEnrolments] shouldBe thrownBy {
+        await(
+          controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+      }
+    }
+
+    "return exception if session data not found" in new BaseTestSetUp {
+      val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
+      val result = await(
+        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
+          request))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
+    }
+  }
+
   "authorisationRemoved" should {
 
     "show authorisation_removed page with required sessions" in new BaseTestSetUp {
