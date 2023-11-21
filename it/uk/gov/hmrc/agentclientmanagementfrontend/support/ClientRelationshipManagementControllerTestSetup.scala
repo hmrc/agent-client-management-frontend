@@ -106,7 +106,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(validCgtRef.value, "CGTPDRef")
         getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
         getInvitationsNotFound(validCbcUKRef.value, "cbcId") // since the test user has both variants and UK is looked for first, only the uk version will be used here.
-        getInvitationsNotFound(validPlrId.value, "plrId")
+        getInvitationsNotFound(validPlrId.value, "PLRID")
 
       case 1 =>
         getInvitations(
@@ -125,7 +125,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
         getInvitationsNotFound(validUtr.value, "UTR")
         getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
         getInvitationsNotFound(validCbcUKRef.value, "cbcId")
-        getInvitationsNotFound(validPlrId.value, "plrId")
+        getInvitationsNotFound(validPlrId.value, "PLRID")
         getAgencyNameMap200(arn2, "abc")
 
       case 3 =>
@@ -155,7 +155,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validUrn.value, "URN")
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
@@ -186,7 +186,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
     getInvitationsNotFound(validCbcNonUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
@@ -218,7 +218,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
     getInvitationsNotFound(validCbcNonUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
@@ -248,7 +248,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
     getInvitationsNotFound(validCbcNonUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
@@ -287,7 +287,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
     getInvitationsNotFound(validCbcNonUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
@@ -307,7 +307,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
     getInvitationsNotFound(validCbcNonUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     givenAgentRefExistsFor(arn1)
     givenAgentRefExistsFor(arn2)
     givenAgentRefExistsFor(arn3)
@@ -335,7 +335,7 @@ trait ClientRelationshipManagementControllerTestSetup extends BaseISpec with Pir
     getInvitationsNotFound(validPptRef.value, "EtmpRegistrationNumber")
     getInvitationsNotFound(validCbcUKRef.value, "cbcId")
     getInvitationsNotFound(validCbcNonUKRef.value, "cbcId")
-    getInvitationsNotFound(validPlrId.value, "plrId")
+    getInvitationsNotFound(validPlrId.value, "PLRID")
     arns.foreach(a => givenAgentRefExistsFor(a))
   }
 

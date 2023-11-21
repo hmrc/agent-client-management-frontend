@@ -27,7 +27,7 @@ trait AuthStubs {
       Enrolment("HMRC-PPT-ORG", "EtmpRegistrationNumber", pptRef),
       Enrolment("HMRC-CBC-ORG", "cbcId", cbcUKRef),
       Enrolment("HMRC-CBC-NONUK-ORG", "cbcId", cbcNonUKRef),
-      Enrolment("HMRC-PILLAR2-ORG", "plrId", plrId)
+      Enrolment("HMRC-PILLAR2-ORG", "PLRID", plrId)
     ), isAgent = false)
 
   def authenticated[A](request: FakeRequest[A], enrolment: Set[Enrolment], isAgent: Boolean): FakeRequest[A] = {
