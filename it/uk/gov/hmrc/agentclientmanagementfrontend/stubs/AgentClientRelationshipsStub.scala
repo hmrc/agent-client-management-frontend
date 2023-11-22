@@ -53,7 +53,7 @@ trait AgentClientRelationshipsStub {
   }
 
   def deleteActivePlrRelationship(arn: String, clientId: String, httpStatus: Int = 204): StubMapping = {
-    stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$arn/service/HMRC-PILLAR2-ORG/client/plrId/$clientId"))
+    stubFor(delete(urlEqualTo(s"/agent-client-relationships/agent/$arn/service/HMRC-PILLAR2-ORG/client/PLRID/$clientId"))
       .willReturn(
         aResponse()
           .withStatus(httpStatus)))
