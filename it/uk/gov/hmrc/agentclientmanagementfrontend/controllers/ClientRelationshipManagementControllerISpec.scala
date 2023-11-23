@@ -672,7 +672,7 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("This Agency Name will not be able to manage your Pillar 2 top-up taxes.") shouldBe true
+      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Pillar 2 top-up taxes for you.") shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 

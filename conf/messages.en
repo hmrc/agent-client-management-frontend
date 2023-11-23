@@ -126,7 +126,7 @@ clientEndsRelationship.description.HMRC-CGT-PD=If you remove your authorisation,
 clientEndsRelationship.description.HMRC-PPT-ORG=If you remove your authorisation, {0} will no longer be able to manage your Plastic Packaging Tax on your behalf.
 clientEndsRelationship.description.HMRC-CBC-ORG=If you remove your authorisation, {0} will no longer be able to manage your country-by-country reports on your behalf.
 clientEndsRelationship.description.HMRC-CBC-NONUK-ORG=If you remove your authorisation, {0} will no longer be able to manage your country-by-country reports on your behalf.
-clientEndsRelationship.description.HMRC-PILLAR2-ORG={0} will not be able to manage your Pillar 2 top-up taxes.
+clientEndsRelationship.description.HMRC-PILLAR2-ORG=If you remove your authorisation, {0} will no longer be able to manage your Pillar 2 top-up taxes for you.
 
 error.summary.heading=There is a problem
 error.confirmResponse.invalid.description=Select yes if you want to remove your authorisation.

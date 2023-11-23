@@ -126,7 +126,7 @@ clientEndsRelationship.description.HMRC-CGT-PD=Os byddwch yn tynnu’ch awdurdod
 clientEndsRelationship.description.HMRC-PPT-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch Treth Deunydd Pacio Plastig ar eich rhan mwyach.
 clientEndsRelationship.description.HMRC-CBC-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch adroddiadau gwlad-wrth-wlad ar eich rhan mwyach.
 clientEndsRelationship.description.HMRC-CBC-NONUK-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch adroddiadau gwlad-wrth-wlad ar eich rhan mwyach.
-clientEndsRelationship.description.HMRC-PILLAR2-ORG=Ni fydd {0} yn gallu rheoli eich trethi atodol Colofn 2.
+clientEndsRelationship.description.HMRC-PILLAR2-ORG=Os byddwch yn tynnu’ch awdurdodiad, ni fydd {0} yn gallu rheoli’ch adroddiadau gwlad-wrth-wlad ar eich rhan mwyach.
 
 error.summary.heading=Mae problem wedi codi
 error.confirmResponse.invalid.description=Dewiswch ‘Iawn’ os hoffech dynnu’ch awdurdodiad.
