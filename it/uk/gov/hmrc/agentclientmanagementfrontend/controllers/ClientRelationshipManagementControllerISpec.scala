@@ -551,7 +551,7 @@ class ClientRelationshipManagementControllerISpec
 
       content.contains(s"You removed authorisation on:") shouldBe true
       content.contains(s"HMRC removed authorisation on:") shouldBe true
-      content.contains(s"Your agent removed authorised on:") shouldBe true
+      content.contains(s"Your agent removed authorisation on:") shouldBe true
     }
 
     "Show refined statuses that indicate who terminated a relationship when inactive relationships and Deauthorised statuses are found" in new BaseTestSetUp
@@ -568,7 +568,7 @@ class ClientRelationshipManagementControllerISpec
 
       content.contains(s"You removed authorisation on:") shouldBe true
       content.contains(s"HMRC removed authorisation on:") shouldBe true
-      content.contains(s"Your agent removed authorised on:") shouldBe true
+      content.contains(s"Your agent removed authorisation on:") shouldBe true
     }
   }
 
