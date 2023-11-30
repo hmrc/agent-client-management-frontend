@@ -69,18 +69,16 @@
                 Html(span(agentReq.agencyName).toString),
                 Html(agentReq.serviceName),
                 Html(config.displayDate(Some(agentReq.expiryDate))),
-                Html(
-                    a(  key = "",
-                        href = appConfig.warmUpUrl(agentReq.clientType, agentReq.uid, agentReq.agencyName),
-                        html = Some(
-                            Html(
-                                span("client-authorised-agents-table.actions.respond", attrs = Map("aria-hidden" -> "true")) + "" +
-                                span(key = msgs("client-authorised-agents-table.actions.respond") + s" ${agentReq.agencyName} ${agentReq.serviceName}",
-                                    classes = Some("govuk-visually-hidden")
-                                ) + ""
-                            )
+                a(  key = "",
+                    href = appConfig.warmUpUrl(agentReq.clientType, agentReq.uid, agentReq.agencyName),
+                    html = Some(
+                        Html(
+                            span("client-authorised-agents-table.actions.respond", attrs = Map("aria-hidden" -> "true")) + "" +
+                            span(key = msgs("client-authorised-agents-table.actions.respond") + s" ${agentReq.agencyName} ${agentReq.serviceName}",
+                                classes = Some("govuk-visually-hidden")
+                            ) + ""
                         )
-                    ).toString
+                    )
                 )
             )
         }
@@ -104,23 +102,14 @@
                     Html(authAgent.agencyName),
                     Html(msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}")),
                     Html(config.displayDate(authAgent.dateFrom)),
-                    Html(
-                        a(  key = "",
-                            href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.uuId).url,
-                            html = Some(
-                                Html(
-                                        a(  key = "",
-                                            href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.uuId).url,
-                                            html = Some(Html(
-                                            span("client-authorised-agents-table-row-header.unauthoriseLink", attrs = Map("aria-hidden" -> "true")) + "" +
-                                                span(key = msgs("client-authorised-agents-table-row-header.unauthoriseLink.aria-text", authAgent.agencyName, msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}")),
-                                                    classes = Some("govuk-visually-hidden")
-                                                )
-                                        ))).toString
-                                )
+                    a(  key = "",
+                        href = routes.ClientRelationshipManagementController.showRemoveAuthorisation(authAgent.uuId).url,
+                        html = Some(Html(
+                        span("client-authorised-agents-table-row-header.unauthoriseLink", attrs = Map("aria-hidden" -> "true")) + "" +
+                            span(key = msgs("client-authorised-agents-table-row-header.unauthoriseLink.aria-text", authAgent.agencyName, msgs(s"client-authorised-agents-table-content.${authAgent.serviceName}")),
+                                classes = Some("govuk-visually-hidden")
                             )
-                        ).toString
-                    )
+                    )))
                 )
             }
         )
