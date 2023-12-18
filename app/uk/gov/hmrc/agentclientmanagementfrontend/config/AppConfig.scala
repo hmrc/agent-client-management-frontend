@@ -71,7 +71,7 @@ class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends Ap
     agentName.toLowerCase().replaceAll("\\s+", "-").replaceAll("[^A-Za-z0-9-]", "")
 
   def warmUpUrl(clientType: String, uid: String, agencyName: String): String =
-    s"$agentInvitationsFrontendBaseUrl/invitations/$clientType/$uid/${normaliseAgentName(agencyName)}"
+    s"$agentInvitationsFrontendBaseUrl/invitations/$clientType-taxes/manage-who-can-deal-with-HMRC-for-you/$uid/${normaliseAgentName(agencyName)}"
 
   override val contactFrontendUrl: String = s"$contactFrontendBaseUrl/contact/problem_reports_"
 
