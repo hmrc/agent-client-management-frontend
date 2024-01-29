@@ -142,6 +142,7 @@ clientEndsRelationshipEnded.HMRC-TERSNT-ORG=cynnal ymddiriedolaeth neu ystâd
 clientEndsRelationshipEnded.HMRC-CGT-PD=rheoli’ch cyfrif Treth Enillion Cyfalaf ar eiddo yn y DU
 clientEndsRelationshipEnded.HMRC-PPT-ORG=rheoli’ch Treth Deunydd Pacio Plastig
 clientEndsRelationshipEnded.HMRC-CBC-ORG=Nid ydych wedi’ch awdurdodi gan {0} i reoli ei adroddiadau gwlad-wrth-wlad mwyach
+clientEndsRelationshipEnded.HMRC-CBC-NONUK-ORG=Nid ydych wedi’ch awdurdodi gan {0} i reoli ei adroddiadau gwlad-wrth-wlad mwyach
 clientEndsRelationshipEnded.HMRC-PILLAR2-ORG=rheoli’ch gwybod am drethi atodol Colofn 2
 clientEndsRelationshipEnded.p2=Os nad oeddech yn bwriadu dileu’ch awdurdodiad, gofynnwch am i {0} anfon cysylltiad newydd atoch ar gyfer cais am awdurdodiad.
 clientEndsRelationshipEnded.p3.sa-legacy-relationship.true=Mae gennych hefyd awdurdodiad asiant ar gyfer Hunanasesiad sy’n dal i fod ar waith. Mae hyn yn golygu bod gan asiant ganiatâd i fwrw golwg dros eich Hunanasesiad a’i ddiwygio. Os ydych am ddileu’r awdurdodiad hwn yn ogystal, bydd angen i chi wneud hynny ar wahân.
