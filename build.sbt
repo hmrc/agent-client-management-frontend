@@ -26,7 +26,7 @@ lazy val root = (project in file("."))
       "-Wconf:msg=match may not be exhaustive:is", // summarize warnings about non-exhaustive pattern matching
     ),
     PlayKeys.playDefaultPort := 9568,
-    libraryDependencies ++= AppDependencies.compileDeps ++ AppDependencies.test,
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     //fix for scoverage compile errors for scala 2.13.10
     libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always),
     CodeCoverageSettings.scoverageSettings,
