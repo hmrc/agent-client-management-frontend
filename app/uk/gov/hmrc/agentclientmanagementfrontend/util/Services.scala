@@ -38,7 +38,7 @@ object Services {
 
   val TRUSTNT = "HMRC-TERSNT-ORG"
 
-  val CGT ="HMRC-CGT-PD"
+  val CGT = "HMRC-CGT-PD"
 
   val IRSA = "IR-SA"
 

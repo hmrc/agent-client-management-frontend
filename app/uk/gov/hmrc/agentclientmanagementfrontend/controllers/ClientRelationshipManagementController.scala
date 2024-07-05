@@ -48,12 +48,15 @@ object RadioConfirm {
       Invalid(ValidationError("error.confirmResponse.invalid.description"))
   }
   val confirmRadioForm: Form[RadioConfirm] = Form[RadioConfirm](
-    mapping("confirmResponse" -> optional(boolean)
-      .verifying(validateConfirmRadio))(RadioConfirm.apply)(RadioConfirm.unapply))
+    mapping(
+      "confirmResponse" -> optional(boolean)
+        .verifying(validateConfirmRadio)
+    )(RadioConfirm.apply)(RadioConfirm.unapply)
+  )
 }
 
 @Singleton
-class ClientRelationshipManagementController @Inject()(
+class ClientRelationshipManagementController @Inject() (
   override val messagesApi: MessagesApi,
   val env: Environment,
   pirRelationshipConnector: PirRelationshipConnector,
@@ -65,13 +68,9 @@ class ClientRelationshipManagementController @Inject()(
   authorisationsRemoved: authorisation_removed,
   timedOutView: timed_out,
   errorTemplateView: error_template,
-  agentClientAuthorisationService: AgentClientAuthorisationService)(
-  implicit val appConfig: AppConfig,
-  val config: Configuration,
-  ec: ExecutionContext)
-    extends FrontendController(cc)
-    with I18nSupport
-    with AuthActions {
+  agentClientAuthorisationService: AgentClientAuthorisationService
+)(implicit val appConfig: AppConfig, val config: Configuration, ec: ExecutionContext)
+    extends FrontendController(cc) with I18nSupport with AuthActions {
 
   def root(source: Option[String], returnURL: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
     implicit val now: LocalDate = LocalDate.now()
@@ -80,21 +79,20 @@ class ClientRelationshipManagementController @Inject()(
       for {
         agentRequests <- agentClientAuthorisationService.getAgentRequests(clientType, clientIds)
         authRequests  <- relationshipManagementService.getAuthorisedAgents(clientIds)
-        deAuthed <- relationshipManagementService.getDeAuthorisedAgents(clientIds)
-        refined   = relationshipManagementService.matchAndRefineStatus(agentRequests, deAuthed)
+        deAuthed      <- relationshipManagementService.getDeAuthorisedAgents(clientIds)
+        refined = relationshipManagementService.matchAndRefineStatus(agentRequests, deAuthed)
       } yield Ok(
-        authorisedAgentsView(
-          AuthorisedAgentsPageConfig(authRequests, refined))
+        authorisedAgentsView(AuthorisedAgentsPageConfig(authRequests, refined))
       ).addingBackLinkInfoToSession(source, returnURL)
     }
   }
 
   def showRemoveAuthorisation(id: String): Action[AnyContent] = Action.async { implicit request =>
     withAuthorisedAsClient { (_, _, _) =>
-        relationshipManagementService.getAuthorisedAgentDetails(id).map {
-          case Some((agencyName, service, _)) => Ok(showRemoveAuthView(RadioConfirm.confirmRadioForm, agencyName, service, id))
-          case _                     => redirectToRoot
-        }
+      relationshipManagementService.getAuthorisedAgentDetails(id).map {
+        case Some((agencyName, service, _)) => Ok(showRemoveAuthView(RadioConfirm.confirmRadioForm, agencyName, service, id))
+        case _                              => redirectToRoot
+      }
     }
   }
 
@@ -116,15 +114,15 @@ class ClientRelationshipManagementController @Inject()(
                   .deleteRelationship(id, clientIds, service)
             }
 
-            validateRemoveAuthorisationForm(id) {
-              response.map {
-                case DeleteResponse(true, agencyName, service) =>
-                  Redirect(routes.ClientRelationshipManagementController.authorisationRemoved)
-                    .addingToSession(("agencyName", agencyName), ("service", service))
-                case _ => throw new RuntimeException("relationship deletion failed")
-              }
+          validateRemoveAuthorisationForm(id) {
+            response.map {
+              case DeleteResponse(true, agencyName, service) =>
+                Redirect(routes.ClientRelationshipManagementController.authorisationRemoved)
+                  .addingToSession(("agencyName", agencyName), ("service", service))
+              case _ => throw new RuntimeException("relationship deletion failed")
             }
-        case _                     => Future successful redirectToRoot
+          }
+        case _ => Future successful redirectToRoot
       }
     }
   }
@@ -134,15 +132,16 @@ class ClientRelationshipManagementController @Inject()(
       (request.session.get("agencyName"), request.session.get("service")) match {
         case (Some(agencyName), Some(service)) =>
           service match {
-            case "HMRC-MTD-IT" => maybeLegacySaUtr.fold(Future successful(
-              Ok(authorisationsRemoved(agencyName, service, None)))){
-              utr => pirRelationshipConnector.legacyActiveSaRelationshipExists(utr).map{ hasRelationship =>
-                if(hasRelationship) Ok(authorisationsRemoved(agencyName, service, Some(utr.value)))
-                else Ok(authorisationsRemoved(agencyName, service, None))}
-            }
-            case _    => Future successful Ok(authorisationsRemoved(agencyName, service, None))
+            case "HMRC-MTD-IT" =>
+              maybeLegacySaUtr.fold(Future successful (Ok(authorisationsRemoved(agencyName, service, None)))) { utr =>
+                pirRelationshipConnector.legacyActiveSaRelationshipExists(utr).map { hasRelationship =>
+                  if (hasRelationship) Ok(authorisationsRemoved(agencyName, service, Some(utr.value)))
+                  else Ok(authorisationsRemoved(agencyName, service, None))
+                }
+              }
+            case _ => Future successful Ok(authorisationsRemoved(agencyName, service, None))
           }
-        case _                                 => Future.successful(redirectToRoot)
+        case _ => Future.successful(redirectToRoot)
       }
     }
   }
@@ -155,7 +154,7 @@ class ClientRelationshipManagementController @Inject()(
     startNewSession
   }
 
-  def signOutAndRedirectToTaxAccountRouter: Action[AnyContent] = Action.async{
+  def signOutAndRedirectToTaxAccountRouter: Action[AnyContent] = Action.async {
     Future successful Redirect(appConfig.taxAccountRouterSignInUrl).withNewSession
   }
 
@@ -166,16 +165,15 @@ class ClientRelationshipManagementController @Inject()(
   private def startNewSession: Future[Result] =
     Future.successful(Redirect(routes.ClientRelationshipManagementController.root(None, None)).withNewSession)
 
-  private def validateRemoveAuthorisationForm(id: String)(serviceCall: => Future[Result])(
-    implicit request: Request[AnyContent]): Future[Result] =
+  private def validateRemoveAuthorisationForm(id: String)(serviceCall: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] =
     RadioConfirm.confirmRadioForm
       .bindFromRequest()
       .fold(
         formWithErrors =>
           relationshipManagementService.getAuthorisedAgentDetails(id).map {
             case Some((agencyName, service, _)) => Ok(showRemoveAuthView(formWithErrors, agencyName, service, id))
-            case _                           => redirectToRoot
-        },
+            case _                              => redirectToRoot
+          },
         form =>
           if (form.value.getOrElse(false))
             serviceCall
@@ -193,9 +191,7 @@ class ClientRelationshipManagementController @Inject()(
   )
 
   implicit class ResultWithSessionUpdate(result: Result) {
-    def addingBackLinkInfoToSession(
-                                    source: Option[String],
-                                    returnURL: Option[RedirectUrl])(implicit request: Request[_]): Result = {
+    def addingBackLinkInfoToSession(source: Option[String], returnURL: Option[RedirectUrl])(implicit request: Request[_]): Result =
       (source, returnURL) match {
         case (Some(src), Some(rtn)) if src.matches("[B|P]TA") =>
           Redirect(
@@ -203,6 +199,5 @@ class ClientRelationshipManagementController @Inject()(
           ).addingToSession(("myta_src", src), ("myta_rtn", rtn.get(OnlyRelative).url))
         case _ => result
       }
-    }
   }
 }

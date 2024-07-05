@@ -18,7 +18,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.util
 
 import org.jsoup.Jsoup.parseBodyFragment
 import org.jsoup.nodes.Element
-import play.api.i18n.DefaultMessagesApi
+import play.api.i18n.{DefaultMessagesApi, Messages}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.agentclientmanagementfrontend.support.UnitSpec
 import uk.gov.hmrc.agentclientmanagementfrontend.views
@@ -27,15 +27,17 @@ import scala.collection.JavaConverters._
 import scala.language.reflectiveCalls
 
 object PaginatorElement {
-  def apply(e: Element): List[PaginatorElement] = {
-    e.select("li").asScala.map(li => {
-      val url = li.select("a").asScala.toList match {
-        case Nil => ""
-        case head :: tail => head.attr("href")
+  def apply(e: Element): List[PaginatorElement] =
+    e.select("li")
+      .asScala
+      .map { li =>
+        val url = li.select("a").asScala.toList match {
+          case Nil          => ""
+          case head :: tail => head.attr("href")
+        }
+        PaginatorElement(url, li.text())
       }
-      PaginatorElement(url, li.text())
-    }).toList
-  }
+      .toList
 }
 
 object PaginatorParser {
@@ -49,25 +51,20 @@ case class PaginatorElement(url: String, linkText: String)
 
 case class PaginatorParser(description: String, links: Seq[PaginatorElement])
 
-case class ExamplePaginatedViewModel(allItems: Seq[Int],
-                                     itemsPerPage: Int,
-                                     requestedPage: Int,
-                                     itemsDescription: String,
-                                     urlForPage: Int => String) extends Paginated[Int]
+case class ExamplePaginatedViewModel(allItems: Seq[Int], itemsPerPage: Int, requestedPage: Int, itemsDescription: String, urlForPage: Int => String)
+    extends Paginated[Int]
 
 class PaginatedSpec extends UnitSpec {
-  implicit def stringAsBodyFragment(s: String) = new {
+  implicit def stringAsBodyFragment(s: String): Object {
+    def asBodyFragment: Element
+  } = new {
     def asBodyFragment: Element = parseBodyFragment(s).body
   }
 
-  val messagesMap = Map("en" -> Map(
-    "pager.to" -> "to",
-    "pager.of" -> "of",
-    "pager.showing" -> "Showing")
-  )
+  val messagesMap = Map("en" -> Map("pager.to" -> "to", "pager.of" -> "of", "pager.showing" -> "Showing"))
   val messagesApi = new DefaultMessagesApi(messagesMap)
 
-  implicit val messages = messagesApi.preferred(FakeRequest("GET", "/"))
+  implicit val messages: Messages = messagesApi.preferred(FakeRequest("GET", "/"))
 
   private def getUriForPage(page: Int) = s"/foo/bar?foo=bar&page=$page"
 

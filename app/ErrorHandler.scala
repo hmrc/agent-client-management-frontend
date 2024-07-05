@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Logger, Logging}
@@ -23,10 +22,11 @@ import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.views.html.{error_template, error_template_5xx}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
+import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -34,8 +34,9 @@ class ErrorHandler @Inject() (
   val messagesApi: MessagesApi,
   val auditConnector: AuditConnector,
   errorTemplate: error_template,
-  errorTemplate5xx: error_template_5xx)(implicit val config: Configuration, val env: Environment, appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendErrorHandler with AuthRedirects with ErrorAuditing with Logging {
+  errorTemplate5xx: error_template_5xx
+)(implicit val config: Configuration, val env: Environment, appConfig: AppConfig, ec: ExecutionContext)
+    extends FrontendErrorHandler with ErrorAuditing with Logging {
 
   val appName: String = appConfig.appName
 
@@ -85,23 +86,37 @@ trait ErrorAuditing extends HttpAuditEvent {
 
   def auditServerError(request: RequestHeader, ex: Throwable)(implicit ec: ExecutionContext): Unit = {
     val eventType = ex match {
-      case _: NotFoundException => ResourceNotFound
+      case _: NotFoundException     => ResourceNotFound
       case _: JsValidationException => ServerValidationError
-      case _ => ServerInternalError
+      case _                        => ServerInternalError
     }
     val transactionName = ex match {
       case _: NotFoundException => notFoundError
-      case _ => unexpectedError
+      case _                    => unexpectedError
     }
-    auditConnector.sendEvent(dataEvent(eventType, transactionName, request, Map(TransactionFailureReason -> ex.getMessage))(HeaderCarrierConverter.fromRequestAndSession(request, request.session)))
+    auditConnector.sendEvent(
+      dataEvent(eventType, transactionName, request, Map(TransactionFailureReason -> ex.getMessage))(
+        HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      )
+    )
     ()
   }
 
   def auditClientError(request: RequestHeader, statusCode: Int, message: String)(implicit ec: ExecutionContext): Unit = {
     import play.api.http.Status._
     statusCode match {
-      case NOT_FOUND => auditConnector.sendEvent(dataEvent(ResourceNotFound, notFoundError, request, Map(TransactionFailureReason -> message))(HeaderCarrierConverter.fromRequestAndSession(request, request.session)))
-      case BAD_REQUEST => auditConnector.sendEvent(dataEvent(ServerValidationError, badRequestError, request, Map(TransactionFailureReason -> message))(HeaderCarrierConverter.fromRequestAndSession(request, request.session)))
+      case NOT_FOUND =>
+        auditConnector.sendEvent(
+          dataEvent(ResourceNotFound, notFoundError, request, Map(TransactionFailureReason -> message))(
+            HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+          )
+        )
+      case BAD_REQUEST =>
+        auditConnector.sendEvent(
+          dataEvent(ServerValidationError, badRequestError, request, Map(TransactionFailureReason -> message))(
+            HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+          )
+        )
       case _ =>
     }
     ()

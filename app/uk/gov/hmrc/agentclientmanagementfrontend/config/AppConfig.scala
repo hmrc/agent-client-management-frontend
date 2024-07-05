@@ -40,7 +40,7 @@ trait AppConfig {
   val countdown: Int
   val languageMap: Map[String, Lang]
   val routeToSwitchLanguage: String => Call
-  val itemsPerPage:Int
+  val itemsPerPage: Int
   val taxAccountRouterBaseUrl: String
   val taxAccountRouterSignInUrl: String
   val contactBaseUrl: String
@@ -48,13 +48,12 @@ trait AppConfig {
   val mongoDbExpireAfterSeconds: Int
   val languageToggle: Boolean
   val betaFeedbackUrl: String
-  val enableCbc:Boolean
+  val enableCbc: Boolean
   val enablePillar2: Boolean
 }
 
-
 @Singleton
-class FrontendAppConfig @Inject()(val servicesConfig: ServicesConfig) extends AppConfig {
+class FrontendAppConfig @Inject() (val servicesConfig: ServicesConfig) extends AppConfig {
 
   private def baseUrl(serviceName: String) = servicesConfig.baseUrl(serviceName)
   private def getString(config: String) = servicesConfig.getString(config)

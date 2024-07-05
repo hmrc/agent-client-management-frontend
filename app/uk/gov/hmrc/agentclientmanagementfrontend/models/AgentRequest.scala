@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import java.time.{LocalDateTime, LocalDate}
+import java.time.{LocalDate, LocalDateTime}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 case class AgentRequest(
-                         clientType: String,
-                         serviceName: String,
-                         arn: Arn,
-                         uid: String,
-                         agencyName:String,
-                         status: String,
-                         expiryDate: LocalDate,
-                         lastUpdated: LocalDateTime,
-                         invitationId: String,
-                         isSuspended: Boolean = false,
-                       isRelationshipEnded: Boolean = false,
-                       relationshipEndedBy: Option[String] = None)
+  clientType: String,
+  serviceName: String,
+  arn: Arn,
+  uid: String,
+  agencyName: String,
+  status: String,
+  expiryDate: LocalDate,
+  lastUpdated: LocalDateTime,
+  invitationId: String,
+  isSuspended: Boolean = false,
+  isRelationshipEnded: Boolean = false,
+  relationshipEndedBy: Option[String] = None
+)
 
 object AgentRequest {
 

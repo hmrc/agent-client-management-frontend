@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import play.api.http.Status.SEE_OTHER
@@ -22,8 +38,6 @@ class AuthActionsISpec extends BaseISpec {
 
     override def authConnector: AuthConnector = app.injector.instanceOf[AuthConnector]
 
-    override def env: Environment = app.injector.instanceOf[Environment]
-
     override def config: Configuration = app.configuration
 
     implicit val hc = HeaderCarrier(authorization = Some(Authorization("Bearer XYZ")))
@@ -31,10 +45,16 @@ class AuthActionsISpec extends BaseISpec {
 
     val errorTemplate = app.injector.instanceOf[error_template]
 
-    def withAuthorisedAsClient[A]: Result = {
+    def withAuthorisedAsClient[A]: Result =
       await(super.withAuthorisedAsClient { (clientType, clientIds, _) =>
-        Future.successful(Ok(s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn.map(_.value).getOrElse("")} urn: ${clientIds.urn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}")) })
-    }
+        Future.successful(
+          Ok(
+            s"clientType: $clientType, mtdItId: ${clientIds.mtdItId.map(_.value).getOrElse("")} nino: ${clientIds.nino.map(_.nino).getOrElse("")} vrn: ${clientIds.vrn
+                .map(_.value)
+                .getOrElse("")} urn: ${clientIds.urn.map(_.value).getOrElse("")} utr: ${clientIds.utr.map(_.value).getOrElse("")}"
+          )
+        )
+      })
 
     override def forbiddenView(implicit request: Request[_]): Html = errorTemplate(
       Messages("global.error.403.title"),
@@ -54,7 +74,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"MTDITID", "value": "fooMtdItId" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -70,7 +91,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-NI", "identifiers": [
            |    { "key":"NINO", "value": "AE123456A" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -86,7 +108,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-TERSNT-ORG", "identifiers": [
            |    { "key":"URN", "value": "AE12345" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -102,7 +125,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-MTD-VAT", "identifiers": [
            |    { "key":"VRN", "value": "fooVrn" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -130,7 +154,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-TERSNT-ORG", "identifiers": [
            |    { "key":"URN", "value": "AE12345NT" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 200
@@ -150,7 +175,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-AS-AGENT", "identifiers": [
            |    { "key":"AgentReferenceNumber", "value": "fooArn" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 403
@@ -167,7 +193,8 @@ class AuthActionsISpec extends BaseISpec {
            |  { "key":"HMRC-MTD-IT", "identifiers": [
            |    { "key":"BAR", "value": "fooMtdItId" }
            |  ]}
-           |]}""".stripMargin)
+           |]}""".stripMargin
+      )
 
       val result = TestController.withAuthorisedAsClient
       status(result) shouldBe 403
@@ -176,7 +203,10 @@ class AuthActionsISpec extends BaseISpec {
 
     "redirect to GG login page if user is not logged in" in {
       givenUnauthorisedWith("BearerTokenExpired")
-      TestController.withAuthorisedAsClient shouldBe Redirect(s"http://localhost:$wireMockPort/bas-gateway/sign-in?continue_url=http://localhost:9568/&origin=agent-client-management-frontend", SEE_OTHER)
+      TestController.withAuthorisedAsClient shouldBe Redirect(
+        s"http://localhost:$wireMockPort/bas-gateway/sign-in?continue_url=http://localhost:9568/&origin=agent-client-management-frontend",
+        SEE_OTHER
+      )
     }
   }
 

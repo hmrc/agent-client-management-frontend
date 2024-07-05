@@ -33,24 +33,22 @@ import uk.gov.hmrc.mongo.test.CleanMongoCollectionSupport
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class MongoDBSessionStoreServiceSpec extends UnitSpec
-  with GuiceOneAppPerSuite
-  with CleanMongoCollectionSupport
-  with IntegrationPatience {
+class MongoDBSessionStoreServiceSpec extends UnitSpec with GuiceOneAppPerSuite with CleanMongoCollectionSupport with IntegrationPatience {
 
   override lazy val app = GuiceApplicationBuilder()
     .configure(
-      "mongodb.uri" -> mongoUri,
+      "mongodb.uri"      -> mongoUri,
       "metrics.enabled"  -> false,
       "auditing.enabled" -> false,
-      "metrics.jvm" -> false
-    ).build()
+      "metrics.jvm"      -> false
+    )
+    .build()
 
-  implicit lazy val appConfig = app.injector.instanceOf[AppConfig]
+  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   val mongoSessionCacheRepository = new SessionCacheRepository(mongoComponent, new CurrentTimestampSupport)
   val mongoSessionStoreService = new MongoDBSessionStoreService(mongoSessionCacheRepository)
 
-  private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
+  private implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
 
   def uuId = "0a8f58c84f51475595424176d172f488"
 

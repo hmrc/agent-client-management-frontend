@@ -17,8 +17,7 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import java.time.{LocalDate, LocalDateTime}
-
-import play.api.libs.json.{JsPath, Json, Reads}
+import play.api.libs.json.{JsPath, Json, OWrites, Reads}
 import uk.gov.hmrc.agentclientmanagementfrontend.util.Services
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 import play.api.libs.functional.syntax._
@@ -32,31 +31,27 @@ sealed trait Inactive extends Product with Serializable {
 
 case class InactiveRelationship(arn: Arn, dateFrom: Option[LocalDate], dateTo: Option[LocalDate], serviceName: String) extends Inactive
 
-object InactiveRelationship{
+object InactiveRelationship {
 
-  implicit val inactiveRelationshipWrites = Json.writes[InactiveRelationship]
+  implicit val inactiveRelationshipWrites: OWrites[InactiveRelationship] = Json.writes[InactiveRelationship]
 
-  implicit val reads: Reads[InactiveRelationship] = (
-    (JsPath \ "arn").read[Arn] and
-      (JsPath \ "dateFrom").readNullable[LocalDate] and
-      (JsPath \ "dateTo").readNullable[LocalDate] and
-      (JsPath \ "service").read[String])(InactiveRelationship.apply _)
+  implicit val reads: Reads[InactiveRelationship] = ((JsPath \ "arn").read[Arn] and
+    (JsPath \ "dateFrom").readNullable[LocalDate] and
+    (JsPath \ "dateTo").readNullable[LocalDate] and
+    (JsPath \ "service").read[String])(InactiveRelationship.apply _)
 }
-
 
 case class PirInactiveRelationship(arn: Arn, dateFrom: Option[LocalDate], dateTo: Option[LocalDate]) extends Inactive {
   val serviceName = Services.HMRCPIR
 }
 
 object PirInactiveRelationship {
-  implicit val inactiveRelationshipWrites = Json.writes[PirInactiveRelationship]
+  implicit val inactiveRelationshipWrites: OWrites[PirInactiveRelationship] = Json.writes[PirInactiveRelationship]
 
-  implicit val reads: Reads[PirInactiveRelationship] = (
-    (JsPath \ "arn").read[Arn] and
-      (JsPath \ "startDate").readNullable[LocalDateTime].map(date => localDateTimeToLocalDate(date.get)) and
-      (JsPath \ "endDate").readNullable[LocalDateTime].map(date => localDateTimeToLocalDate(date.get)))(PirInactiveRelationship.apply _)
+  implicit val reads: Reads[PirInactiveRelationship] = ((JsPath \ "arn").read[Arn] and
+    (JsPath \ "startDate").readNullable[LocalDateTime].map(date => localDateTimeToLocalDate(date.get)) and
+    (JsPath \ "endDate").readNullable[LocalDateTime].map(date => localDateTimeToLocalDate(date.get)))(PirInactiveRelationship.apply _)
 
-  def localDateTimeToLocalDate(javaTime: LocalDateTime): Option[LocalDate] = {
+  def localDateTimeToLocalDate(javaTime: LocalDateTime): Option[LocalDate] =
     Some(LocalDate.parse(javaTime.toLocalDate.toString))
-  }
 }

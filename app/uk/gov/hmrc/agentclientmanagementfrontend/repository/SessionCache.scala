@@ -25,14 +25,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait SessionCache[T] extends MongoSessionStore[T] with Logging {
 
-  def fetch(implicit hc: HeaderCarrier, reads: Reads[T], ec: ExecutionContext): Future[Option[T]] = {
+  def fetch(implicit hc: HeaderCarrier, reads: Reads[T], ec: ExecutionContext): Future[Option[T]] =
     get.flatMap {
       case Right(input) => input
       case Left(error) =>
         logger.warn(error)
         Future.failed(new RuntimeException(error))
     }
-  }
 
   def fetchAndClear(implicit hc: HeaderCarrier, reads: Reads[T], ec: ExecutionContext): Future[Option[T]] = {
     val result = for {
@@ -48,14 +47,13 @@ trait SessionCache[T] extends MongoSessionStore[T] with Logging {
     }
   }
 
-  def save(input: T)(implicit hc: HeaderCarrier, writes: Writes[T], ec: ExecutionContext): Future[T] = {
+  def save(input: T)(implicit hc: HeaderCarrier, writes: Writes[T], ec: ExecutionContext): Future[T] =
     store(input).flatMap {
       case Right(_) => input
       case Left(error) =>
         logger.warn(error)
         Future.failed(new RuntimeException(error))
     }
-  }
 
   def hardGet(implicit hc: HeaderCarrier, reads: Reads[T], ec: ExecutionContext): Future[T] =
     fetch.map {

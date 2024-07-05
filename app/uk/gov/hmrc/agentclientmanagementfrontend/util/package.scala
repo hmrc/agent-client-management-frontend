@@ -34,7 +34,7 @@ package object util {
       case _: Urn    => TRUSTNT
       case _: CgtRef => CGT
       case _: PptRef => PPT
-      case _:PlrId => HMRCPILLAR2ORG
+      case _: PlrId  => HMRCPILLAR2ORG
       case _ =>
         throw new IllegalStateException(s"Unsupported Identifier $taxIdentifier")
     }

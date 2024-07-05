@@ -1,6 +1,22 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.agentclientmanagementfrontend.support
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlEqualTo}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import com.google.inject.AbstractModule
@@ -25,26 +41,25 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
 
   override implicit lazy val app: Application = appBuilder.build()
 
-  protected def appBuilder: GuiceApplicationBuilder = {
+  protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.auth.port" -> wireMockPort,
-        "microservice.services.agent-fi-relationship.port" -> wireMockPort,
-        "microservice.services.agent-fi-relationship.host" -> wireMockHost,
+        "microservice.services.auth.port"                       -> wireMockPort,
+        "microservice.services.agent-fi-relationship.port"      -> wireMockPort,
+        "microservice.services.agent-fi-relationship.host"      -> wireMockHost,
         "microservice.services.agent-client-relationships.host" -> wireMockHost,
         "microservice.services.agent-client-relationships.port" -> wireMockPort,
         "microservice.services.agent-client-authorisation.host" -> wireMockHost,
         "microservice.services.agent-client-authorisation.port" -> wireMockPort,
-        "metrics.enabled" -> true,
-        "auditing.enabled" -> true,
-        "bas-gateway.url" ->  s"http://localhost:$wireMockPort/bas-gateway/sign-in"
-        ).overrides(new TestGuiceModule)
-  }
+        "metrics.enabled"                                       -> true,
+        "auditing.enabled"                                      -> true,
+        "bas-gateway.url"                                       -> s"http://localhost:$wireMockPort/bas-gateway/sign-in"
+      )
+      .overrides(new TestGuiceModule)
 
   private class TestGuiceModule extends AbstractModule {
-    override def configure(): Unit = {
+    override def configure(): Unit =
       bind(classOf[MongoDBSessionStoreService]).toInstance(sessionStoreService)
-    }
   }
 
   override protected def beforeEach(): Unit = {
@@ -54,14 +69,16 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
 
   override def commonStubs(): immutable.Seq[StubMapping] = {
     givenCleanMetricRegistry()
-    List(stubFor(
-      post(urlEqualTo(s"/write/audit/merged"))
-        .willReturn(aResponse().withStatus(204))
-    ),
-    stubFor(
-      post(urlEqualTo(s"/write/audit"))
-        .willReturn(aResponse().withStatus(204))
-    ))
+    List(
+      stubFor(
+        post(urlEqualTo(s"/write/audit/merged"))
+          .willReturn(aResponse().withStatus(204))
+      ),
+      stubFor(
+        post(urlEqualTo(s"/write/audit"))
+          .willReturn(aResponse().withStatus(204))
+      )
+    )
   }
 
   protected implicit val materializer: Materializer = app.materializer
@@ -83,25 +100,21 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
   protected def checkHtmlResultNotWithBodyText(result: Result, expectedSubstrings: String*): Unit = {
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")
-    expectedSubstrings.foreach(s => bodyOf(result) should not include(s))
+    expectedSubstrings.foreach(s => bodyOf(result) should not include s)
   }
 
-  protected def checkResponseBodyWithText(response: WSResponse, expectedText: String*): Unit = {
-    for(text <- expectedText) {
+  protected def checkResponseBodyWithText(response: WSResponse, expectedText: String*): Unit =
+    for (text <- expectedText)
       response.body.contains(text) shouldBe true
-    }
-  }
 
-  protected def checkResponseBodyNotWithText(response: WSResponse, expectedText: String*): Unit = {
-    for(text <- expectedText) {
+  protected def checkResponseBodyNotWithText(response: WSResponse, expectedText: String*): Unit =
+    for (text <- expectedText)
       response.body.contains(text) shouldBe false
-    }
-  }
 
   private val messagesApi = app.injector.instanceOf[MessagesApi]
   implicit val messages: Messages = messagesApi.preferred(Seq.empty[Lang])
 
-  implicit  val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
 

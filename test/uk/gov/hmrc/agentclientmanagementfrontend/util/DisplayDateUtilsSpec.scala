@@ -28,7 +28,7 @@ class DisplayDateUtilsSpec extends UnitSpec {
   "display date util" should {
     "display the date in English when no PLAY_LANG cookie available" in {
 
-      val date  = LocalDate.parse("2020-06-29")
+      val date = LocalDate.parse("2020-06-29")
 
       implicit val request = FakeRequest()
 
@@ -63,7 +63,6 @@ class DisplayDateUtilsSpec extends UnitSpec {
       val d11 = parse("2022-11-09")
       val d12 = parse("2022-12-03")
 
-
       displayDateForLang(Some(d1)) shouldBe "21 Ionawr 2021"
       displayDateForLang(Some(d2)) shouldBe "12 Chwefror 2021"
       displayDateForLang(Some(d3)) shouldBe "1 Mawrth 2020"
@@ -76,7 +75,6 @@ class DisplayDateUtilsSpec extends UnitSpec {
       displayDateForLang(Some(d10)) shouldBe "7 Hydref 2022"
       displayDateForLang(Some(d11)) shouldBe "9 Tachwedd 2022"
       displayDateForLang(Some(d12)) shouldBe "3 Rhagfyr 2022"
-
 
     }
   }
