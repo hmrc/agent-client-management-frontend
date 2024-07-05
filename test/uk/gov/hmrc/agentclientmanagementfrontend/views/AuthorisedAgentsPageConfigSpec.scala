@@ -20,6 +20,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.{Application, Configuration, Environment}
 import uk.gov.hmrc.agentclientmanagementfrontend.config.FrontendAppConfig
@@ -34,19 +35,59 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite w
 
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
-  implicit val request = FakeRequest()
+  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  val messagesApi = app.injector.instanceOf[MessagesApi]
-  implicit val messages = MessagesImpl(Lang("en"), messagesApi)
+  val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  implicit val messages: MessagesImpl = MessagesImpl(Lang("en"), messagesApi)
 
   val authAgent1 = AuthorisedAgent("uid123", "HMRC-MTD-IT", "Original Origami Org", Some(LocalDate.parse("2019-01-01")))
 
   val authAgents = Seq(authAgent1)
 
-  val agentReq1 = AgentRequest("personal", "HMRC-MTD-IT", Arn("TARN0000001"), "uid123", "Parmesan Party Partnership", "Pending", LocalDate.now().plusDays(5), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
-  val agentReq2 = AgentRequest("personal", "HMRC-MTD-VAT", Arn("YARN3381592"), "uid123", "Cockeral Commander Co-op", "Pending", LocalDate.now().plusDays(5), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
-  val agentReq3 = AgentRequest("personal", "PERSONAL-INCOME-RECORD", Arn("TARN0000001"), "uid123", "Lightening Lifeboats Ltd", "Pending", LocalDate.now().plusDays(3), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
-  val agentReq4 = AgentRequest("personal", "PERSONAL-INCOME-RECORD", Arn("TARN0000001"), "uid123", "Coronation Cornet Corp", "Cancelled", LocalDate.now().plusDays(3), LocalDateTime.now(ZoneOffset.UTC), "invitationId")
+  val agentReq1 = AgentRequest(
+    "personal",
+    "HMRC-MTD-IT",
+    Arn("TARN0000001"),
+    "uid123",
+    "Parmesan Party Partnership",
+    "Pending",
+    LocalDate.now().plusDays(5),
+    LocalDateTime.now(ZoneOffset.UTC),
+    "invitationId"
+  )
+  val agentReq2 = AgentRequest(
+    "personal",
+    "HMRC-MTD-VAT",
+    Arn("YARN3381592"),
+    "uid123",
+    "Cockeral Commander Co-op",
+    "Pending",
+    LocalDate.now().plusDays(5),
+    LocalDateTime.now(ZoneOffset.UTC),
+    "invitationId"
+  )
+  val agentReq3 = AgentRequest(
+    "personal",
+    "PERSONAL-INCOME-RECORD",
+    Arn("TARN0000001"),
+    "uid123",
+    "Lightening Lifeboats Ltd",
+    "Pending",
+    LocalDate.now().plusDays(3),
+    LocalDateTime.now(ZoneOffset.UTC),
+    "invitationId"
+  )
+  val agentReq4 = AgentRequest(
+    "personal",
+    "PERSONAL-INCOME-RECORD",
+    Arn("TARN0000001"),
+    "uid123",
+    "Coronation Cornet Corp",
+    "Cancelled",
+    LocalDate.now().plusDays(3),
+    LocalDateTime.now(ZoneOffset.UTC),
+    "invitationId"
+  )
 
   val agentReqs = Seq(agentReq1, agentReq2, agentReq3, agentReq4)
 
@@ -54,7 +95,7 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite w
   val configuration = new ServicesConfig(Configuration.load(env))
   val appConfig = new FrontendAppConfig(configuration)
 
-  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request ,dateOrdering, messages, appConfig )
+  val config: AuthorisedAgentsPageConfig = AuthorisedAgentsPageConfig(authAgents, agentReqs)(request, dateOrdering, messages, appConfig)
 
   override implicit lazy val app: Application = appBuilder.build()
 
@@ -64,10 +105,10 @@ class AuthorisedAgentsPageConfigSpec extends UnitSpec with GuiceOneAppPerSuite w
 
   "AuthorisedAgentsPageConfig" should {
     "return pending requests which are agent specific and in expiry date order" in {
-     config.displayValidPendingRequests shouldBe Seq(
-       agentReq3.copy(serviceName = "2 tax services"),
-       agentReq2.copy(serviceName = "Manage your VAT")
-     )
+      config.displayValidPendingRequests shouldBe Seq(
+        agentReq3.copy(serviceName = "2 tax services"),
+        agentReq2.copy(serviceName = "Manage your VAT")
+      )
     }
 
     "return number of non pending requests" in {

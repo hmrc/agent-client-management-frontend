@@ -48,11 +48,11 @@ object AltItsaRelationship {
 }
 
 object ItsaRelationship {
-  implicit val relationshipWrites = Json.writes[ItsaRelationship]
+  implicit val relationshipWrites: OWrites[ItsaRelationship] = Json.writes[ItsaRelationship]
 
   implicit val reads: Reads[ItsaRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
-     (JsPath \ "dateFrom").readNullable[LocalDate])(ItsaRelationship.apply _)
+      (JsPath \ "dateFrom").readNullable[LocalDate])(ItsaRelationship.apply _)
 
 }
 
@@ -62,15 +62,13 @@ case class PirRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relati
 }
 
 object PirRelationship {
-  implicit val relationshipWrites = Json.writes[PirRelationship]
+  implicit val relationshipWrites: OWrites[PirRelationship] = Json.writes[PirRelationship]
 
-  implicit val reads: Reads[PirRelationship] = (
-    (JsPath \ "arn").read[Arn] and
+  implicit val reads: Reads[PirRelationship] = ((JsPath \ "arn").read[Arn] and
     (JsPath \ "startDate").readNullable[LocalDateTime].map(date => javaDateTimeToJodaDate(date.get)))(PirRelationship.apply _)
 
-  def javaDateTimeToJodaDate(javaTime: LocalDateTime): Option[LocalDate] = {
+  def javaDateTimeToJodaDate(javaTime: LocalDateTime): Option[LocalDate] =
     Some(LocalDate.parse(javaTime.toLocalDate.toString))
-  }
 }
 
 case class VatRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
@@ -79,11 +77,11 @@ case class VatRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relati
 }
 
 object VatRelationship {
-  implicit val relationshipWrites = Json.writes[VatRelationship]
+  implicit val relationshipWrites: OWrites[VatRelationship] = Json.writes[VatRelationship]
 
   implicit val reads: Reads[VatRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
-     (JsPath \ "dateFrom").readNullable[LocalDate])(VatRelationship.apply _)
+      (JsPath \ "dateFrom").readNullable[LocalDate])(VatRelationship.apply _)
 
 }
 
@@ -93,7 +91,7 @@ case class TrustRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Rela
 }
 
 object TrustRelationship {
-  implicit val relationshipWrites = Json.writes[TrustRelationship]
+  implicit val relationshipWrites: OWrites[TrustRelationship] = Json.writes[TrustRelationship]
 
   implicit val reads: Reads[TrustRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
@@ -107,7 +105,7 @@ case class TrustNtRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Re
 }
 
 object TrustNtRelationship {
-  implicit val relationshipWrites = Json.writes[TrustNtRelationship]
+  implicit val relationshipWrites: OWrites[TrustNtRelationship] = Json.writes[TrustNtRelationship]
 
   implicit val reads: Reads[TrustNtRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
@@ -115,14 +113,13 @@ object TrustNtRelationship {
 
 }
 
-
 case class CgtRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.CGT
   val isAltItsa = false
 }
 
 object CgtRelationship {
-  implicit val relationshipWrites = Json.writes[CgtRelationship]
+  implicit val relationshipWrites: OWrites[CgtRelationship] = Json.writes[CgtRelationship]
 
   implicit val reads: Reads[CgtRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
@@ -136,7 +133,7 @@ case class PptRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relati
 }
 
 object PptRelationship {
-  implicit val relationshipWrites = Json.writes[PptRelationship]
+  implicit val relationshipWrites: OWrites[PptRelationship] = Json.writes[PptRelationship]
 
   implicit val reads: Reads[PptRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
@@ -150,7 +147,7 @@ case class CbcUKRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Rela
 }
 
 object CbcUKRelationship {
-  implicit val relationshipWrites = Json.writes[CbcUKRelationship]
+  implicit val relationshipWrites: OWrites[CbcUKRelationship] = Json.writes[CbcUKRelationship]
 
   implicit val reads: Reads[CbcUKRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
@@ -164,7 +161,7 @@ case class CbcNonUKRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends R
 }
 
 object CbcNonUKRelationship {
-  implicit val relationshipWrites = Json.writes[CbcNonUKRelationship]
+  implicit val relationshipWrites: OWrites[CbcNonUKRelationship] = Json.writes[CbcNonUKRelationship]
 
   implicit val reads: Reads[CbcNonUKRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and
@@ -172,14 +169,13 @@ object CbcNonUKRelationship {
 
 }
 
-
 case class PlrRelationship(arn: Arn, dateFrom: Option[LocalDate]) extends Relationship {
   val serviceName = Services.HMRCPILLAR2ORG
   val isAltItsa = false
 }
 
 object PlrRelationship {
-  implicit val relationshipWrites = Json.writes[PlrRelationship]
+  implicit val relationshipWrites: OWrites[PlrRelationship] = Json.writes[PlrRelationship]
 
   implicit val reads: Reads[PlrRelationship] =
     ((JsPath \ "agentReferenceNumber").read[Arn] and

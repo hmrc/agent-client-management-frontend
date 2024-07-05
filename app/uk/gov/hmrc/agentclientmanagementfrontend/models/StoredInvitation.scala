@@ -36,30 +36,32 @@ case class StoredInvitation(
   invitationId: String,
   isRelationshipEnded: Boolean,
   relationshipEndedBy: Option[String],
-  selfUrl: URL)
+  selfUrl: URL
+)
 
 object StoredInvitation {
 
   val clientIdTypeByService: String => String = {
-    case "HMRC-MTD-IT" => "ni"
-    case "HMRC-MTD-VAT" => "vrn"
+    case "HMRC-MTD-IT"            => "ni"
+    case "HMRC-MTD-VAT"           => "vrn"
     case "PERSONAL-INCOME-RECORD" => "ni"
-    case _ => throw new IllegalArgumentException()
+    case _                        => throw new IllegalArgumentException()
   }
 
   def apply(
-             arn: Arn,
-             clientType: Option[String],
-             service: String,
-             clientId: String,
-             status: String,
-             created: LocalDateTime,
-             lastUpdated: LocalDateTime,
-             expiryDate: LocalDate,
-             invitationId: String,
-           isRelationshipEnded: Boolean,
-           relationshipEndedBy: Option[String] = None,
-             selfUrl: URL): StoredInvitation =
+    arn: Arn,
+    clientType: Option[String],
+    service: String,
+    clientId: String,
+    status: String,
+    created: LocalDateTime,
+    lastUpdated: LocalDateTime,
+    expiryDate: LocalDate,
+    invitationId: String,
+    isRelationshipEnded: Boolean,
+    relationshipEndedBy: Option[String] = None,
+    selfUrl: URL
+  ): StoredInvitation =
     StoredInvitation(
       arn,
       clientType,
@@ -75,5 +77,6 @@ object StoredInvitation {
       invitationId,
       isRelationshipEnded,
       relationshipEndedBy,
-      selfUrl)
+      selfUrl
+    )
 }

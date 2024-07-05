@@ -24,7 +24,6 @@ import play.api.mvc.Request
 
 object DisplayDateUtils {
 
-
   val welshMonthLookup = Map(
     "January"   -> "Ionawr",
     "February"  -> "Chwefror",
@@ -43,17 +42,18 @@ object DisplayDateUtils {
   private val dateFormatter: DateTimeFormatter =
     DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.UK)
 
-
-  def displayDateForLang(date: Option[LocalDate])(implicit request: Request[_]): String = date.fold("")(d => {
+  def displayDateForLang(date: Option[LocalDate])(implicit request: Request[_]): String = date.fold("") { d =>
     val lang = request.cookies
-      .get("PLAY_LANG").map(_.value).getOrElse("en")
+      .get("PLAY_LANG")
+      .map(_.value)
+      .getOrElse("en")
 
     val dateStrEnglish = d.format(dateFormatter)
 
-    if(lang == "cy") {
+    if (lang == "cy") {
       val monthStrEnglish = dateStrEnglish.split(' ')(1).trim
       val cyMonth = welshMonthLookup(monthStrEnglish)
       dateStrEnglish.replace(monthStrEnglish, cyMonth)
     } else dateStrEnglish
-  })
+  }
 }

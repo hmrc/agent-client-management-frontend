@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.agentclientmanagementfrontend.controllers
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
@@ -16,8 +32,8 @@ import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ClientRelationshipManagementControllerISpec
-    extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub
-    with AgentClientAuthorisationStub with ClientRelationshipManagementControllerTestSetup {
+    extends BaseISpec with PirRelationshipStub with AgentClientRelationshipsStub with AgentClientAuthorisationStub
+    with ClientRelationshipManagementControllerTestSetup {
 
   private lazy val controller: ClientRelationshipManagementController =
     app.injector.instanceOf[ClientRelationshipManagementController]
@@ -27,13 +43,13 @@ class ClientRelationshipManagementControllerISpec
   def fakeRequest(method: String = GET) = FakeRequest(method, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
   "Current requests tab" should {
     "Show tab when pending requests are present with correct number of pending invitations" in new PendingInvitationsExist(3)
-      with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound  {
+      with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
 
       val response = controller.root(None, None)(fakeRequest())
 
-     status(response) shouldBe 200
+      status(response) shouldBe 200
       val html = Jsoup.parse(contentAsString(response.futureValue))
-      //most bizarre title in world but anyways!
+      // most bizarre title in world but anyways!
       html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
       html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
       html.select(Css.paragraphs).get(0).text() shouldBe "This page allows you to view and change agent authorisations for:"
@@ -45,7 +61,6 @@ class ClientRelationshipManagementControllerISpec
       html.select(Css.ulBullet).get(0).select("li").get(5).text() shouldBe "Income record viewer"
       html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country-by-country reports"
       html.select(Css.ulBullet).get(0).select("li").get(7).text() shouldBe "Report Pillar 2 top-up taxes"
-
 
       checkHtmlResultWithBodyText(
         response.futureValue,
@@ -68,15 +83,11 @@ class ClientRelationshipManagementControllerISpec
         val response = controller.root(None, None)(fakeRequest())
 
         status(response) shouldBe 200
-        checkHtmlResultWithBodyText(
-          response.futureValue,
-          "Current requests",
-          "Respond to request",
-          "Respond to request abc Manage your VAT")
+        checkHtmlResultWithBodyText(response.futureValue, "Current requests", "Respond to request", "Respond to request abc Manage your VAT")
       }
 
-    "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0) with BaseTestSetUp
-    with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
+    "Don't show tab when there are no pending invitations" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
       val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
@@ -90,27 +101,20 @@ class ClientRelationshipManagementControllerISpec
         "Current requests",
         "Who sent the request",
         "You need to respond by",
-        "What you need to do")
+        "What you need to do"
+      )
     }
 
     "Redirect to self when request contains query params source and returnURL and source is PTA" in
-      new PendingInvitationsExist(0)
-      with BaseTestSetUp
-      with NoRelationshipsFound
-        with NoSuspensions
-        with NoInactiveRelationshipsFound {
+      new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
 
         val response = controller.root(Some("PTA"), Some(RedirectUrl("/somewhere")))(fakeRequest())
 
         status(response) shouldBe SEE_OTHER
-    }
+      }
 
     "Redirect to self when request contains query params source and returnURL and source is BTA" in
-      new PendingInvitationsExist(0)
-        with BaseTestSetUp
-        with NoRelationshipsFound
-        with NoSuspensions
-        with NoInactiveRelationshipsFound {
+      new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
 
         val response = controller.root(Some("BTA"), Some(RedirectUrl("/somewhere")))(fakeRequest())
 
@@ -118,11 +122,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Not show backLink when request contains query params source and returnURL and source is not BTA or PTA" in
-      new PendingInvitationsExist(0)
-        with BaseTestSetUp
-        with NoRelationshipsFound
-        with NoSuspensions
-        with NoInactiveRelationshipsFound {
+      new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
 
         val response = controller.root(Some("something"), Some(RedirectUrl("/somewhere")))(fakeRequest())
 
@@ -134,11 +134,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Not show backLink when request contains only 1 query param" in
-      new PendingInvitationsExist(0)
-        with BaseTestSetUp
-        with NoRelationshipsFound
-        with NoSuspensions
-        with NoInactiveRelationshipsFound {
+      new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
 
         val response = controller.root(Some("PTA"), None)(fakeRequest())
 
@@ -150,11 +146,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Show backLink when play session contains source and returnURL data" in
-      new PendingInvitationsExist(0)
-        with BaseTestSetUp
-        with NoRelationshipsFound
-        with NoSuspensions
-        with NoInactiveRelationshipsFound {
+      new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
 
         val response = controller.root(None, None)(fakeRequest().withSession(("myta_src", "PTA"), ("myta_rtn", "/somewhere")))
 
@@ -166,7 +158,7 @@ class ClientRelationshipManagementControllerISpec
       }
 
     "Ignore invitation when there is no agent reference found for an Arn" in new PendingInvitationsExist(3)
-    with BaseTestSetUp with NoSuspensions with NoRelationshipsFound with  NoInactiveRelationshipsFound {
+      with BaseTestSetUp with NoSuspensions with NoRelationshipsFound with NoInactiveRelationshipsFound {
       givenAgentRefNotFoundFor(arn1)
 
       val response = controller.root(None, None)(fakeRequest())
@@ -176,11 +168,13 @@ class ClientRelationshipManagementControllerISpec
       checkHtmlResultWithBodyText(
         response.futureValue,
         "Respond to request ghi View your Income record",
-      "Respond to request DEF Manage your Making Tax Digital for Income Tax") //out of 3 show only 2 in the UI due to one missing AgentRef
+        "Respond to request DEF Manage your Making Tax Digital for Income Tax"
+      ) // out of 3 show only 2 in the UI due to one missing AgentRef
     }
 
     "not show a request when the invitation request is for a service for which the agent has subsequently been suspended" in new PendingInvitationsExist(
-      3) with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
+      3
+    ) with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
 
       givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("AGSV"))))
       givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
@@ -190,7 +184,7 @@ class ClientRelationshipManagementControllerISpec
 
       status(response) shouldBe 200
       val html = Jsoup.parse(contentAsString(response.futureValue))
-      //most bizarre title in world but anyways!
+      // most bizarre title in world but anyways!
       html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
       html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
       html.select(".govuk-tabs__list-item.govuk-tabs__list-item--selected a").text() shouldBe "Current requests"
@@ -218,13 +212,13 @@ class ClientRelationshipManagementControllerISpec
       row2Cells.get(2).select("span[aria-hidden=true]").text() shouldBe "Respond to request"
       row2Cells.get(2).select("span.govuk-visually-hidden").text() shouldBe "Respond to request DEF Manage your Making Tax Digital for Income Tax"
 
-
     }
 
   }
 
   "Authorised agents tab" should {
-    "show tab with authorised agents" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
+    "show tab with authorised agents" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with RelationshipsFound with NoSuspensions with NoInactiveRelationshipsFound {
       val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
@@ -247,9 +241,9 @@ class ClientRelationshipManagementControllerISpec
     }
 
     "include partial auth invitations" in {
-      authorisedAsClientNi(FakeRequest(),validNino.value)
+      authorisedAsClientNi(FakeRequest(), validNino.value)
 
-      getInvitations(arn1, validNino.value, "MTDITID",serviceItsa, "Partialauth", "9999-01-01", lastUpdated)
+      getInvitations(arn1, validNino.value, "MTDITID", serviceItsa, "Partialauth", "9999-01-01", lastUpdated)
       getInvitationsNotFound(validNino.value, "NI")
 
       getAgencyNameMap200(arn1, "abc")
@@ -264,10 +258,10 @@ class ClientRelationshipManagementControllerISpec
 
       val response = controller.root(None, None)(fakeRequest())
 
-     status(response) shouldBe 200
+      status(response) shouldBe 200
 
       val html = Jsoup.parse(contentAsString(response.futureValue))
-      //most bizarre title in world but anyways!
+      // most bizarre title in world but anyways!
       html.title() shouldBe "Manage who can deal with HMRC for you - Manage who can deal with HMRC for you - GOV.UK"
       html.select(Css.H1).text() shouldBe "Manage who can deal with HMRC for you"
       html.select(Css.paragraphs).get(0).text() shouldBe "This page allows you to view and change agent authorisations for:"
@@ -280,7 +274,9 @@ class ClientRelationshipManagementControllerISpec
       html.select(Css.ulBullet).get(0).select("li").get(6).text() shouldBe "Country-by-country reports"
       html.select(Css.ulBullet).get(0).select("li").get(7).text() shouldBe "Report Pillar 2 top-up taxes"
       html.select("a#other-read-guidance").text() shouldBe "For other tax services, read the guidance"
-      html.select("a#other-read-guidance").attr("href") shouldBe "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent"
+      html
+        .select("a#other-read-guidance")
+        .attr("href") shouldBe "https://www.gov.uk/guidance/client-authorisation-an-overview#how-to-change-or-cancel-authorisations-as-an-agent"
 
       checkHtmlResultWithBodyText(
         response.futureValue,
@@ -296,8 +292,8 @@ class ClientRelationshipManagementControllerISpec
       )
     }
 
-    "Show tab with no authorised agents and different content" in new PendingInvitationsExist(0) with BaseTestSetUp
-    with NoRelationshipsFound with NoInactiveRelationshipsFound  {
+    "Show tab with no authorised agents and different content" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val response = controller.root(None, None)(fakeRequest())
 
       status(response) shouldBe 200
@@ -305,7 +301,8 @@ class ClientRelationshipManagementControllerISpec
         response.futureValue,
         "Manage who can deal with HMRC for you",
         "Authorised agents",
-        "You have not appointed someone to deal with HMRC currently.")
+        "You have not appointed someone to deal with HMRC currently."
+      )
     }
 
     "Show tab with authorised agents when startDate is blank" in new PendingInvitationsExist(0) with BaseTestSetUp with NoInactiveRelationshipsFound {
@@ -337,7 +334,8 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "if suspension is enabled don't show suspended agents on this tab" in new PendingInvitationsExist(0) with BaseTestSetUp with RelationshipsFound with NoInactiveRelationshipsFound {
+    "if suspension is enabled don't show suspended agents on this tab" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with RelationshipsFound with NoInactiveRelationshipsFound {
       givenSuspensionDetails(arn1.value, SuspensionDetails(suspensionStatus = true, Some(Set("ITSA"))))
       givenSuspensionDetails(arn2.value, SuspensionDetails(suspensionStatus = false, None))
       givenSuspensionDetails(arn3.value, SuspensionDetails(suspensionStatus = false, None))
@@ -346,7 +344,7 @@ class ClientRelationshipManagementControllerISpec
 
       status(response) shouldBe 200
       checkHtmlResultWithBodyText(
-        response.futureValue ,
+        response.futureValue,
         "Manage who can deal with HMRC for you",
         "Authorised agents",
         "VAT",
@@ -361,7 +359,8 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.size == 3 shouldBe true
     }
 
-    "500 when getAgencyNames in agent-client-authorisation returns 400 invalid Arn" in new PendingInvitationsExist(0) with  BaseTestSetUp with NoInactiveRelationshipsFound {
+    "500 when getAgencyNames in agent-client-authorisation returns 400 invalid Arn" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with NoInactiveRelationshipsFound {
       getClientActiveAgentRelationships(serviceItsa, Arn("someInvalidArn").value, startDateString)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getNotFoundClientActiveAgentRelationships(serviceTrust)
@@ -380,7 +379,8 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.isDefined shouldBe false
     }
 
-    "500, when getAgencyNames in agent-client-authorisation returns 400 empty Arn" in new PendingInvitationsExist(0) with BaseTestSetUp with NoInactiveRelationshipsFound {
+    "500, when getAgencyNames in agent-client-authorisation returns 400 empty Arn" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with NoInactiveRelationshipsFound {
       getClientActiveAgentRelationships(serviceItsa, Arn("").value, startDateString)
       getNotFoundClientActiveAgentRelationships(serviceVat)
       getNotFoundClientActiveAgentRelationships(serviceTrust)
@@ -439,12 +439,11 @@ class ClientRelationshipManagementControllerISpec
 
         val content = contentAsString(response)
 
-        content.indexOf("abc") < content.indexOf("DEF") && content.indexOf("DEF") < content.indexOf(
-          "ghi") shouldBe true
+        content.indexOf("abc") < content.indexOf("DEF") && content.indexOf("DEF") < content.indexOf("ghi") shouldBe true
       }
 
     "Show tab for a client with all services and different response scenarios in alphabetical order when dates are the same" in new BaseTestSetUp
-      with NoRelationshipsFound with NoInactiveRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions  {
+      with NoRelationshipsFound with NoInactiveRelationshipsFound with InvitationHistoryExistsDifferentNames with NoSuspensions {
       val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
@@ -462,14 +461,14 @@ class ClientRelationshipManagementControllerISpec
 
         val content = contentAsString(response)
 
-        content contains ("Name100") shouldBe true
-        content contains ("Name109") shouldBe true
-        content  contains ("Name110") shouldBe false
-        content contains ("Showing")  shouldBe true
+        content contains "Name100" shouldBe true
+        content contains "Name109" shouldBe true
+        content contains "Name110" shouldBe false
+        content contains "Showing" shouldBe true
       }
 
-
-    "Show tab for a client with no relationship history" in new PendingInvitationsExist(0) with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
+    "Show tab for a client with no relationship history" in new PendingInvitationsExist(0)
+      with BaseTestSetUp with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val response = await(controller.root(None, None)(req()))
 
       status(response) shouldBe 200
@@ -477,12 +476,13 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
 
-    "Show tab for a client with no relationship history and has only a Nino enrolment" in new PendingInvitationsExist(0) with NoRelationshipsFound with NoInactiveRelationshipsFound {
+    "Show tab for a client with no relationship history and has only a Nino enrolment" in new PendingInvitationsExist(0)
+      with NoRelationshipsFound with NoInactiveRelationshipsFound {
       val req = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
-      authorisedAsClientNi(req,validNino.value)
+      authorisedAsClientNi(req, validNino.value)
       val response = await(controller.root(None, None)(req))
 
-        status(response) shouldBe 200
+      status(response) shouldBe 200
       checkHtmlResultWithBodyText(response, "History", "You do not have any previous activity.")
       sessionStoreService.currentSession.clientCache.get.isEmpty shouldBe true
     }
@@ -577,42 +577,50 @@ class ClientRelationshipManagementControllerISpec
     "return 200 OK and show remove authorisation page for ITSA" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache(HMRCMTDIT)))
 
-      val result = await(controller.showRemoveAuthorisation( "dc89f36b64c94060baa3ae87d6b7ac08")(req()))
+      val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Income Tax.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to manage your Income Tax."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
-    "return 200 OK and show remove authorisation page for TERS" in new BaseTestSetUp  {
+    "return 200 OK and show remove authorisation page for TERS" in new BaseTestSetUp {
 
       sessionStoreService.storeClientCache(Seq(cache(HMRCTERSORG)))
 
-       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
+      val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to maintain a trust or an estate on your behalf.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to maintain a trust or an estate on your behalf."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
-    "return 200 OK and show remove authorisation page for TERSNT" in new BaseTestSetUp  {
+    "return 200 OK and show remove authorisation page for TERSNT" in new BaseTestSetUp {
 
       sessionStoreService.storeClientCache(Seq(cache(HMRCTERSNTORG)))
 
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to maintain a trust or an estate on your behalf.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to maintain a trust or an estate on your behalf."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
-    "return 200 OK and show remove authorisation page for IRV" in new BaseTestSetUp  {
+    "return 200 OK and show remove authorisation page for IRV" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache(HMRCPIR)))
 
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to view your income record.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to view your income record."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
@@ -622,7 +630,9 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Plastic Packaging Tax on your behalf.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to manage your Plastic Packaging Tax on your behalf."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
@@ -632,7 +642,9 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Capital Gains Tax on UK property account on your behalf.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to manage your Capital Gains Tax on UK property account on your behalf."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
@@ -652,7 +664,9 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your country-by-country reports on your behalf.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to manage your country-by-country reports on your behalf."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
@@ -662,7 +676,9 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your country-by-country reports on your behalf.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to manage your country-by-country reports on your behalf."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
@@ -672,18 +688,20 @@ class ClientRelationshipManagementControllerISpec
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
       status(result) shouldBe 200
-      contentAsString(result).contains("If you remove your authorisation, This Agency Name will no longer be able to manage your Pillar 2 top-up taxes for you.") shouldBe true
+      contentAsString(result).contains(
+        "If you remove your authorisation, This Agency Name will no longer be able to manage your Pillar 2 top-up taxes for you."
+      ) shouldBe true
       sessionStoreService.currentSession.clientCache.isDefined shouldBe true
     }
 
-    "redirect to /root when an invalid id is passed" in new BaseTestSetUp  {
+    "redirect to /root when an invalid id is passed" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache))
 
       val result = await(controller.showRemoveAuthorisation("INVALID_ID")(req()))
       status(result) shouldBe 303
     }
 
-    "redirect to /root when session cache not found" in new BaseTestSetUp  {
+    "redirect to /root when session cache not found" in new BaseTestSetUp {
 
       val result = await(controller.showRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(req()))
 
@@ -693,30 +711,44 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for PERSONAL-INCOME-RECORD" should {
 
-    behave like checkRemoveAuthorisationForService(
-      "PERSONAL-INCOME-RECORD",
-      deleteActivePIRRelationship(arn1.value, validNino.value, 200))
+    behave like checkRemoveAuthorisationForService("PERSONAL-INCOME-RECORD", deleteActivePIRRelationship(arn1.value, validNino.value, 200))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if PIR Relationship is not found" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value, validPlrId.value)
+      authorisedAsClientAll(
+        req,
+        validNino.nino,
+        mtdItId.value,
+        validVrn.value,
+        validUtr.value,
+        validUrn.value,
+        validCgtRef.value,
+        validPptRef.value,
+        validCbcUKRef.value,
+        validCbcNonUKRef.value,
+        validPlrId.value
+      )
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceIrv)))
       deleteActivePIRRelationship(arn1.value, validNino.value, 404)
 
       an[Exception] should be thrownBy await(
         controller
-          .submitRemoveAuthorisation( "dc89f36b64c94060baa3ae87d6b7ac08")(authorisedAsClientAll(
-            req,
-            validNino.nino,
-            mtdItId.value,
-            validVrn.value,
-            validUtr.value,
-            validUrn.value,
-            validCgtRef.value,
-            validPptRef.value,
-            validCbcUKRef.value,
-            validCbcNonUKRef.value,
-            validPlrId.value) withFormUrlEncodedBody ("confirmResponse" -> "true")))
+          .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
+            authorisedAsClientAll(
+              req,
+              validNino.nino,
+              mtdItId.value,
+              validVrn.value,
+              validUtr.value,
+              validUrn.value,
+              validCgtRef.value,
+              validPptRef.value,
+              validCbcUKRef.value,
+              validCbcNonUKRef.value,
+              validPlrId.value
+            ) withFormUrlEncodedBody ("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -729,7 +761,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -739,16 +773,16 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientMtdItId(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientMtdItId(req, mtdItId.value).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
   }
 
   "removeAuthorisations for ITSA" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceItsa,
-      deleteActiveITSARelationship(arn1.value, mtdItId.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceItsa, deleteActiveITSARelationship(arn1.value, mtdItId.value, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500 a runtime exception if the relationship is not found" in new BaseTestSetUp {
@@ -757,10 +791,13 @@ class ClientRelationshipManagementControllerISpec
       deleteActiveITSARelationship(arn1.value, mtdItId.value, 404)
 
       intercept[RuntimeException] {
-          await(controller
+        await(
+          controller
             .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
               req(POST)
-                .withFormUrlEncodedBody("confirmResponse" -> "true")))
+                .withFormUrlEncodedBody("confirmResponse" -> "true")
+            )
+        )
       }.getMessage shouldBe "relationship deletion failed"
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -775,7 +812,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -785,16 +824,16 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
   }
 
   "removeAuthorisations for alternative-ITSA" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceItsa,
-      givenSetRelationshipEndedReturns(arn1, validNino.value, 204), true)
+    behave like checkRemoveAuthorisationForService(serviceItsa, givenSetRelationshipEndedReturns(arn1, validNino.value, 204), true)
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500 a runtime exception if the relationship is not found" in new BaseTestSetUp {
@@ -803,10 +842,13 @@ class ClientRelationshipManagementControllerISpec
       givenSetRelationshipEndedReturns(arn1, validNino.value, 404)
 
       intercept[RuntimeException] {
-        await(controller
-          .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+        await(
+          controller
+            .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
+              req(POST)
+                .withFormUrlEncodedBody("confirmResponse" -> "true")
+            )
+        )
       }.getMessage shouldBe "relationship deletion failed"
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -821,7 +863,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -831,16 +875,16 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
   }
 
   "removeAuthorisations for VAT" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceVat,
-      deleteActiveVATRelationship(arn1.value, validVrn.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceVat, deleteActiveVATRelationship(arn1.value, validVrn.value, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
@@ -851,7 +895,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -865,7 +911,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -875,15 +923,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -891,9 +939,7 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for Trust" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceTrust,
-      deleteActiveTrustRelationship(arn1.value, validUtr.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceTrust, deleteActiveTrustRelationship(arn1.value, validUtr.value, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
@@ -905,7 +951,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -919,7 +967,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -929,15 +979,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -945,9 +995,7 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for TrustNT" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceTrustNT,
-      deleteActiveTrustNTRelationship(arn1.value, validUrn.value, 204))
+    behave like checkRemoveAuthorisationForService(serviceTrustNT, deleteActiveTrustNTRelationship(arn1.value, validUrn.value, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
@@ -959,7 +1007,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -973,7 +1023,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -983,15 +1035,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -999,9 +1051,7 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for Plastic Packaging Tax" should {
 
-    behave like checkRemoveAuthorisationForService(
-      servicePpt,
-      deleteActivePptRelationship(arn1.value, validPptRef.value, 204))
+    behave like checkRemoveAuthorisationForService(servicePpt, deleteActivePptRelationship(arn1.value, validPptRef.value, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
@@ -1013,12 +1063,14 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "return an exception if relationship service is unavailable" in new BaseTestSetUp  {
+    "return an exception if relationship service is unavailable" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache.copy(service = servicePpt)))
       deleteActivePptRelationship(arn1.value, validVrn.value, 500)
 
@@ -1026,7 +1078,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -1036,15 +1090,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -1052,9 +1106,7 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for Country by country" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceCbcUK,
-      deleteActiveCbcRelationship(arn1.value, validCbcUKRef.value, true, 204))
+    behave like checkRemoveAuthorisationForService(serviceCbcUK, deleteActiveCbcRelationship(arn1.value, validCbcUKRef.value, true, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
@@ -1066,12 +1118,14 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "return an exception if relationship service is unavailable" in new BaseTestSetUp  {
+    "return an exception if relationship service is unavailable" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceCbcUK)))
       deleteActiveCbcRelationship(arn1.value, validCbcUKRef.value, true, 500)
 
@@ -1079,7 +1133,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -1089,15 +1145,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -1105,9 +1161,7 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for Country by country (non UK)" should {
 
-    behave like checkRemoveAuthorisationForService(
-      serviceCbcNonUK,
-      deleteActiveCbcRelationship(arn1.value, validCbcNonUKRef.value, false,204))
+    behave like checkRemoveAuthorisationForService(serviceCbcNonUK, deleteActiveCbcRelationship(arn1.value, validCbcNonUKRef.value, false, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
@@ -1119,12 +1173,14 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "return an exception if relationship service is unavailable" in new BaseTestSetUp  {
+    "return an exception if relationship service is unavailable" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceCbcNonUK)))
       deleteActiveCbcRelationship(arn1.value, validCbcNonUKRef.value, false, 500)
 
@@ -1132,7 +1188,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -1142,15 +1200,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -1158,34 +1216,36 @@ class ClientRelationshipManagementControllerISpec
 
   "removeAuthorisations for Pillar 2" should {
 
-    behave like checkRemoveAuthorisationForService(
-      servicePlr,
-      deleteActivePlrRelationship(arn1.value, validPlrId.value, 204))
+    behave like checkRemoveAuthorisationForService(servicePlr, deleteActivePlrRelationship(arn1.value, validPlrId.value, 204))
     val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 500  an exception if the relationship is not found" in new BaseTestSetUp {
 
       sessionStoreService.storeClientCache(Seq(cache.copy(service = servicePlr)))
-      deleteActivePlrRelationship(arn1.value, validPlrId.value,404)
+      deleteActivePlrRelationship(arn1.value, validPlrId.value, 404)
 
       an[Exception] should be thrownBy await(
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
 
-    "return an exception if relationship service is unavailable" in new BaseTestSetUp  {
+    "return an exception if relationship service is unavailable" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache.copy(service = servicePlr)))
-      deleteActivePlrRelationship(arn1.value, validPlrId.value,  500)
+      deleteActivePlrRelationship(arn1.value, validPlrId.value, 500)
 
       an[Exception] should be thrownBy await(
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
     }
@@ -1195,15 +1255,15 @@ class ClientRelationshipManagementControllerISpec
       an[InsufficientEnrolments] shouldBe thrownBy {
         await(
           controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")))
+            authorisedAsClientNi(req, validNino.nino).withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+        )
       }
     }
 
     "return exception if session data not found" in new BaseTestSetUp {
       val request = req(POST).withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          request))
+      val result = await(controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -1213,53 +1273,7 @@ class ClientRelationshipManagementControllerISpec
 
     "show authorisation_removed page with required sessions" in new BaseTestSetUp {
       val request = req().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.authorisationRemoved(
-          request))
-
-      status(result) shouldBe 200
-      checkHtmlResultWithBodyText(
-        result,
-        "Authorisation removed",
-      "What this means",
-      "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
-      "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
-      "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
-      "To check if you have a separate Self Assessment authorisation in place or to remove it",
-        "sign in with your Government Gateway user ID.",
-        " It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax.")
-    }
-
-    "show authorisation_removed page with relevant content when we find the client has an active legacy SA relationship with an agent" in {
-      val req = FakeRequest().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service, SessionKeys.authToken -> "Bearer XYZ")
-
-      getLegacyActiveSaRelationshipExists(validUtr.value)
-
-      val result = await(
-        controller.authorisationRemoved(
-          authorisedAsClientMtdItIdWithIrSa(req, mtdItId.value, validUtr.value)))
-
-      status(result) shouldBe 200
-      checkHtmlResultWithBodyText(
-        result,
-        "Authorisation removed",
-        "What this means",
-        "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
-        "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
-        "You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.",
-      "Check or remove active agent authorisation for Self Assessment",
-      "Manage who can deal with HMRC for you",
-      "Finish and sign out")
-    }
-
-    "show authorisation_removed page with relevant content when client has IR-SA enrolment but there is no legacy relationship" in new BaseTestSetUp  {
-      val request = req().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service, SessionKeys.authToken -> "Bearer XYZ")
-
-      getLegacyActiveSaRelationshipExists(validUtr.value, 404)
-
-      val result = await(
-        controller.authorisationRemoved(
-          authorisedAsClientMtdItIdWithIrSa(request, mtdItId.value, validUtr.value)))
+      val result = await(controller.authorisationRemoved(request))
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(
@@ -1271,14 +1285,55 @@ class ClientRelationshipManagementControllerISpec
         "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
         "To check if you have a separate Self Assessment authorisation in place or to remove it",
         "sign in with your Government Gateway user ID.",
-        " It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax.")
+        " It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax."
+      )
+    }
+
+    "show authorisation_removed page with relevant content when we find the client has an active legacy SA relationship with an agent" in {
+      val req = FakeRequest().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service, SessionKeys.authToken -> "Bearer XYZ")
+
+      getLegacyActiveSaRelationshipExists(validUtr.value)
+
+      val result = await(controller.authorisationRemoved(authorisedAsClientMtdItIdWithIrSa(req, mtdItId.value, validUtr.value)))
+
+      status(result) shouldBe 200
+      checkHtmlResultWithBodyText(
+        result,
+        "Authorisation removed",
+        "What this means",
+        "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
+        "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
+        "You also have an agent authorisation for Self Assessment that is still active. This means an agent has permission to view and amend your Self Assessment. If you want to remove this authorisation as well, you will need to do it separately.",
+        "Check or remove active agent authorisation for Self Assessment",
+        "Manage who can deal with HMRC for you",
+        "Finish and sign out"
+      )
+    }
+
+    "show authorisation_removed page with relevant content when client has IR-SA enrolment but there is no legacy relationship" in new BaseTestSetUp {
+      val request = req().withSession("agencyName" -> cacheItsa.agencyName, "service" -> cacheItsa.service, SessionKeys.authToken -> "Bearer XYZ")
+
+      getLegacyActiveSaRelationshipExists(validUtr.value, 404)
+
+      val result = await(controller.authorisationRemoved(authorisedAsClientMtdItIdWithIrSa(request, mtdItId.value, validUtr.value)))
+
+      status(result) shouldBe 200
+      checkHtmlResultWithBodyText(
+        result,
+        "Authorisation removed",
+        "What this means",
+        "You removed your authorisation for This Agency Name to manage your Making Tax Digital for Income Tax.",
+        "If you did not mean to remove your authorisation, ask This Agency Name to send you a new authorisation request link.",
+        "If This Agency Name or another agent managed your Self Assessment before Making Tax Digital for Income Tax, you may still have a separate authorisation in place. This means an agent has permission to view and amend your Self Assessment.",
+        "To check if you have a separate Self Assessment authorisation in place or to remove it",
+        "sign in with your Government Gateway user ID.",
+        " It must be the one you used for the Self Assessment you had before Making Tax Digital for Income Tax."
+      )
     }
 
     "return exception if required session data not found" in new BaseTestSetUp {
       val request = req().withSession("agencyName" -> cache.agencyName, SessionKeys.authToken -> "Bearer XYZ")
-      val result = await(
-        controller.authorisationRemoved(
-          request))
+      val result = await(controller.authorisationRemoved(request))
       status(result) shouldBe 303
       redirectLocation(result) shouldBe Some(routes.ClientRelationshipManagementController.root(None, None).url)
     }
@@ -1288,7 +1343,19 @@ class ClientRelationshipManagementControllerISpec
     implicit val req = FakeRequest(POST, "/").withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     "return 200, remove the relationship if the client confirms deletion" in {
-      authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value, validPlrId.value)
+      authorisedAsClientAll(
+        req,
+        validNino.nino,
+        mtdItId.value,
+        validVrn.value,
+        validUtr.value,
+        validUrn.value,
+        validCgtRef.value,
+        validPptRef.value,
+        validCbcUKRef.value,
+        validCbcNonUKRef.value,
+        validPlrId.value
+      )
 
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName, isAltItsa = isAltItsa)))
 
@@ -1296,25 +1363,40 @@ class ClientRelationshipManagementControllerISpec
 
       val result = await(
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
-          authorisedAsClientAll(req, validNino.nino, mtdItId.value, validVrn.value, validUtr.value, validUrn.value, validCgtRef.value, validPptRef.value, validCbcUKRef.value, validCbcNonUKRef.value, validPlrId.value)
-            .withFormUrlEncodedBody("confirmResponse" -> "true")))
+          authorisedAsClientAll(
+            req,
+            validNino.nino,
+            mtdItId.value,
+            validVrn.value,
+            validUtr.value,
+            validUrn.value,
+            validCgtRef.value,
+            validPptRef.value,
+            validCbcUKRef.value,
+            validCbcNonUKRef.value,
+            validPlrId.value
+          )
+            .withFormUrlEncodedBody("confirmResponse" -> "true")
+        )
+      )
 
       status(result) shouldBe 303
-
 
       result.session should not be empty
       result.session.get("agencyName") shouldBe Some(cache.agencyName)
       result.session.get("service") shouldBe Some(serviceName)
     }
 
-    "redirect to manage-your-tax-agents if the client does not confirm deletion" in new BaseTestSetUp  {
+    "redirect to manage-your-tax-agents if the client does not confirm deletion" in new BaseTestSetUp {
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
       val result = await(
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           req(POST)
-            .withFormUrlEncodedBody("confirmResponse" -> "false")))
+            .withFormUrlEncodedBody("confirmResponse" -> "false")
+        )
+      )
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true
@@ -1327,7 +1409,9 @@ class ClientRelationshipManagementControllerISpec
       val result = await(
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           req(POST)
-            .withFormUrlEncodedBody("confirmResponse" -> "")))
+            .withFormUrlEncodedBody("confirmResponse" -> "")
+        )
+      )
 
       status(result) shouldBe 200
       checkHtmlResultWithBodyText(result, "Select yes if you want to remove your authorisation.")
@@ -1342,7 +1426,9 @@ class ClientRelationshipManagementControllerISpec
         controller
           .submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       status(result) shouldBe 303
 
@@ -1354,21 +1440,27 @@ class ClientRelationshipManagementControllerISpec
       sessionStoreService.storeClientCache(Seq(cache.copy(service = serviceName)))
       deleteRelationshipStub
 
-      val result =  await(
+      val result = await(
         controller
           .submitRemoveAuthorisation("INVALID_ID")(
             req(POST)
-              .withFormUrlEncodedBody("confirmResponse" -> "true")))
+              .withFormUrlEncodedBody("confirmResponse" -> "true")
+          )
+      )
 
       status(result) shouldBe 303
     }
 
     "remove deleted item from the session cache" in new BaseTestSetUp {
 
-      await(sessionStoreService.storeClientCache(
-        Seq(
-          cache.copy(service = serviceName, isAltItsa = isAltItsa),
-          cache.copy(uuId = "dc89f36b64c94060baa3ae87d6b7ac09next", service = serviceName))))
+      await(
+        sessionStoreService.storeClientCache(
+          Seq(
+            cache.copy(service = serviceName, isAltItsa = isAltItsa),
+            cache.copy(uuId = "dc89f36b64c94060baa3ae87d6b7ac09next", service = serviceName)
+          )
+        )
+      )
       sessionStoreService.currentSession.clientCache.get.size == 2 shouldBe true
 
       deleteRelationshipStub
@@ -1376,7 +1468,9 @@ class ClientRelationshipManagementControllerISpec
       val result = await(
         controller.submitRemoveAuthorisation("dc89f36b64c94060baa3ae87d6b7ac08")(
           req(POST)
-            .withFormUrlEncodedBody("confirmResponse" -> "true")))
+            .withFormUrlEncodedBody("confirmResponse" -> "true")
+        )
+      )
 
       status(result) shouldBe 303
       sessionStoreService.currentSession.clientCache.get.size == 1 shouldBe true

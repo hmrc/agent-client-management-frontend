@@ -17,12 +17,12 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import java.time.LocalDate
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class AuthorisedAgent(uuId: String, serviceName: String, agencyName: String, dateFrom: Option[LocalDate])
 
 object AuthorisedAgent {
-  implicit val format = Json.format[AuthorisedAgent]
+  implicit val format: OFormat[AuthorisedAgent] = Json.format[AuthorisedAgent]
 
   implicit def dateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 

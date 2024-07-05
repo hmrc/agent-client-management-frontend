@@ -33,24 +33,28 @@ import scala.util.Success
 
 case class DeleteResponse(response: Boolean, agencyName: String, service: String)
 
-class RelationshipManagementService @Inject()(
+class RelationshipManagementService @Inject() (
   pirRelationshipConnector: PirRelationshipConnector,
   acaConnector: AgentClientAuthorisationConnector,
   relationshipsConnector: AgentClientRelationshipsConnector,
-  sessionStoreService: MongoDBSessionStoreService) extends Logging {
+  sessionStoreService: MongoDBSessionStoreService
+) extends Logging {
 
   implicit val localDateOrdering: Ordering[LocalDateTime] = _ compareTo _
 
-  def getAuthorisedAgents(
-                           clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
-    val pirRelationships = relationships(clientIdOpt.nino) {
-      case nino: Nino => pirRelationshipConnector.getClientRelationships(removeNinoSpaces(nino))
+  def getAuthorisedAgents(clientIdOpt: ClientIdentifiers)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[AuthorisedAgent]] = {
+    val pirRelationships = relationships(clientIdOpt.nino) { case nino: Nino =>
+      pirRelationshipConnector.getClientRelationships(removeNinoSpaces(nino))
     }
     val itsaRelationships =
       relationships(clientIdOpt.mtdItId)(_ => relationshipsConnector.getActiveClientItsaRelationship.map(_.toSeq))
     val altItsaRelationships =
-      clientIdOpt.nino.map(nino => acaConnector.getInvitation(nino, ninoForItsa = true)
-          .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation)))
+      clientIdOpt.nino
+        .map(nino =>
+          acaConnector
+            .getInvitation(nino, ninoForItsa = true)
+            .map(_.filter(_.status == "Partialauth").map(AltItsaRelationship.fromStoredInvitation))
+        )
         .getOrElse(Future successful Seq.empty)
     val vatRelationships =
       relationships(clientIdOpt.vrn)(_ => relationshipsConnector.getActiveClientVatRelationship.map(_.toSeq))
@@ -69,58 +73,57 @@ class RelationshipManagementService @Inject()(
     val plrRelationships =
       relationships(clientIdOpt.plrId)(_ => relationshipsConnector.getActiveClientPlrRelationship.map(_.toSeq))
 
-
     val relationshipWithAgencyNames = for {
       relationships <- Future
-        .sequence(
-          Seq(
-            itsaRelationships,
-            altItsaRelationships,
-            pirRelationships,
-            vatRelationships,
-            trustRelationships,
-            urnRelationships,
-            cgtRelationships,
-            pptRelationships,
-            cbcUKRelationships,
-            cbcNonUKRelationships,
-            plrRelationships
-          ))
-        .map(_.flatten)
+                         .sequence(
+                           Seq(
+                             itsaRelationships,
+                             altItsaRelationships,
+                             pirRelationships,
+                             vatRelationships,
+                             trustRelationships,
+                             urnRelationships,
+                             cgtRelationships,
+                             pptRelationships,
+                             cbcUKRelationships,
+                             cbcNonUKRelationships,
+                             plrRelationships
+                           )
+                         )
+                         .map(_.flatten)
       agencyNames <- if (relationships.nonEmpty)
-        acaConnector.getAgencyNames(relationships.map(_.arn))
-      else Future.successful(Map.empty[Arn, String])
+                       acaConnector.getAgencyNames(relationships.map(_.arn))
+                     else Future.successful(Map.empty[Arn, String])
     } yield (relationships, agencyNames)
 
-    relationshipWithAgencyNames.flatMap {
-      case (relationships, agencyNames) =>
-        def uuId: String = UUID.randomUUID().toString.replace("-", "")
+    relationshipWithAgencyNames.flatMap { case (relationships, agencyNames) =>
+      def uuId: String = UUID.randomUUID().toString.replace("-", "")
 
-        val relationshipWithArnCache =
-          relationships.map(r => ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, r.isAltItsa))
+      val relationshipWithArnCache =
+        relationships.map(r => ClientCache(uuId, r.arn, agencyNames.getOrElse(r.arn, ""), r.serviceName, r.dateFrom, r.isAltItsa))
 
-        sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
-          relationshipWithArnCache
-            .map { cache =>
-              AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised)
-            }
-            .sortWith(_.agencyName.toLowerCase < _.agencyName.toLowerCase)
-            .sorted(AuthorisedAgent.orderingByDateFrom)
-        }
+      sessionStoreService.storeClientCache(relationshipWithArnCache).map { _ =>
+        relationshipWithArnCache
+          .map { cache =>
+            AuthorisedAgent(cache.uuId, cache.service, cache.agencyName, cache.dateAuthorised)
+          }
+          .sortWith(_.agencyName.toLowerCase < _.agencyName.toLowerCase)
+          .sorted(AuthorisedAgent.orderingByDateFrom)
+      }
     }
   }
 
   def getDeAuthorisedAgents(
-                             clientIdOpt: ClientIdentifiers
-                           )(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[Inactive]] = {
-    val pirInactiveRelationships = inactiveRelationships(clientIdOpt.nino) {
-      case _: Nino => pirRelationshipConnector.getInactiveClientRelationships()
+    clientIdOpt: ClientIdentifiers
+  )(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Seq[Inactive]] = {
+    val pirInactiveRelationships = inactiveRelationships(clientIdOpt.nino) { case _: Nino =>
+      pirRelationshipConnector.getInactiveClientRelationships()
     }
     val otherInactiveRelationships =
       if (clientIdOpt.hasOnlyNino) Future successful (Seq.empty)
       else relationshipsConnector.getInactiveClientRelationships
     for {
-      pir <- pirInactiveRelationships
+      pir   <- pirInactiveRelationships
       other <- otherInactiveRelationships
     } yield pir ++ other
   }
@@ -136,93 +139,92 @@ class RelationshipManagementService @Inject()(
 
     def acceptedOrDeauthorised(ar: AgentRequest) = ar.status == Accepted || ar.status == Deauthorised
 
-      def normalisedServiceName(service: String): String =
-        if (service == HMRCCBCNONUKORG) HMRCCBCORG else service
+    def normalisedServiceName(service: String): String =
+      if (service == HMRCCBCNONUKORG) HMRCCBCORG else service
 
-              agentRequests
-              .filter(acceptedOrDeauthorised)
-              .groupBy(_.arn)
+    agentRequests
+      .filter(acceptedOrDeauthorised)
+      .groupBy(_.arn)
+      .flatMap { case (arn, agentRequests) =>
+        agentRequests
+          .groupBy(_.serviceName)
+          .flatMap { case (service, agentRequests) =>
+            agentRequests
+              .sortBy(_.lastUpdated)
+              .map(Option.apply)
+              .zipAll(
+                inactive
+                  .filter(x => x.arn == arn && x.serviceName == normalisedServiceName(service))
+                  .map(Option.apply),
+                None,
+                None
+              )
               .flatMap {
-                case (arn, agentRequests) =>
-                  agentRequests
-                    .groupBy(_.serviceName)
-                    .flatMap {
-                      case (service, agentRequests) =>
-                        agentRequests
-                          .sortBy(_.lastUpdated)
-                          .map(Option.apply)
-                          .zipAll(
-                            inactive
-                              .filter(x => x.arn == arn && x.serviceName == normalisedServiceName(service))
-                              .map(Option.apply), None, None)
-                          .flatMap {
-                            case (Some(ar), Some(in)) =>
-                              Option.apply(ar
-                                .copy(
-                                  status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
-                                  lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
-                                ))
-                            case (Some(ar), None) if ar.status == Deauthorised =>
-                              Option.apply(ar
-                                .copy(
-                                  status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
-                                  lastUpdated = ar.lastUpdated
-                                ))
-                            case (Some(ar), None) => Option.apply(ar)
-                            case _ =>
-                              logger.warn("inactive record not matched with an authorisation request!")
-                              None
-                          }
-                    }
-              }.toSeq ++ agentRequests.filterNot(acceptedOrDeauthorised)
-    }
-
-  def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit c: HeaderCarrier,
-                                                                               ec: ExecutionContext): Future[DeleteResponse] = {
-    clientIdentifiers.getIdentifierForService(service) match {
-      case None => throw new InsufficientEnrolments
-      case Some(clientId) => deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, clientId, service))
-    }
+                case (Some(ar), Some(in)) =>
+                  Option.apply(
+                    ar
+                      .copy(
+                        status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
+                        lastUpdated = in.dateTo.fold(ar.lastUpdated)(_.atStartOfDay())
+                      )
+                  )
+                case (Some(ar), None) if ar.status == Deauthorised =>
+                  Option.apply(
+                    ar
+                      .copy(
+                        status = s"AcceptedThenCancelledBy${ar.relationshipEndedBy.getOrElse("Agent")}",
+                        lastUpdated = ar.lastUpdated
+                      )
+                  )
+                case (Some(ar), None) => Option.apply(ar)
+                case _ =>
+                  logger.warn("inactive record not matched with an authorisation request!")
+                  None
+              }
+          }
+      }
+      .toSeq ++ agentRequests.filterNot(acceptedOrDeauthorised)
   }
 
-  def deleteAltItsaRelationship(id: String, clientId: Nino)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
+  def deleteRelationship(id: String, clientIdentifiers: ClientIdentifiers, service: String)(implicit
+    c: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[DeleteResponse] =
+    clientIdentifiers.getIdentifierForService(service) match {
+      case None           => throw new InsufficientEnrolments
+      case Some(clientId) => deleteRelationship(id)(arn => relationshipsConnector.deleteRelationship(arn, clientId, service))
+    }
+
+  def deleteAltItsaRelationship(id: String, clientId: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =
     deleteRelationship(id)(arn => acaConnector.setRelationshipEnded(arn, clientId))
 
-  def deletePIRelationship(id: String, nino: Nino)(
-    implicit c: HeaderCarrier,
-    ec: ExecutionContext): Future[DeleteResponse] =
+  def deletePIRelationship(id: String, nino: Nino)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =
     deleteRelationship(id)(arn => pirRelationshipConnector.deleteClientRelationship(arn, nino))
 
-  private def deleteRelationship(id: String)(
-    f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =
+  private def deleteRelationship(id: String)(f: Arn => Future[Boolean])(implicit c: HeaderCarrier, ec: ExecutionContext): Future[DeleteResponse] =
     for {
       clientCacheOpt: Option[Seq[ClientCache]] <- sessionStoreService.fetchClientCache
       clientCache = clientCacheOpt.flatMap(_.find(_.uuId == id))
 
       deleteResponse <- clientCache match {
-                         case Some(cache) =>
-                           val remainingCache: Seq[ClientCache] = clientCacheOpt.get.filterNot(_ == cache)
-                           for {
-                             deletion <- f(cache.arn)
-                                          .andThen {
-                                            case Success(true) =>
+                          case Some(cache) =>
+                            val remainingCache: Seq[ClientCache] = clientCacheOpt.get.filterNot(_ == cache)
+                            for {
+                              deletion <- f(cache.arn)
+                                            .andThen { case Success(true) =>
                                               for {
                                                 _ <- sessionStoreService.remove()
                                                 _ <- sessionStoreService.storeClientCache(remainingCache)
                                               } yield ()
-                                          }
-                                          .map(DeleteResponse(_, cache.agencyName, cache.service))
-                           } yield deletion
+                                            }
+                                            .map(DeleteResponse(_, cache.agencyName, cache.service))
+                            } yield deletion
 
-                         case None => Future.failed(new Exception("failed to retrieve session cache"))
-                       }
+                          case None => Future.failed(new Exception("failed to retrieve session cache"))
+                        }
     } yield deleteResponse
 
-
-  def getAuthorisedAgentDetails(
-    id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String, Boolean)]] =
+  def getAuthorisedAgentDetails(id: String)(implicit c: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, String, Boolean)]] =
     for {
       cacheOpt <- sessionStoreService.fetchClientCache
       cache = cacheOpt.flatMap(_.find(_.uuId == id))
@@ -234,10 +236,12 @@ class RelationshipManagementService @Inject()(
       case None             => Future.successful(Seq.empty)
     }
 
-  def inactiveRelationships(identifierOpt: Option[TaxIdentifier])(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]): Future[Seq[PirInactiveRelationship]] =
+  def inactiveRelationships(
+    identifierOpt: Option[TaxIdentifier]
+  )(f: TaxIdentifier => Future[Seq[PirInactiveRelationship]]): Future[Seq[PirInactiveRelationship]] =
     identifierOpt match {
       case Some(identifier) => f(identifier)
-      case None => Future.successful(Seq.empty)
+      case None             => Future.successful(Seq.empty)
     }
 
   def removeNinoSpaces(nino: Nino): Nino =

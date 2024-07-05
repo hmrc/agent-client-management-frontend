@@ -23,46 +23,43 @@ package object agentclientmanagementfrontend {
 
   implicit class TaxIdentifierOps(taxId: TaxIdentifier) {
 
-    def getIdTypeForAca: String = {
+    def getIdTypeForAca: String =
       taxId match {
         case _: MtdItId => "MTDITID"
-        case _: Vrn => "VRN"
-        case _: Nino => "NI"
-        case _: Utr => "UTR"
-        case _: CgtRef => "CGTPDRef"
-        case _: Urn => "URN"
-        case _: PptRef => "EtmpRegistrationNumber"
-        case _: CbcId => "cbcId"
-        case _: PlrId => "PLRID"
+        case _: Vrn     => "VRN"
+        case _: Nino    => "NI"
+        case _: Utr     => "UTR"
+        case _: CgtRef  => "CGTPDRef"
+        case _: Urn     => "URN"
+        case _: PptRef  => "EtmpRegistrationNumber"
+        case _: CbcId   => "cbcId"
+        case _: PlrId   => "PLRID"
       }
-    }
 
-    def getIdTypeForAcr: String = {
+    def getIdTypeForAcr: String =
       taxId match {
         case _: MtdItId => "MTDITID"
-        case _: Vrn => "VRN"
-        case _: Utr => "SAUTR"
-        case _: CgtRef => "CGTPDRef"
-        case _: Urn => "URN"
-        case _: PptRef => "EtmpRegistrationNumber"
-        case _: CbcId => "cbcId"
-        case _: PlrId => "PLRID"
+        case _: Vrn     => "VRN"
+        case _: Utr     => "SAUTR"
+        case _: CgtRef  => "CGTPDRef"
+        case _: Urn     => "URN"
+        case _: PptRef  => "EtmpRegistrationNumber"
+        case _: CbcId   => "cbcId"
+        case _: PlrId   => "PLRID"
       }
-    }
 
-    def getGrafanaId: String = {
+    def getGrafanaId: String =
       taxId match {
         case _: MtdItId => "ITSA"
-        case _: Vrn => "VAT"
-        case _: Nino => "IRV"
-        case _: Utr => "Trust"
-        case _: CgtRef => "CGT"
-        case _: Urn => "TrustNT"
-        case _: PptRef => "PPT"
-        case _: CbcId => "CBC"
-        case _: PlrId => "PLRID"
+        case _: Vrn     => "VAT"
+        case _: Nino    => "IRV"
+        case _: Utr     => "Trust"
+        case _: CgtRef  => "CGT"
+        case _: Urn     => "TrustNT"
+        case _: PptRef  => "PPT"
+        case _: CbcId   => "CBC"
+        case _: PlrId   => "PLRID"
       }
-    }
   }
 
 }

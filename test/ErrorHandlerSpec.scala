@@ -43,11 +43,13 @@ import scala.concurrent.Future
 
 class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite with LogCapturing {
 
-  override lazy val app = GuiceApplicationBuilder().configure(
-    "metrics.enabled" -> false,
-    "metrics.jvm" -> false,
-    "auditing.enabled" -> false
-  ).build()
+  override lazy val app = GuiceApplicationBuilder()
+    .configure(
+      "metrics.enabled"  -> false,
+      "metrics.jvm"      -> false,
+      "auditing.enabled" -> false
+    )
+    .build()
 
   val handler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
   val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
@@ -60,7 +62,7 @@ class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite with LogCapturi
 
         status(result) shouldBe NOT_FOUND
         contentType(await(result)) shouldBe Some(HTML)
-        checkIncludesText(result,"If you typed the web address, check it is correct.")
+        checkIncludesText(result, "If you typed the web address, check it is correct.")
         checkIncludesMessages(result, "global.error.pageNotFound404.title", "global.error.pageNotFound404.heading")
 
         logEvents.count(_.getMessage.contains(s"onClientError some error")) shouldBe 1
@@ -72,21 +74,21 @@ class ErrorHandlerSpec extends UnitSpec with GuiceOneAppPerSuite with LogCapturi
 
         status(result) shouldBe BAD_REQUEST
         contentType(await(result)) shouldBe Some(HTML)
-        checkIncludesMessages(result, "global.error.badRequest400.title", "global.error.badRequest400.heading","global.error.badRequest400.message")
+        checkIncludesMessages(result, "global.error.badRequest400.title", "global.error.badRequest400.heading", "global.error.badRequest400.message")
 
         logEvents.count(_.getMessage.contains(s"onClientError some error")) shouldBe 1
       }
     }
   }
 
-        private def checkIncludesMessages(result: Future[Result], messageKeys: String*): Unit =
-        messageKeys.foreach { messageKey =>
-        messagesApi.isDefinedAt(messageKey) shouldBe true
-        contentAsString(await(result)) should include(HtmlFormat.escape(messagesApi(messageKey)).toString)
-      }
+  private def checkIncludesMessages(result: Future[Result], messageKeys: String*): Unit =
+    messageKeys.foreach { messageKey =>
+      messagesApi.isDefinedAt(messageKey) shouldBe true
+      contentAsString(await(result)) should include(HtmlFormat.escape(messagesApi(messageKey)).toString)
+    }
 
-       private def checkIncludesText(result: Future[Result], messageKeys: String*): Unit =
-        messageKeys.foreach { messageKey =>
-        contentAsString(await(result)) should include(messageKey.toString)
+  private def checkIncludesText(result: Future[Result], messageKeys: String*): Unit =
+    messageKeys.foreach { messageKey =>
+      contentAsString(await(result)) should include(messageKey.toString)
     }
 }

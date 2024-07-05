@@ -47,11 +47,24 @@ class StoredInvitationSpec extends UnitSpec {
   }
 
   "StoredInvitation. apply" should {
-    val storedInvitation= StoredInvitation(validArn, Some("personal"), serviceItsa, mtdItId.value, "Pending", created, lastUpdated, expiry, "ATDMZYN4YDLNW", false, None, new URL("http://localhost:9432/agent-client-authorisation/clients/MTDITID/ABCDEF123456789/invitations/received/AGGNRK99U99D3"))
+    val storedInvitation = StoredInvitation(
+      validArn,
+      Some("personal"),
+      serviceItsa,
+      mtdItId.value,
+      "Pending",
+      created,
+      lastUpdated,
+      expiry,
+      "ATDMZYN4YDLNW",
+      false,
+      None,
+      new URL("http://localhost:9432/agent-client-authorisation/clients/MTDITID/ABCDEF123456789/invitations/received/AGGNRK99U99D3")
+    )
     "use the types apply method to return the correct parameter" in {
-       storedInvitation.invitationId shouldBe "ATDMZYN4YDLNW"
-       storedInvitation.clientId shouldBe mtdItId.value
-       storedInvitation.status shouldBe "Pending"
+      storedInvitation.invitationId shouldBe "ATDMZYN4YDLNW"
+      storedInvitation.clientId shouldBe mtdItId.value
+      storedInvitation.status shouldBe "Pending"
     }
 
     "use the types apply method to return the correct parameter with Client type None" in {

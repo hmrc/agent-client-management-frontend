@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{Json, OFormat, Reads}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
-case class AgentReference(arn: Arn, uid: String) {
-
-
-}
+case class AgentReference(arn: Arn, uid: String) {}
 
 object AgentReference {
-  implicit val format = Json.format[AgentReference]
+  implicit val format: OFormat[AgentReference] = Json.format[AgentReference]
   implicit val reads: Reads[NinoBusinessDetails] = Json.reads[NinoBusinessDetails]
 
   val emptyAgentReference = AgentReference(Arn(""), "")

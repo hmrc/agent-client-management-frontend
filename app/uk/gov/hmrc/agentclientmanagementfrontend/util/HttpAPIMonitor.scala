@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.agentclientmanagementfrontend.models
+package uk.gov.hmrc.agentclientmanagementfrontend.util
 
-import java.time.LocalDate
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.agentmtdidentifiers.model.Arn
+import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 
-case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String, dateAuthorised: Option[LocalDate], isAltItsa: Boolean = false)
+import scala.concurrent.{ExecutionContext, Future}
 
-object ClientCache {
-  implicit val format: OFormat[ClientCache] = Json.format[ClientCache]
+trait HttpAPIMonitor {
+
+  val metrics: Metrics
+  implicit val ec: ExecutionContext
+  def monitor[A](str: String)(f: => Future[A]): Future[A] = {
+    val timerContext = metrics.defaultRegistry.timer(s"Timer-$str").time()
+    f.andThen { case _ => timerContext.stop() }
+  }
 }

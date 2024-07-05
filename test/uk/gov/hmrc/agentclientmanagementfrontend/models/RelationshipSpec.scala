@@ -22,15 +22,13 @@ import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 import java.time.{LocalDate, LocalDateTime}
 
-
 class RelationshipSpec extends UnitSpec {
 
-  val ACRjson: JsValue = Json.parse(
-    """
-      |{
-      |"agentReferenceNumber":"TARN0001",
-      |"dateFrom":"2017-06-06"
-      |}
+  val ACRjson: JsValue = Json.parse("""
+                                      |{
+                                      |"agentReferenceNumber":"TARN0001",
+                                      |"dateFrom":"2017-06-06"
+                                      |}
     """.stripMargin)
 
   val AFIRjson: JsValue = Json.parse(
@@ -71,7 +69,7 @@ class RelationshipSpec extends UnitSpec {
   "PirRelationships reads method" should {
     "successfully read the json and convert it to PirRelationship type" in {
       AFIRjson.validate[PirRelationship](PirRelationship.reads) shouldBe
-      JsSuccess(PirRelationship(Arn("TARN0001"), Some(LocalDate.parse("2017-06-06"))))
+        JsSuccess(PirRelationship(Arn("TARN0001"), Some(LocalDate.parse("2017-06-06"))))
     }
   }
 

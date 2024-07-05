@@ -24,20 +24,18 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MongoDBSessionStoreService @Inject()(sessionCache: SessionCacheRepository) {
+class MongoDBSessionStoreService @Inject() (sessionCache: SessionCacheRepository) {
 
   final val cache = new SessionCache[Seq[ClientCache]] {
     override val sessionName: String = "clientCache"
     override val cacheRepository: SessionCacheRepository = sessionCache
   }
 
-  def fetchClientCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ClientCache]]] = {
+  def fetchClientCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ClientCache]]] =
     cache.fetch
-  }
 
-  def storeClientCache(_cache: Seq[ClientCache])(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Unit] = {
+  def storeClientCache(_cache: Seq[ClientCache])(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Unit] =
     cache.save(_cache).map(_ => ())
-  }
 
   def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     cache.delete().map(_ => ())
