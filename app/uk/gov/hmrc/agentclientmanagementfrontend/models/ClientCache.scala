@@ -33,18 +33,15 @@ object ClientCache {
         .format[String] and
         (__ \ "arn")
           .format[String](stringFormatFallback(stringEncrypterDecrypter))
-          .inmap[Arn](Arn(_),
-            _.value
-          ) and
+          .inmap[Arn](Arn(_), _.value) and
         (__ \ "agencyName")
-          .format[String]
-            (stringFormatFallback(stringEncrypterDecrypter))and
+          .format[String](stringFormatFallback(stringEncrypterDecrypter)) and
         (__ \ "service")
           .format[String] and
         (__ \ "dateAuthorised")
           .formatNullable[LocalDate] and
         (__ \ "isAltItsa")
           .format[Boolean]
-      )(ClientCache.apply, unlift(ClientCache.unapply))
+    )(ClientCache.apply, unlift(ClientCache.unapply))
   implicit val format: OFormat[ClientCache] = Json.format[ClientCache]
 }

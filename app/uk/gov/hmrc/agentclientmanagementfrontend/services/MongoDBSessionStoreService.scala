@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MongoDBSessionStoreService @Inject() (sessionCache: SessionCacheRepository)(implicit
-                                                                                  @Named("aes") crypto: Encrypter with Decrypter
+  @Named("aes") crypto: Encrypter with Decrypter
 ) {
 
   final val cache = new SessionCache[Seq[ClientCache]] {
