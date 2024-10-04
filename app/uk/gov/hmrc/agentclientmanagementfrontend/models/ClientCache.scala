@@ -17,11 +17,34 @@
 package uk.gov.hmrc.agentclientmanagementfrontend.models
 
 import java.time.LocalDate
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.{toFunctionalBuilderOps, toInvariantFunctorOps, unlift}
+import play.api.libs.json.{Format, Json, OFormat, __}
+import uk.gov.hmrc.agentclientmanagementfrontend.util.StringFormatFallbackSetup.stringFormatFallback
+import uk.gov.hmrc.crypto.json.JsonEncryption.stringEncrypterDecrypter
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
 
 case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: String, dateAuthorised: Option[LocalDate], isAltItsa: Boolean = false)
 
 object ClientCache {
+  def clientCacheDatabaseFormat(implicit crypto: Encrypter with Decrypter): Format[ClientCache] =
+    (
+      (__ \ "uuid")
+        .format[String] and
+        (__ \ "arn")
+          .format[String](stringFormatFallback(stringEncrypterDecrypter))
+          .inmap[Arn](Arn(_),
+            _.value
+          ) and
+        (__ \ "agencyName")
+          .format[String]
+            (stringFormatFallback(stringEncrypterDecrypter))and
+        (__ \ "service")
+          .format[String] and
+        (__ \ "dateAuthorised")
+          .formatNullable[LocalDate] and
+        (__ \ "isAltItsa")
+          .format[Boolean]
+      )(ClientCache.apply, unlift(ClientCache.unapply))
   implicit val format: OFormat[ClientCache] = Json.format[ClientCache]
 }

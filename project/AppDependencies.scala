@@ -10,7 +10,8 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30" % "8.5.0",
     "uk.gov.hmrc"       %% "play-partials-play-30"      % "9.1.0",
     "uk.gov.hmrc"       %% "agent-mtd-identifiers"      % "2.0.0",
-    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"         % mongoVersion
+    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"         % mongoVersion,
+    "uk.gov.hmrc"       %% "crypto-json-play-30"        % "8.1.0"
   )
 
   lazy val test: Seq[ModuleID] = Seq(
