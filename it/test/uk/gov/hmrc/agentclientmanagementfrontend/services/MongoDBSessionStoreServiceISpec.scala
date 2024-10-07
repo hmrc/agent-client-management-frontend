@@ -21,7 +21,6 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.Helpers._
-import uk.gov.hmrc.agentclientmanagementfrontend.config.AppConfig
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentclientmanagementfrontend.repository.SessionCacheRepository
 import uk.gov.hmrc.agentclientmanagementfrontend.support.BaseISpec
