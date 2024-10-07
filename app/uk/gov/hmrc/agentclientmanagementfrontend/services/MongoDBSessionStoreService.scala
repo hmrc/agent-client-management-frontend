@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
-import play.api.libs.json.Format
+import play.api.libs.json.{Reads, Writes}
 import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache
+import uk.gov.hmrc.agentclientmanagementfrontend.models.ClientCache.clientCacheDatabaseFormat
 import uk.gov.hmrc.agentclientmanagementfrontend.repository.{SessionCache, SessionCacheRepository}
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,7 +36,8 @@ class MongoDBSessionStoreService @Inject() (sessionCache: SessionCacheRepository
     override val cacheRepository: SessionCacheRepository = sessionCache
   }
 
-  implicit val clientCacheDatabaseFormat: Format[ClientCache] = ClientCache.clientCacheDatabaseFormat
+  private implicit val seqClientCacheReads: Reads[Seq[ClientCache]] = Reads.seq(clientCacheDatabaseFormat)
+  private implicit val seqClientCacheWrites: Writes[Seq[ClientCache]] = Writes.seq(clientCacheDatabaseFormat)
 
   def fetchClientCache(implicit hc: HeaderCarrier, ex: ExecutionContext): Future[Option[Seq[ClientCache]]] =
     cache.fetch

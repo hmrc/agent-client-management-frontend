@@ -29,7 +29,7 @@ case class ClientCache(uuId: String, arn: Arn, agencyName: String, service: Stri
 object ClientCache {
   def clientCacheDatabaseFormat(implicit crypto: Encrypter with Decrypter): Format[ClientCache] =
     (
-      (__ \ "uuid")
+      (__ \ "uuId")
         .format[String] and
         (__ \ "arn")
           .format[String](stringFormatFallback(stringEncrypterDecrypter))

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.agentclientmanagementfrontend.services
 
 import org.scalatest.concurrent.IntegrationPatience
@@ -27,40 +43,40 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
   override lazy val app = GuiceApplicationBuilder()
     .configure(
-      "mongodb.uri" -> mongoUri,
-      "metrics.enabled" -> false,
+      "mongodb.uri"      -> mongoUri,
+      "metrics.enabled"  -> false,
       "auditing.enabled" -> false,
-      "metrics.jvm" -> false
+      "metrics.jvm"      -> false
     )
     .build()
 
-  private implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   private val mongoSessionCacheRepository = new SessionCacheRepository(mongoComponent, new CurrentTimestampSupport)
   private val mongoDBSessionStoreService = new MongoDBSessionStoreService(mongoSessionCacheRepository)
 
   private val id: String = "sessionId123456"
   private val instant: Instant = Instant.now()
+  private val localDate: LocalDate = LocalDate.now()
 
   private val clientCache: ClientCache = ClientCache(
     uuId = "dc89f36b64c94060baa3ae87d6b7ac09next",
-    arn = Arn("FARN0001131"),
-    agencyName = "This Agency Name",
+    arn = Arn("ABCD123456"),
+    agencyName = "Some Agency Name",
     service = "service",
-    dateAuthorised = Some[LocalDate],
-    isAltItsa = Boolean
+    dateAuthorised = Some(localDate),
+    isAltItsa = true
   )
 
   private val clientCacheJson: JsValue = Json.parse(
     s"""
        |{
-       |    "clientCache": {
-       |            "uuid": "dc89f36b64c94060baa3ae87d6b7ac09next",
-       |            "arn": "FARN0001131",
-       |            "agencyName": "This Agency Name",
+       |    "clientCache": [{
+       |            "uuId": "dc89f36b64c94060baa3ae87d6b7ac09next",
+       |            "arn": "PGfyBMDAef8jTJSiq5YpaQ==",
+       |            "agencyName": "1bXYGi7wN6Z60zrMH7GLGdibo2SH2diBAXsykkPJdrY=",
        |            "service": "service",
-       |            "dateAuthorised": $LocalDate,
-       |            "isAltItsa": false
-       |    }
+       |            "dateAuthorised": "$localDate",
+       |            "isAltItsa": true
+       |    }]
        |}
     """.stripMargin
   )
@@ -68,18 +84,6 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
   "MongoDBSessionStoreService" when {
     "session ID is present" should {
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(id)))
-
-      "cache and sanitize session" when {
-        "isAltItsa is set to false" in {
-          await(mongoDBSessionStoreService.storeClientCache(Seq(clientCache)))
-
-          val result: Seq[CacheItem] = await(mongoSessionCacheRepository.collection.find().toFuture())
-
-          result.size shouldBe 1
-
-          result.head.data shouldBe clientCacheJson
-        }
-      }
 
       "return the cached data when session data" which {
         "is encrypted has been stored" in {
@@ -91,12 +95,12 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
           result.head.data shouldBe clientCacheJson
 
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(clientCache)
+          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
         }
 
         "is fully unencrypted has been stored" in {
           val data: JsObject = Json.obj(
-            "agentSession" -> Json.toJson(clientCache)
+            "clientCache" -> Json.arr(clientCache)
           )
 
           val cacheItem: CacheItem = CacheItem(id, data, instant, instant)
@@ -105,19 +109,12 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
           await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
 
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(clientCache)
+          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
         }
 
         "is partly unencrypted has been stored" in {
           val data: JsObject = Json.obj(
-            "clientCache" -> Json.toJson(clientCache.copy(
-              uuId = "dc89f36b64c94060baa3ae87d6b7ac09next",
-              arn = Arn("FARN0001131"),
-              agencyName = "This Agency Name",
-              service = "service",
-              dateAuthorised = Some[LocalDate],
-              isAltItsa = false
-            ))
+            "clientCache" -> Json.arr(clientCache.copy(arn = Arn("PGfyBMDAef8jTJSiq5YpaQ==")))
           )
 
           val cacheItem: CacheItem = CacheItem(id, data, instant, instant)
@@ -126,7 +123,7 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
           await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
 
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(clientCache)
+          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
         }
       }
 
@@ -162,7 +159,7 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
           "return Unit" when {
             "removing session" in {
-              await(mongoDBSessionStoreService.remove()) shouldBe(): Unit
+              await(mongoDBSessionStoreService.remove()) shouldBe (): Unit
             }
           }
         }
