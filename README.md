@@ -32,8 +32,8 @@ Currently this service supports the following services:
 
 ## Running the app locally
 
-    sm2 --start AGENT_AUTHORISATION -r
-    sm2 --stop AGENT_CLIENT_MANAGEMENT_FRONTEND
+    sm2 -start AGENT_AUTHORISATION
+    sm2 -stop AGENT_CLIENT_MANAGEMENT_FRONTEND
     sbt run
 
 It should then be listening on port 9568
