@@ -24,16 +24,16 @@ Currently this service supports the following services:
 
 ## Running the tests
 
-    sbt test it:test
+    sbt test it/test
 
 ## Running the tests with coverage
 
-    sbt clean coverageOn test it:test coverageReport
+    sbt clean coverageOn test it/test coverageReport
 
 ## Running the app locally
 
-    sm --start AGENT_AUTHORISATION -r
-    sm --stop AGENT_CLIENT_MANAGEMENT_FRONTEND
+    sm2 -start AGENT_AUTHORISATION
+    sm2 -stop AGENT_CLIENT_MANAGEMENT_FRONTEND
     sbt run
 
 It should then be listening on port 9568

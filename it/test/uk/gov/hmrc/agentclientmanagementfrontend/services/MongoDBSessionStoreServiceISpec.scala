@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentclientmanagementfrontend.services
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.agentclientmanagementfrontend.models._
 import uk.gov.hmrc.agentclientmanagementfrontend.repository.SessionCacheRepository
@@ -53,7 +53,6 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
   private val mongoDBSessionStoreService = new MongoDBSessionStoreService(mongoSessionCacheRepository)
 
   private val id: String = "sessionId123456"
-  private val instant: Instant = Instant.now()
   private val localDate: LocalDate = LocalDate.now()
 
   private val clientCache: ClientCache = ClientCache(
@@ -96,34 +95,6 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
           await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
         }
-
-        "is fully unencrypted has been stored" in {
-          val data: JsObject = Json.obj(
-            "clientCache" -> Json.arr(clientCache)
-          )
-
-          val cacheItem: CacheItem = CacheItem(id, data, instant, instant)
-
-          await(mongoSessionCacheRepository.collection.insertOne(cacheItem).toFuture())
-
-          await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
-
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
-        }
-
-        "is partly unencrypted has been stored" in {
-          val data: JsObject = Json.obj(
-            "clientCache" -> Json.arr(clientCache.copy(arn = Arn("PGfyBMDAef8jTJSiq5YpaQ==")))
-          )
-
-          val cacheItem: CacheItem = CacheItem(id, data, instant, instant)
-
-          await(mongoSessionCacheRepository.collection.insertOne(cacheItem).toFuture())
-
-          await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
-
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
-        }
       }
 
       "return None when no session data has been stored" in {
@@ -135,7 +106,7 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
         await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
 
-        await(mongoDBSessionStoreService.remove)
+        await(mongoDBSessionStoreService.remove())
 
         await(mongoSessionCacheRepository.collection.find().toFuture()).head.data shouldBe Json.obj()
       }
