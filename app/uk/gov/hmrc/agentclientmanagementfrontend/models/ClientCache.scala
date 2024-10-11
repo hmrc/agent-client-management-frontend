@@ -19,7 +19,6 @@ package uk.gov.hmrc.agentclientmanagementfrontend.models
 import java.time.LocalDate
 import play.api.libs.functional.syntax.{toFunctionalBuilderOps, toInvariantFunctorOps, unlift}
 import play.api.libs.json.{Format, Json, OFormat, __}
-import uk.gov.hmrc.agentclientmanagementfrontend.util.StringFormatFallbackSetup.stringFormatFallback
 import uk.gov.hmrc.crypto.json.JsonEncryption.stringEncrypterDecrypter
 import uk.gov.hmrc.crypto.{Decrypter, Encrypter}
 import uk.gov.hmrc.agentmtdidentifiers.model.Arn
@@ -32,10 +31,10 @@ object ClientCache {
       (__ \ "uuId")
         .format[String] and
         (__ \ "arn")
-          .format[String](stringFormatFallback(stringEncrypterDecrypter))
+          .format[String](stringEncrypterDecrypter)
           .inmap[Arn](Arn(_), _.value) and
         (__ \ "agencyName")
-          .format[String](stringFormatFallback(stringEncrypterDecrypter)) and
+          .format[String](stringEncrypterDecrypter) and
         (__ \ "service")
           .format[String] and
         (__ \ "dateAuthorised")

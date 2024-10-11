@@ -96,34 +96,6 @@ class MongoDBSessionStoreServiceISpec extends BaseISpec with GuiceOneAppPerSuite
 
           await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
         }
-
-        "is fully unencrypted has been stored" in {
-          val data: JsObject = Json.obj(
-            "clientCache" -> Json.arr(clientCache)
-          )
-
-          val cacheItem: CacheItem = CacheItem(id, data, instant, instant)
-
-          await(mongoSessionCacheRepository.collection.insertOne(cacheItem).toFuture())
-
-          await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
-
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
-        }
-
-        "is partly unencrypted has been stored" in {
-          val data: JsObject = Json.obj(
-            "clientCache" -> Json.arr(clientCache.copy(arn = Arn("PGfyBMDAef8jTJSiq5YpaQ==")))
-          )
-
-          val cacheItem: CacheItem = CacheItem(id, data, instant, instant)
-
-          await(mongoSessionCacheRepository.collection.insertOne(cacheItem).toFuture())
-
-          await(mongoSessionCacheRepository.collection.find().toFuture()).size shouldBe 1
-
-          await(mongoDBSessionStoreService.fetchClientCache) shouldBe Some(Seq(clientCache))
-        }
       }
 
       "return None when no session data has been stored" in {
