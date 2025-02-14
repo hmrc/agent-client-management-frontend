@@ -41,20 +41,23 @@ class BaseISpec extends UnitSpec with GuiceOneServerPerSuite with WireMockSuppor
 
   override implicit lazy val app: Application = appBuilder.build()
 
+  protected def additionalConfiguration: Map[String, Any] =
+    Map(
+      "microservice.services.auth.port"                       -> wireMockPort,
+      "microservice.services.agent-fi-relationship.port"      -> wireMockPort,
+      "microservice.services.agent-fi-relationship.host"      -> wireMockHost,
+      "microservice.services.agent-client-relationships.host" -> wireMockHost,
+      "microservice.services.agent-client-relationships.port" -> wireMockPort,
+      "microservice.services.agent-client-authorisation.host" -> wireMockHost,
+      "microservice.services.agent-client-authorisation.port" -> wireMockPort,
+      "metrics.enabled"                                       -> true,
+      "auditing.enabled"                                      -> true,
+      "bas-gateway.url"                                       -> s"http://localhost:$wireMockPort/bas-gateway/sign-in"
+    )
+
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
-      .configure(
-        "microservice.services.auth.port"                       -> wireMockPort,
-        "microservice.services.agent-fi-relationship.port"      -> wireMockPort,
-        "microservice.services.agent-fi-relationship.host"      -> wireMockHost,
-        "microservice.services.agent-client-relationships.host" -> wireMockHost,
-        "microservice.services.agent-client-relationships.port" -> wireMockPort,
-        "microservice.services.agent-client-authorisation.host" -> wireMockHost,
-        "microservice.services.agent-client-authorisation.port" -> wireMockPort,
-        "metrics.enabled"                                       -> true,
-        "auditing.enabled"                                      -> true,
-        "bas-gateway.url"                                       -> s"http://localhost:$wireMockPort/bas-gateway/sign-in"
-      )
+      .configure(additionalConfiguration)
       .overrides(new TestGuiceModule)
 
   private class TestGuiceModule extends AbstractModule {
