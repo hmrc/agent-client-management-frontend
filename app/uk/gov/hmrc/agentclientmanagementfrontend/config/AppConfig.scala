@@ -33,6 +33,7 @@ trait AppConfig {
   val agentClientAuthorisationBaseUrl: String
   val contactFrontendBaseUrl: String
   val agentInvitationsFrontendBaseUrl: String
+  val agentClientRelationshipsFrontendBaseUrl: String
   def warmUpUrl(clientType: String, uid: String, agencyName: String): String
   val contactFrontendUrl: String
   val loggerDateFormat: String
@@ -50,6 +51,7 @@ trait AppConfig {
   val betaFeedbackUrl: String
   val enableCbc: Boolean
   val enablePillar2: Boolean
+  val redirectToACRF: Boolean
 }
 
 @Singleton
@@ -62,6 +64,7 @@ class FrontendAppConfig @Inject() (val servicesConfig: ServicesConfig) extends A
   override lazy val agentFiRelationshipBaseUrl: String = baseUrl("agent-fi-relationship")
   override lazy val agentClientRelationshipsBaseUrl: String = baseUrl("agent-client-relationships")
   override lazy val agentClientAuthorisationBaseUrl: String = baseUrl("agent-client-authorisation")
+  override val agentClientRelationshipsFrontendBaseUrl: String = getString("microservice.services.agent-client-relationships-frontend.external-url")
   override val contactFrontendBaseUrl: String = getString("microservice.services.contact-frontend.external-url")
   override val agentInvitationsFrontendBaseUrl: String = getString("microservice.services.agent-invitations-frontend.external-url")
   override val appName: String = getString("appName")
@@ -110,4 +113,6 @@ class FrontendAppConfig @Inject() (val servicesConfig: ServicesConfig) extends A
   override val enableCbc: Boolean = getConfBooleanOrFail("features.enable-cbc")
 
   override val enablePillar2: Boolean = getConfBooleanOrFail("features.enable-pillar2")
+
+  override val redirectToACRF: Boolean = getConfBooleanOrFail("redirect-to-acrf")
 }
